@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Copy of ArtIsLife - 油画艺术探索",
+  "description": "一个集油画鉴赏、AI创作、艺术问答和色彩游戏于一体的创意艺术平台。",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}

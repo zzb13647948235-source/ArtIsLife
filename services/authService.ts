@@ -1,0 +1,244 @@
+
+import { User, UserTier, MarketItem } from '../types';
+import { MASTERPIECE_COLLECTION } from '../constants';
+
+const STORAGE_KEY_USERS = 'artislife_users';
+const STORAGE_KEY_SESSION = 'artislife_session';
+const STORAGE_KEY_MARKET_ITEMS = 'artislife_market_items';
+
+// 订阅系统：确保全局组件能感知用户状态变化
+type AuthListener = (user: User | null) => void;
+const listeners = new Set<AuthListener>();
+
+const notify = (user: User | null) => {
+  listeners.forEach(l => l(user));
+};
+
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Helper: Safe localStorage accessor
+const safeStorage = {
+    getItem: (key: string) => {
+        try { return localStorage.getItem(key); } catch { return null; }
+    },
+    setItem: (key: string, val: string) => {
+        try { localStorage.setItem(key, val); } catch { /* ignore */ }
+    },
+    removeItem: (key: string) => {
+        try { localStorage.removeItem(key); } catch { /* ignore */ }
+    }
+};
+
+// Helper to generate mock items if empty
+const getInitialMarketItems = (): MarketItem[] => {
+    return MASTERPIECE_COLLECTION.map((art, i) => {
+        const basePrice = Math.floor(Math.random() * 800) + 100;
+        const history = [];
+        let p = basePrice * 0.8;
+        for(let j=0; j<10; j++) {
+            p = p * (1 + (Math.random() - 0.4) * 0.2);
+            history.push(p);
+        }
+        history.push(basePrice);
+
+        return {
+            id: `sys-${i}`,
+            title: art.title,
+            artist: art.artist,
+            year: art.year,
+            basePrice: basePrice,
+            priceHistory: history,
+            image: art.url,
+            type: art.type || (i % 2 === 0 ? 'portrait' : 'landscape'),
+            rarity: i % 10 === 0 ? 'Legendary' : i % 5 === 0 ? 'Rare' : 'Common',
+            isSystem: true
+        };
+    });
+};
+
+export const authService = {
+  subscribe(listener: AuthListener) {
+    listeners.add(listener);
+    listener(authService.getCurrentUser());
+    return () => listeners.delete(listener);
+  },
+
+  async register(name: string, email: string, password: string): Promise<User> {
+    await delay(1200);
+    // NOTE: In a real application, passwords should always be hashed (e.g., using bcrypt) before storage.
+    // This mock service stores them in plain text for demonstration purposes only.
+    try {
+        const users = JSON.parse(safeStorage.getItem(STORAGE_KEY_USERS) || '[]');
+        if (users.find((u: any) => u.email === email)) {
+          throw new Error('此印记（邮箱）已在画室名录中');
+        }
+
+        const newUser: User & { password: string } = {
+          id: Date.now().toString(),
+          name,
+          email,
+          password,
+          tier: 'guest',
+          joinedAt: Date.now(),
+          balance: 1000, 
+          inventoryIds: [],
+          likedItemIds: []
+        };
+
+        users.push(newUser);
+        safeStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+        
+        const sessionUser = { ...newUser };
+        // @ts-ignore
+        delete sessionUser.password;
+        safeStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(sessionUser));
+        notify(sessionUser);
+        return sessionUser;
+    } catch (e: any) {
+        throw new Error(e.message || '存储访问失败');
+    }
+  },
+
+  async login(email: string, password: string): Promise<User> {
+    await delay(1000);
+    // NOTE: In a real application, the provided password should be hashed and compared with the stored hash.
+    // This mock service compares plain text passwords for demonstration purposes only.
+    try {
+        const users = JSON.parse(safeStorage.getItem(STORAGE_KEY_USERS) || '[]');
+        const user = users.find((u: any) => u.email === email && u.password === password);
+
+        if (!user) throw new Error('通行密码或邮箱未能匹配画室记录');
+
+        const sessionUser = { ...user };
+        delete sessionUser.password;
+        safeStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(sessionUser));
+        notify(sessionUser);
+        return sessionUser;
+    } catch (e: any) {
+        throw new Error(e.message || '登录失败，请检查浏览器隐私设置');
+    }
+  },
+
+  async logout(): Promise<void> {
+    await delay(300);
+    safeStorage.removeItem(STORAGE_KEY_SESSION);
+    notify(null);
+  },
+
+  getCurrentUser(): User | null {
+    const sessionStr = safeStorage.getItem(STORAGE_KEY_SESSION);
+    if (!sessionStr) return null;
+    try {
+      const sessionData = JSON.parse(sessionStr);
+      const users = JSON.parse(safeStorage.getItem(STORAGE_KEY_USERS) || '[]');
+      const freshUser = users.find((u: any) => u.id === sessionData.id);
+      return freshUser || sessionData;
+    } catch { return null; }
+  },
+
+  async upgradeTier(userId: string, tier: UserTier): Promise<User> {
+    await delay(1500); 
+    const users = JSON.parse(safeStorage.getItem(STORAGE_KEY_USERS) || '[]');
+    const userIdx = users.findIndex((u: any) => u.id === userId);
+    
+    if (userIdx === -1) throw new Error('无法连接至艺术家数据库');
+
+    users[userIdx].tier = tier;
+    if (tier === 'artist') users[userIdx].balance = (users[userIdx].balance || 0) + 5000;
+    if (tier === 'patron') users[userIdx].balance = (users[userIdx].balance || 0) + 20000;
+
+    safeStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+
+    const sessionUser = { ...users[userIdx] };
+    delete sessionUser.password;
+    safeStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(sessionUser));
+    notify(sessionUser);
+    return sessionUser;
+  },
+
+  async updateBalance(userId: string, amount: number): Promise<User> {
+    const users = JSON.parse(safeStorage.getItem(STORAGE_KEY_USERS) || '[]');
+    const userIdx = users.findIndex((u: any) => u.id === userId);
+    if (userIdx === -1) throw new Error('用户不存在');
+
+    users[userIdx].balance = Math.max(0, (users[userIdx].balance || 0) + amount);
+    safeStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+
+    const sessionUser = { ...users[userIdx] };
+    delete sessionUser.password;
+    safeStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(sessionUser));
+    notify(sessionUser);
+    return sessionUser;
+  },
+
+  async purchaseItem(userId: string, price: number, itemId: string): Promise<User> {
+    await delay(800); 
+    const users = JSON.parse(safeStorage.getItem(STORAGE_KEY_USERS) || '[]');
+    const userIdx = users.findIndex((u: any) => u.id === userId);
+    if (userIdx === -1) throw new Error('用户不存在');
+
+    const user = users[userIdx];
+    const currentBalance = user.balance || 0;
+
+    if (currentBalance < price) {
+        throw new Error('余额不足，请前往游戏赚取更多 ArtCoin');
+    }
+
+    user.balance = currentBalance - price;
+    if (!user.inventoryIds) user.inventoryIds = [];
+    if (!user.inventoryIds.includes(itemId)) {
+        user.inventoryIds.push(itemId);
+    } else {
+        throw new Error('您已拥有此藏品');
+    }
+
+    safeStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+
+    const sessionUser = { ...user };
+    delete sessionUser.password;
+    safeStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(sessionUser));
+    notify(sessionUser);
+    return sessionUser;
+  },
+
+  getMarketItems(): MarketItem[] {
+      const stored = safeStorage.getItem(STORAGE_KEY_MARKET_ITEMS);
+      if (!stored) {
+          const initial = getInitialMarketItems();
+          safeStorage.setItem(STORAGE_KEY_MARKET_ITEMS, JSON.stringify(initial));
+          return initial;
+      }
+      try {
+          return JSON.parse(stored);
+      } catch { return []; }
+  },
+
+  async listMarketItem(item: MarketItem): Promise<void> {
+      await delay(500);
+      const items = this.getMarketItems();
+      items.unshift(item); // Add to top
+      safeStorage.setItem(STORAGE_KEY_MARKET_ITEMS, JSON.stringify(items));
+  },
+
+  async toggleLikeItem(userId: string, itemId: string): Promise<User> {
+      const users = JSON.parse(safeStorage.getItem(STORAGE_KEY_USERS) || '[]');
+      const userIdx = users.findIndex((u: any) => u.id === userId);
+      if (userIdx === -1) throw new Error('User not found');
+
+      const user = users[userIdx];
+      if (!user.likedItemIds) user.likedItemIds = [];
+      
+      if (user.likedItemIds.includes(itemId)) {
+          user.likedItemIds = user.likedItemIds.filter((id: string) => id !== itemId);
+      } else {
+          user.likedItemIds.push(itemId);
+      }
+
+      safeStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
+      const sessionUser = { ...user };
+      delete sessionUser.password;
+      safeStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(sessionUser));
+      notify(sessionUser);
+      return sessionUser;
+  }
+};
