@@ -3,7 +3,6 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
- "homepage": "https://zzb13647948235-source.github.io/ArtIsLife/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -20,6 +19,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
+    "@vercel/node": "^5.6.6",
     "@vitejs/plugin-react": "^5.0.0",
     "terser": "^5.46.0",
     "typescript": "~5.8.2",
