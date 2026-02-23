@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "homepage": "https://你的GitHub用户名.github.io/ArtIsLife/",
+ "homepage": "https://zzb13647948235-source.github.io/ArtIsLife/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

@@ -96,7 +96,11 @@ const rateLimiter = {
 };
 
 // Run cleanup every 5 minutes
-setInterval(() => rateLimiter.cleanup(), 300000);
+// 仅在非生产环境下运行定时器，防止打包时进程卡死
+if (process.env.NODE_ENV !== 'production') {
+  setInterval(() => rateLimiter.cleanup(), 300000);
+}
+
 
 // Security headers configuration
 const securityHeaders = {
