@@ -17,6 +17,7 @@ import LegalModal from './components/LegalModal';
 import Preloader from './components/Preloader';
 import ArtJournal from './components/ArtJournal';
 import ArtMarket from './components/ArtMarket';
+import ArtCoinShop from './components/ArtCoinShop';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { DarkModeProvider } from './contexts/DarkModeContext';
 import { ViewState, GeneratedImage, ChatMessage, UserTier, User } from './types';
@@ -159,6 +160,7 @@ function AppContent() {
 
   const [isFullScreenModalOpen, setIsFullScreenModalOpen] = useState(false);
   const [showAuthOverlay, setShowAuthOverlay] = useState(false);
+  const [showShop, setShowShop] = useState(false);
   const [artHistory, setArtHistory] = useState<GeneratedImage[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([{ id: 'welcome', role: 'model', text: '', timestamp: Date.now() }]);
   const [isImmersiveMode, setIsImmersiveMode] = useState(false);
@@ -285,12 +287,13 @@ function AppContent() {
           <ParticleBackground />
           <CustomCursor />
 
-          <Navigation 
-              currentView={currentView} 
-              onNavigate={handleNavigate} 
-              user={user} 
-              onLogout={() => { authService.logout(); handleNavigate('home'); }} 
-              isHidden={currentView === 'about' || currentView === 'login' || (isImmersiveMode && currentView !== 'membership') || isFullScreenModalOpen} 
+          <Navigation
+              currentView={currentView}
+              onNavigate={handleNavigate}
+              user={user}
+              onLogout={() => { authService.logout(); handleNavigate('home'); }}
+              isHidden={currentView === 'about' || currentView === 'login' || (isImmersiveMode && currentView !== 'membership') || isFullScreenModalOpen}
+              onOpenShop={() => setShowShop(true)}
           />
           
           <main className={`flex-1 relative w-full h-full transition-all duration-1000 ${showAuthOverlay ? 'scale-[0.95] blur-sm opacity-50' : 'scale-100 opacity-100'}`}>
@@ -344,6 +347,14 @@ function AppContent() {
             </div>
           )}
           <LegalModal type={legalModalType} onClose={() => setLegalModalType(null)} />
+          {showShop && (
+            <ArtCoinShop
+              user={user}
+              onClose={() => setShowShop(false)}
+              onUserUpdate={(u) => setUser(u)}
+              onAuthRequired={() => { setShowShop(false); setShowAuthOverlay(true); }}
+            />
+          )}
       </div>
       <style>{`
         .scroll-container::-webkit-scrollbar { width: 6px; }

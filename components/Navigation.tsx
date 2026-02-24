@@ -12,9 +12,10 @@ interface NavigationProps {
   user: User | null;
   onLogout: () => void;
   isHidden?: boolean;
+  onOpenShop?: () => void;
 }
 
-const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, onLogout, isHidden = false }) => {
+const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, onLogout, isHidden = false, onOpenShop }) => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
@@ -134,6 +135,14 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
                     </div>
                  </div>
                  
+                 {/* ArtCoin Balance */}
+                 {user && (
+                   <button onClick={onOpenShop} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 hover:bg-amber-100 transition-all">
+                     <span className="text-amber-500 text-xs">🪙</span>
+                     <span className="font-bold text-amber-700 text-[11px]">{(user.balance ?? 0).toLocaleString()}</span>
+                   </button>
+                 )}
+
                  {/* User Login - Clean Text Button */}
                  {user ? (
                     <button onClick={onLogout} className="flex items-center gap-2 group">
