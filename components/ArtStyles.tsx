@@ -265,6 +265,8 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
     const scrollContainer = containerRef.current?.closest('.scroll-container') as HTMLElement | null;
     if (scrollContainer) scrollContainer.scrollTop = 0;
   }, []);
+
+  const handleTryStyle = useCallback((styleName: string) => {
     if (setPrefilledPrompt) {
       setPrefilledPrompt(`请创作一幅${styleName}风格的油画，画面内容是...`);
     }
