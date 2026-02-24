@@ -14,27 +14,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const client = getClient();
-    const response = await client.models.generateContent({
-      model: 'gemini-2.0-flash-preview-image-generation',
-      contents: `请生成一幅高品质油画风格的艺术作品：${validation.sanitized}`,
+    const response = await client.models.generateImages({
+      model: 'imagen-3.0-generate-001',
+      prompt: `High quality oil painting style artwork: ${validation.sanitized}`,
       config: {
-        responseModalities: ['TEXT', 'IMAGE'],
+        numberOfImages: 1,
       },
     });
 
-    const parts = response.candidates?.[0]?.content?.parts;
-    if (parts) {
-      for (const part of parts) {
-        if (part.inlineData?.data) {
-          const mimeType = part.inlineData.mimeType || 'image/png';
-          if (!['image/png', 'image/jpeg', 'image/webp'].includes(mimeType)) {
-            return res.status(500).json({ error: '不支持的图片格式' });
-          }
-          return res.status(200).json({
-            imageData: `data:${mimeType};base64,${part.inlineData.data}`,
-          });
-        }
-      }
+    const images = response.generatedImages;
+    if (images && images.length > 0 && images[0].image?.imageBytes) {
+      return res.status(200).json({
+        imageData: `data:image/png;base64,${images[0].image.imageBytes}`,
+      });
     }
 
     return res.status(500).json({
