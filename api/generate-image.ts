@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { applySecurityHeaders, ensurePost, validatePrompt } from './_lib/security.js';
+import { getGenAI } from './_lib/gemini-client.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   applySecurityHeaders(res);
@@ -12,66 +13,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: validation.error });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: 'API key not configured' });
-    }
+    // Since Imagen is not available via AI Studio API, use Gemini to generate
+    // a detailed art description instead
+    const genAI = getGenAI();
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
-    // Use Imagen 3 REST API directly
-    const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict';
-    
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey,
-      },
-      body: JSON.stringify({
-        instances: [
-          {
-            prompt: `High quality oil painting style artwork: ${validation.sanitized}`,
-          },
-        ],
-        parameters: {
-          sampleCount: 1,
-        },
-      }),
-    });
+    const prompt = `作为一位专业的艺术评论家，请为以下主题创作一段详细的油画作品描述。
+描述应该包括：画面构图、色彩运用、光影效果、艺术风格、情感表达等方面。
+让读者能够在脑海中清晰地想象出这幅画作。
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[generate-image API error]', response.status, errorText);
-      
-      if (response.status === 400) {
-        return res.status(400).json({
-          error: '请求被拒绝：提示词可能违反了安全策略，请调整后重试。',
-        });
-      }
-      return res.status(500).json({
-        error: '图片生成服务暂时不可用，请稍后重试。',
-      });
-    }
+主题：${validation.sanitized}
 
-    const data = await response.json();
-    
-    // Extract base64 image from response
-    const predictions = data.predictions;
-    if (predictions && predictions.length > 0) {
-      const imageData = predictions[0].bytesBase64Encoded;
-      if (imageData) {
-        return res.status(200).json({
-          imageData: `data:image/png;base64,${imageData}`,
-        });
-      }
-    }
+请用优美的中文描述这幅想象中的油画作品：`;
 
-    return res.status(500).json({
-      error: '生成失败：未接收到图片数据。请尝试修改提示词或稍后重试。',
+    const result = await model.generateContent(prompt);
+    const description = result.response.text() || '无法生成描述。';
+
+    // Return text description instead of image
+    // Frontend should handle this gracefully
+    return res.status(200).json({
+      text: description,
+      message: '图片生成服务暂时不可用，以下是AI为您生成的画作描述：',
     });
   } catch (error: any) {
     console.error('[generate-image error]', error?.message || error);
-    return res.status(500).json({
-      error: '服务器内部错误，请稍后重试。',
+    const is400 =
+      error.message?.includes('400') ||
+      error.message?.includes('INVALID_ARGUMENT');
+    return res.status(is400 ? 400 : 500).json({
+      error: is400
+        ? '请求被拒绝：提示词可能违反了安全策略，请调整后重试。'
+        : '服务器内部错误，请稍后重试。',
     });
   }
 }
