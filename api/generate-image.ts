@@ -15,7 +15,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const client = getClient();
     const response = await client.models.generateImages({
-      model: 'imagen-3.0-fast-generate-001',
+      model: 'imagen-3.0-generate-001',
       prompt: `High quality oil painting style artwork: ${validation.sanitized}`,
       config: {
         numberOfImages: 1,
