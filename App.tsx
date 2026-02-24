@@ -95,12 +95,10 @@ const PageTransition: React.FC<{ viewKey: string; children: React.ReactNode; ind
 
     let transform = 'translate3d(0, 0, 0) scale(1)';
     let opacity = 1;
-    let filter = 'blur(0px)';
 
     if (isBehind) {
-        transform = 'translate3d(0, -4vh, 0) scale(0.97)';
+        transform = 'translate3d(0, -3vh, 0) scale(0.98)';
         opacity = 0;
-        filter = 'blur(4px)';
     } else if (isUpcoming) {
         transform = 'translate3d(0, 100vh, 0) scale(1)';
         opacity = 1;
@@ -117,14 +115,14 @@ const PageTransition: React.FC<{ viewKey: string; children: React.ReactNode; ind
                 zIndex: isActive ? 60 : isUpcoming ? 70 : 40,
                 transform,
                 opacity,
-                filter,
                 visibility: (isActive || isUpcoming) ? 'visible' : 'hidden',
                 pointerEvents: isActive ? 'auto' : 'none',
-                transition: 'transform 680ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 680ms cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 680ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                transition: 'transform 420ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 420ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                 willChange: 'transform, opacity',
                 WebkitBackfaceVisibility: 'hidden',
                 backfaceVisibility: 'hidden',
-            }}
+                contentVisibility: isActive || isUpcoming ? 'visible' : 'hidden',
+            } as React.CSSProperties}
             id={`page-${viewKey}`}
         >
             <div
@@ -190,18 +188,18 @@ function AppContent() {
           if (showAuthOverlay || currentView === 'membership' || currentView === 'login' || currentView === 'about' || isImmersiveMode || isFullScreenModalOpen) return;
 
           const now = Date.now();
-          if (now - lastScrollTime.current < 1200) return;
+          if (now - lastScrollTime.current < 800) return;
 
           const currentContainer = document.getElementById(`page-${currentView}`)?.querySelector('.scroll-container');
           if (!currentContainer) return;
 
-          const tolerance = 5;
-          const isAtBottom = Math.abs(currentContainer.scrollHeight - currentContainer.scrollTop - currentContainer.clientHeight) < tolerance;
-          const isAtTop = currentContainer.scrollTop === 0;
+          const bottomTolerance = 40;
+          const topTolerance = 10;
+          const isAtBottom = Math.abs(currentContainer.scrollHeight - currentContainer.scrollTop - currentContainer.clientHeight) < bottomTolerance;
+          const isAtTop = currentContainer.scrollTop < topTolerance;
 
-          if (Math.abs(e.deltaY) > 50) {
+          if (Math.abs(e.deltaY) > 30) {
               const currentIndex = NAV_ORDER.indexOf(currentView);
-              
               if (e.deltaY > 0) {
                   if (isAtBottom && currentIndex < NAV_ORDER.length - 1) {
                       setPreviousView(currentView);
@@ -232,17 +230,16 @@ function AppContent() {
           if (showAuthOverlay || isImmersiveMode || isFullScreenModalOpen) return;
           const dy = touchStartY.current - e.changedTouches[0].clientY;
           const dx = Math.abs(touchStartX.current - e.changedTouches[0].clientX);
-          if (Math.abs(dy) < 60 || dx > Math.abs(dy) * 0.8) return;
+          if (Math.abs(dy) < 50 || dx > Math.abs(dy) * 0.9) return;
 
           const now = Date.now();
-          if (now - lastScrollTime.current < 800) return;
+          if (now - lastScrollTime.current < 500) return;
 
           const currentContainer = document.getElementById(`page-${currentView}`)?.querySelector('.scroll-container');
           if (!currentContainer) return;
 
-          const tolerance = 8;
-          const isAtBottom = Math.abs(currentContainer.scrollHeight - currentContainer.scrollTop - currentContainer.clientHeight) < tolerance;
-          const isAtTop = currentContainer.scrollTop === 0;
+          const isAtBottom = Math.abs(currentContainer.scrollHeight - currentContainer.scrollTop - currentContainer.clientHeight) < 50;
+          const isAtTop = currentContainer.scrollTop < 10;
           const currentIndex = NAV_ORDER.indexOf(currentView);
 
           if (dy > 0 && isAtBottom && currentIndex < NAV_ORDER.length - 1) {

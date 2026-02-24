@@ -101,7 +101,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
             </div>
 
             {/* Actions Area */}
-            <div className="hidden md:flex items-center gap-6">
+            <div className="hidden md:flex items-center gap-4 shrink-0">
 
                  {/* Dark Mode Toggle */}
                  <button onClick={toggleDark} className={`p-2 rounded-full transition-all hover:bg-stone-100 dark:hover:bg-white/10 ${baseTextColor}`} title={isDark ? '切换亮色' : '切换暗色'}>
