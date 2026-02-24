@@ -90,6 +90,7 @@ const zhTranslations = {
         filter_era: '时代',
         filter_region: '地区',
         filter_medium: '媒介',
+        filter_clear: '清除筛选',
         recommendations: '你可能喜欢',
     },
     generator: {
@@ -391,6 +392,7 @@ const enTranslations = {
         filter_era: 'Era',
         filter_region: 'Region',
         filter_medium: 'Medium',
+        filter_clear: 'Clear filters',
         recommendations: 'You Might Also Like',
     },
     generator: {

@@ -329,16 +329,25 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
 
       <div className={`px-6 md:px-12 max-w-[1800px] mx-auto mb-8 transition-all duration-1000 delay-900 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         {[
-          { label: t('styles.filter_era'), values: eras, active: activeEra, set: setActiveEra },
-          { label: t('styles.filter_region'), values: regions, active: activeRegion, set: setActiveRegion },
-          { label: t('styles.filter_medium'), values: mediums, active: activeMedium, set: setActiveMedium },
-        ].map(({ label, values, active, set }) => (
+          {
+            label: t('styles.filter_era'), values: eras, active: activeEra,
+            onSelect: (v: string) => { setActiveEra(v); setActiveRegion('全部'); setActiveMedium('全部'); }
+          },
+          {
+            label: t('styles.filter_region'), values: regions, active: activeRegion,
+            onSelect: (v: string) => { setActiveRegion(v); setActiveEra('全部'); setActiveMedium('全部'); }
+          },
+          {
+            label: t('styles.filter_medium'), values: mediums, active: activeMedium,
+            onSelect: (v: string) => { setActiveMedium(v); setActiveEra('全部'); setActiveRegion('全部'); }
+          },
+        ].map(({ label, values, active, onSelect }) => (
           <div key={label} className="flex items-center gap-3 mb-3 flex-wrap">
             <span className="text-xs font-bold uppercase tracking-widest text-stone-400 w-10 shrink-0">{label}</span>
             {values.map(v => (
               <button
                 key={v}
-                onClick={() => set(v)}
+                onClick={() => onSelect(v)}
                 className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-all duration-200 ${
                   active === v
                     ? 'bg-art-accent text-white border-art-accent shadow-sm'
@@ -350,9 +359,17 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
             ))}
           </div>
         ))}
+        {(activeEra !== '全部' || activeRegion !== '全部' || activeMedium !== '全部') && (
+          <button
+            onClick={() => { setActiveEra('全部'); setActiveRegion('全部'); setActiveMedium('全部'); }}
+            className="flex items-center gap-1.5 text-xs text-stone-400 hover:text-art-primary transition-colors mt-1"
+          >
+            <X size={12} /> {t('styles.filter_clear')}
+          </button>
+        )}
       </div>
 
-      <ArtStyleList 
+      <ArtStyleList
         styles={filteredStyles}
         t={t}
         onTryStyle={handleTryStyle}
