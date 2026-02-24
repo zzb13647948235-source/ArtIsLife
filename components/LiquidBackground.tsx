@@ -231,11 +231,16 @@ const LiquidBackground: React.FC<LiquidBackgroundProps> = ({ currentView }) => {
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
+    const isMobile = window.innerWidth < 768;
     let animationFrameId: number;
     let time = 0;
+    let lastFrameTime = 0;
+    // On mobile throttle to ~30fps to reduce GPU load
+    const targetFPS = isMobile ? 30 : 60;
+    const frameInterval = 1000 / targetFPS;
 
     const handleResize = () => {
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1 : 2);
         canvas.width = window.innerWidth * dpr;
         canvas.height = window.innerHeight * dpr;
         ctx.scale(dpr, dpr);
@@ -246,14 +251,19 @@ const LiquidBackground: React.FC<LiquidBackgroundProps> = ({ currentView }) => {
     window.addEventListener('resize', handleResize);
     handleResize();
 
-    const render = () => {
-        const lerpSpeed = 0.05; 
-        
+    const render = (timestamp: number) => {
+        animationFrameId = requestAnimationFrame(render);
+
+        const elapsed = timestamp - lastFrameTime;
+        if (elapsed < frameInterval) return;
+        lastFrameTime = timestamp - (elapsed % frameInterval);
+
+        const lerpSpeed = 0.05;
+
         ['dot', 'base'].forEach((key) => {
             const k = key as keyof typeof currentColorState.current;
             const current = currentColorState.current[k];
             const target = targetColorState.current[k];
-            
             for(let i=0; i<4; i++) {
                 current[i] = lerp(current[i], target[i], lerpSpeed);
             }
@@ -266,18 +276,18 @@ const LiquidBackground: React.FC<LiquidBackgroundProps> = ({ currentView }) => {
         const width = window.innerWidth;
         const height = window.innerHeight;
         ctx.clearRect(0, 0, width, height);
-        
+
         ripplesRef.current.forEach(r => {
             r.radius += r.config.speed;
-            r.strength *= 0.998; 
+            r.strength *= 0.998;
         });
         ripplesRef.current = ripplesRef.current.filter(r => r.strength > 0.01 && r.radius < r.maxRadius);
 
-        const isMobile = width < 768;
-        const gap = isMobile ? 18 : 12; 
+        // Larger gap on mobile = fewer dots = better perf
+        const gap = isMobile ? 24 : 12;
         const rows = Math.ceil(height / gap);
         const cols = Math.ceil(width / gap);
-        
+
         ctx.fillStyle = dotBaseColor;
 
         for (let ix = 0; ix < cols; ix++) {
@@ -285,15 +295,14 @@ const LiquidBackground: React.FC<LiquidBackgroundProps> = ({ currentView }) => {
                 const xOrigin = ix * gap;
                 const yOrigin = iy * gap;
 
-                const nx = ix / 60; 
+                const nx = ix / 60;
                 const ny = iy / 60;
                 const noise = Math.sin(nx + time * 0.0005) * Math.cos(ny + time * 0.001);
-                
-                // Increased base visibility for clearer texture
+
                 const ambientVisibility = dotBaseAlpha * (0.3 + (noise * 0.15));
 
                 let rippleBoost = 0;
-                
+
                 for (const r of ripplesRef.current) {
                     const dx = xOrigin - r.x;
                     const dy = yOrigin - r.y;
@@ -301,7 +310,7 @@ const LiquidBackground: React.FC<LiquidBackgroundProps> = ({ currentView }) => {
 
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     const angle = Math.atan2(dy, dx);
-                    
+
                     const flow = time * r.config.flowSpeed;
                     const shape = Math.sin(angle * r.config.baseFreq + r.angleOffset + flow);
                     const detail = Math.cos(angle * r.config.detailFreq - flow * 1.5);
@@ -310,9 +319,9 @@ const LiquidBackground: React.FC<LiquidBackgroundProps> = ({ currentView }) => {
                     const targetRadius = r.radius + distortion;
                     const distFromWave = Math.abs(dist - targetRadius);
                     const ribbonW = r.config.ribbonWidth;
-                    
+
                     if (distFromWave < ribbonW) {
-                        const sigma = (ribbonW * 0.3) / r.config.sharpness; 
+                        const sigma = (ribbonW * 0.3) / r.config.sharpness;
                         const intensity = Math.exp( - (distFromWave * distFromWave) / (2 * sigma * sigma) );
                         rippleBoost += intensity * r.strength * 3.5 * r.config.opacityFactor;
                     }
@@ -321,12 +330,10 @@ const LiquidBackground: React.FC<LiquidBackgroundProps> = ({ currentView }) => {
                 let totalVisibility = ambientVisibility + (rippleBoost * dotBaseAlpha);
                 if (totalVisibility > 1) totalVisibility = 1;
 
-                // Threshold lowered slightly to allow more faint dots (dust effect)
                 if (totalVisibility > 0.03) {
-                    // Radius logic tweaked for crisper dots
                     const radius = (0.7 * ambientVisibility) + (2.5 * Math.min(1, rippleBoost));
                     if (radius > 0.2) {
-                        ctx.globalAlpha = totalVisibility; 
+                        ctx.globalAlpha = totalVisibility;
                         ctx.beginPath();
                         ctx.arc(xOrigin, yOrigin, radius, 0, Math.PI * 2);
                         ctx.fill();
@@ -334,13 +341,12 @@ const LiquidBackground: React.FC<LiquidBackgroundProps> = ({ currentView }) => {
                 }
             }
         }
-        
+
         ctx.globalAlpha = 1.0;
         time += 16;
-        animationFrameId = requestAnimationFrame(render);
     };
 
-    render();
+    animationFrameId = requestAnimationFrame(render);
 
     return () => {
         window.removeEventListener('resize', handleResize);

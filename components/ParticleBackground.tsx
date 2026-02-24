@@ -3,13 +3,16 @@ import React, { useEffect, useRef, useState } from 'react';
 
 const ParticleBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const mousePosRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
+    // Only track mouse on non-touch devices
+    const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    if (isTouchDevice) return;
     const handleMouseMove = (e: MouseEvent) => {
-        setMousePos({ x: e.clientX, y: e.clientY });
+        mousePosRef.current = { x: e.clientX, y: e.clientY };
     };
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
@@ -18,6 +21,10 @@ const ParticleBackground: React.FC = () => {
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
+
+      // On mobile, skip particle system entirely to save GPU
+      const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+      if (isTouchDevice) return;
 
       let width = canvas.width = window.innerWidth;
       let height = canvas.height = window.innerHeight;
@@ -51,21 +58,26 @@ const ParticleBackground: React.FC = () => {
               this.color = colors[Math.floor(Math.random() * colors.length)];
           }
 
-          update(mouseX: number, mouseY: number) {
+          update() {
               this.x += this.speedX;
               this.y += this.speedY;
               this.angle += this.spin;
 
-              // Subtle interaction
-              const dx = mouseX - this.x;
-              const dy = mouseY - this.y;
-              const dist = Math.sqrt(dx*dx + dy*dy);
-              
-              if (dist < 200) {
-                  const force = (200 - dist) / 200;
-                  this.x -= (dx / dist) * force * 1.5;
-                  this.y -= (dy / dist) * force * 1.5;
-                  this.alpha = Math.min(1, this.baseAlpha + force * 0.5);
+              // Subtle mouse interaction (desktop only)
+              const mouseX = mousePosRef.current.x;
+              const mouseY = mousePosRef.current.y;
+              if (mouseX !== 0 || mouseY !== 0) {
+                  const dx = mouseX - this.x;
+                  const dy = mouseY - this.y;
+                  const dist = Math.sqrt(dx*dx + dy*dy);
+                  if (dist < 200) {
+                      const force = (200 - dist) / 200;
+                      this.x -= (dx / dist) * force * 1.5;
+                      this.y -= (dy / dist) * force * 1.5;
+                      this.alpha = Math.min(1, this.baseAlpha + force * 0.5);
+                  } else {
+                      this.alpha = this.baseAlpha;
+                  }
               } else {
                   this.alpha = this.baseAlpha;
               }
@@ -106,9 +118,9 @@ const ParticleBackground: React.FC = () => {
 
       const animate = () => {
           ctx.clearRect(0, 0, width, height);
-          
+
           particles.forEach(p => {
-              p.update(mousePos.x, mousePos.y);
+              p.update();
               p.draw();
           });
 
@@ -126,7 +138,7 @@ const ParticleBackground: React.FC = () => {
           window.removeEventListener('resize', handleResize);
           cancelAnimationFrame(animationFrame);
       }
-  }, [mousePos]); 
+  }, []);
 
   return (
       <canvas 

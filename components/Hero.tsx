@@ -100,12 +100,14 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
   }, [isActive]);
 
   useEffect(() => {
+    const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    if (isTouchDevice) return;
     const handleMouseMove = (e: MouseEvent) => {
         const x = (e.clientX / window.innerWidth - 0.5) * 2;
         const y = (e.clientY / window.innerHeight - 0.5) * 2;
         requestAnimationFrame(() => setMousePos({ x, y }));
     };
-    if (isActive) window.addEventListener('mousemove', handleMouseMove);
+    if (isActive) window.addEventListener('mousemove', handleMouseMove, { passive: true });
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [isActive]);
 

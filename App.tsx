@@ -80,6 +80,8 @@ const PageTransition: React.FC<{ viewKey: string; children: React.ReactNode; ind
     const isActive = index === currentIndex;
     const isBehind = index < currentIndex;
     const isUpcoming = index > currentIndex;
+    // Only render adjacent pages (current ±1) to save memory & GPU
+    const isAdjacent = Math.abs(index - currentIndex) <= 1;
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     useLayoutEffect(() => {
@@ -115,13 +117,12 @@ const PageTransition: React.FC<{ viewKey: string; children: React.ReactNode; ind
                 zIndex: isActive ? 60 : isUpcoming ? 70 : 40,
                 transform,
                 opacity,
-                visibility: (isActive || isUpcoming) ? 'visible' : 'hidden',
+                visibility: isActive ? 'visible' : isAdjacent ? 'visible' : 'hidden',
                 pointerEvents: isActive ? 'auto' : 'none',
-                transition: 'transform 420ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 420ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                willChange: 'transform, opacity',
+                transition: 'transform 380ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 380ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                willChange: isAdjacent ? 'transform, opacity' : 'auto',
                 WebkitBackfaceVisibility: 'hidden',
                 backfaceVisibility: 'hidden',
-                contentVisibility: isActive || isUpcoming ? 'visible' : 'hidden',
             } as React.CSSProperties}
             id={`page-${viewKey}`}
         >
@@ -134,7 +135,7 @@ const PageTransition: React.FC<{ viewKey: string; children: React.ReactNode; ind
                     scrollBehavior: 'auto',
                 }}
             >
-                {children}
+                {isAdjacent || isActive ? children : null}
             </div>
         </div>
     );
@@ -166,8 +167,6 @@ function AppContent() {
   const [legalModalType, setLegalModalType] = useState<'privacy' | 'terms' | null>(null);
   
   const lastScrollTime = useRef(0);
-  const touchStartY = useRef(0);
-  const touchStartX = useRef(0);
 
   useEffect(() => {
     try {
@@ -221,19 +220,28 @@ function AppContent() {
   }, [currentView, showAuthOverlay, isImmersiveMode, isFullScreenModalOpen]);
 
   useEffect(() => {
+      let touchStartY = 0;
+      let touchStartX = 0;
+      let isSwiping = false;
+
       const handleTouchStart = (e: TouchEvent) => {
-          touchStartY.current = e.touches[0].clientY;
-          touchStartX.current = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+          touchStartX = e.touches[0].clientX;
+          isSwiping = false;
       };
 
-      const handleTouchEnd = (e: TouchEvent) => {
+      const handleTouchMove = (e: TouchEvent) => {
           if (showAuthOverlay || isImmersiveMode || isFullScreenModalOpen) return;
-          const dy = touchStartY.current - e.changedTouches[0].clientY;
-          const dx = Math.abs(touchStartX.current - e.changedTouches[0].clientX);
-          if (Math.abs(dy) < 50 || dx > Math.abs(dy) * 0.9) return;
+          if (isSwiping) return;
+
+          const dy = touchStartY - e.touches[0].clientY;
+          const dx = Math.abs(touchStartX - e.touches[0].clientX);
+
+          // Must be more vertical than horizontal, and at least 60px
+          if (Math.abs(dy) < 60 || dx > Math.abs(dy) * 0.7) return;
 
           const now = Date.now();
-          if (now - lastScrollTime.current < 500) return;
+          if (now - lastScrollTime.current < 600) return;
 
           const currentContainer = document.getElementById(`page-${currentView}`)?.querySelector('.scroll-container');
           if (!currentContainer) return;
@@ -243,10 +251,12 @@ function AppContent() {
           const currentIndex = NAV_ORDER.indexOf(currentView);
 
           if (dy > 0 && isAtBottom && currentIndex < NAV_ORDER.length - 1) {
+              isSwiping = true;
               setPreviousView(currentView);
               setCurrentView(NAV_ORDER[currentIndex + 1]);
               lastScrollTime.current = now;
           } else if (dy < 0 && isAtTop && currentIndex > 0) {
+              isSwiping = true;
               setPreviousView(currentView);
               setCurrentView(NAV_ORDER[currentIndex - 1]);
               lastScrollTime.current = now;
@@ -254,10 +264,10 @@ function AppContent() {
       };
 
       window.addEventListener('touchstart', handleTouchStart, { passive: true });
-      window.addEventListener('touchend', handleTouchEnd, { passive: true });
+      window.addEventListener('touchmove', handleTouchMove, { passive: true });
       return () => {
           window.removeEventListener('touchstart', handleTouchStart);
-          window.removeEventListener('touchend', handleTouchEnd);
+          window.removeEventListener('touchmove', handleTouchMove);
       };
   }, [currentView, showAuthOverlay, isImmersiveMode, isFullScreenModalOpen]);
 

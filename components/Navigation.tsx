@@ -21,12 +21,20 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const { t, language, setLanguage } = useLanguage();
   const { isDark, toggle: toggleDark } = useDarkMode();
-  
+
+  // Track scroll inside the active page's scroll-container (not window)
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    const updateScrolled = () => {
+      const container = document.getElementById(`page-${currentView}`)?.querySelector('.scroll-container');
+      setScrolled(container ? container.scrollTop > 20 : false);
+    };
+    const container = document.getElementById(`page-${currentView}`)?.querySelector('.scroll-container');
+    if (container) {
+      container.addEventListener('scroll', updateScrolled, { passive: true });
+      updateScrolled();
+      return () => container.removeEventListener('scroll', updateScrolled);
+    }
+  }, [currentView]);
 
   const navItems = [
     { id: 'home', label: t('nav.home') },

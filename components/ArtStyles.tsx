@@ -45,14 +45,15 @@ const FadeInImage: React.FC<{ src: string; alt: string; className?: string }> = 
 const useTilt = () => {
     const ref = useRef<HTMLDivElement>(null);
     const [style, setStyle] = useState({});
-    const onMouseMove = (e: React.MouseEvent) => {
+    const isTouchDevice = typeof window !== 'undefined' && (('ontouchstart' in window) || navigator.maxTouchPoints > 0);
+    const onMouseMove = isTouchDevice ? undefined : (e: React.MouseEvent) => {
         if (!ref.current) return;
         const { left, top, width, height } = ref.current.getBoundingClientRect();
-        const x = (e.clientX - left - width / 2) / 25; 
+        const x = (e.clientX - left - width / 2) / 25;
         const y = (e.clientY - top - height / 2) / 25;
         setStyle({ transform: `rotateY(${x}deg) rotateX(${-y}deg) scale(1.02)` });
     };
-    const onMouseLeave = () => {
+    const onMouseLeave = isTouchDevice ? undefined : () => {
         setStyle({ transform: `rotateY(0deg) rotateX(0deg) scale(1)` });
     };
     return { ref, style, onMouseMove, onMouseLeave };

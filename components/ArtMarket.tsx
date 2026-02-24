@@ -47,8 +47,9 @@ const MarketCard: React.FC<{ children: React.ReactNode; onClick: () => void; cla
     const ref = useRef<HTMLDivElement>(null);
     const [transform, setTransform] = useState('');
     const [shine, setShine] = useState('');
+    const isTouchDevice = typeof window !== 'undefined' && (('ontouchstart' in window) || navigator.maxTouchPoints > 0);
 
-    const handleMouseMove = (e: React.MouseEvent) => {
+    const handleMouseMove = isTouchDevice ? undefined : (e: React.MouseEvent) => {
         if (!ref.current) return;
         const rect = ref.current.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -61,7 +62,7 @@ const MarketCard: React.FC<{ children: React.ReactNode; onClick: () => void; cla
         setShine(`radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.1), transparent 80%)`);
     };
 
-    const handleMouseLeave = () => {
+    const handleMouseLeave = isTouchDevice ? undefined : () => {
         setTransform('perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)');
         setShine('');
     };
