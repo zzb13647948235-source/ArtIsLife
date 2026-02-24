@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { applySecurityHeaders, ensurePost, sanitizeInput, validatePrompt } from './_lib/security.js';
-import { getClient } from './_lib/gemini-client.js';
+import { getClient, resetClient } from './_lib/gemini-client.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   applySecurityHeaders(res);
@@ -54,13 +54,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ text, links: [] });
   } catch (error: any) {
     console.error('[chat error]', error?.message || error);
-    const is400 =
-      error.message?.includes('400') ||
-      error.message?.includes('INVALID_ARGUMENT');
-    return res.status(is400 ? 400 : 500).json({
-      error: is400
-        ? '请求被拒绝：提示词可能违反了安全策略，请调整后重试。'
-        : '服务器内部错误，请稍后重试。',
+    const msg = error?.message || '';
+    const is403 = msg.includes('403') || msg.includes('PERMISSION_DENIED') || msg.includes('leaked');
+    const is400 = msg.includes('400') || msg.includes('INVALID_ARGUMENT');
+    if (is403) resetClient();
+    return res.status(is403 ? 403 : is400 ? 400 : 500).json({
+      error: is403 ? 'API 密钥已失效，请联系管理员更新密钥。'
+           : is400 ? '请求被拒绝：提示词可能违反了安全策略，请调整后重试。'
+           : '服务器内部错误，请稍后重试。',
     });
   }
 }

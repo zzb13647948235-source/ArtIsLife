@@ -12,3 +12,7 @@ export function getClient(): GoogleGenAI {
   }
   return client;
 }
+
+export function resetClient(): void {
+  client = null;
+}

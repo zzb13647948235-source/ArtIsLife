@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { applySecurityHeaders, ensurePost, validatePrompt } from './_lib/security.js';
-import { getClient } from './_lib/gemini-client.js';
+import { getClient, resetClient } from './_lib/gemini-client.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   applySecurityHeaders(res);
@@ -21,7 +21,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const client = getClient();
 
     const response = await client.models.generateContent({
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash-preview-image-generation',
       contents: enhancedPrompt,
       config: { responseModalities: ['TEXT', 'IMAGE'] } as any,
     });
@@ -39,9 +39,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : 'Unknown error';
     console.error('[generate-image error]', msg);
+    const is403 = msg.includes('403') || msg.includes('PERMISSION_DENIED') || msg.includes('leaked');
     const is400 = msg.includes('400') || msg.includes('INVALID_ARGUMENT');
-    return res.status(is400 ? 400 : 500).json({
-      error: is400 ? '提示词不符合要求，请修改后重试' : '图片生成服务暂时不可用，请稍后重试',
+    const is404 = msg.includes('404') || msg.includes('NOT_FOUND');
+    if (is403) resetClient();
+    return res.status(is403 ? 403 : is400 ? 400 : 500).json({
+      error: is403 ? 'API 密钥已失效，请联系管理员更新密钥。'
+           : is400 ? '提示词不符合要求，请修改后重试'
+           : is404 ? '图像生成模型暂时不可用，请稍后重试'
+           : '图片生成服务暂时不可用，请稍后重试',
     });
   }
 }
