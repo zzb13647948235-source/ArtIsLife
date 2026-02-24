@@ -34,7 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const client = getClient();
     const response = await client.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.0-flash',
       contents: `推荐与"${validation.sanitized}"相关的艺术博物馆${locationContext}。请提供博物馆列表，包含简要介绍。`,
       config: {
         systemInstruction: '你是一个专业的艺术博物馆顾问。请提供详细、准确的博物馆推荐信息，包括博物馆名称、地址、特色馆藏等。',

@@ -422,18 +422,45 @@ export const MASTERPIECE_COLLECTION = [
 ];
 
 // Dynamically generate levels from the masterpiece collection
-export const GAME_LEVELS: GameLevel[] = MASTERPIECE_COLLECTION.map((art, index) => ({
+const PALETTES = [
+  ['#2B2B2B', '#E6E6E6', '#C5A059', '#BC4B1A', '#3B5975', '#7A9E7E'],
+  ['#1A1A2E', '#E8D5B7', '#D4A853', '#8B4513', '#4A7C9E', '#C8A882'],
+  ['#0D1B2A', '#F5E6D3', '#B8860B', '#8B0000', '#2F4F4F', '#DEB887'],
+  ['#1C1C1C', '#F0EAD6', '#CD853F', '#A0522D', '#4682B4', '#90EE90'],
+  ['#2C1810', '#FFF8DC', '#DAA520', '#B22222', '#191970', '#98FB98'],
+];
+
+const generateRegions = (index: number, difficulty: number) => {
+  const count = difficulty <= 1 ? 3 : difficulty <= 2 ? 4 : difficulty <= 3 ? 5 : difficulty <= 4 ? 6 : 7;
+  const palette = PALETTES[index % PALETTES.length];
+  const positions = [
+    { x: 25, y: 25 }, { x: 70, y: 30 }, { x: 45, y: 55 },
+    { x: 20, y: 70 }, { x: 75, y: 65 }, { x: 50, y: 20 }, { x: 60, y: 80 },
+  ];
+  const hints = ['Warm highlight', 'Cool shadow', 'Mid-tone', 'Deep shadow', 'Reflected light', 'Accent tone', 'Background wash'];
+  return Array.from({ length: count }, (_, i) => ({
+    id: i + 1,
+    x: positions[i].x + ((index * (i + 3)) % 15) - 7,
+    y: positions[i].y + ((index * (i + 2)) % 15) - 7,
+    color: palette[i % palette.length],
+    radius: 12 + (difficulty * 2) + (i % 3) * 3,
+    hint: hints[i],
+  }));
+};
+
+export const GAME_LEVELS: GameLevel[] = MASTERPIECE_COLLECTION.map((art, index) => {
+  const difficulty = Math.min(5, Math.floor(index / 10) + 1) as 1 | 2 | 3 | 4 | 5;
+  const palette = PALETTES[index % PALETTES.length];
+  return {
     id: index + 1,
     title: art.title,
     artist: art.artist,
     year: art.year,
     imageUrl: art.url,
     description: `探索${art.artist}的经典之作《${art.title}》。体会${art.year}年的色彩哲学。`,
-    isPremium: index > 2, // First 3 free
-    difficulty: Math.min(5, Math.floor(index / 10) + 1) as any,
-    palette: ['#2B2B2B', '#E6E6E6', '#C5A059', '#BC4B1A', '#3B5975'], // Mock palette for now
-    regions: [
-        { id: 1, x: 30 + (index * 7) % 40, y: 30 + (index * 5) % 40, color: '#BC4B1A', radius: 15 + (index % 10), hint: 'Warm tone area' },
-        { id: 2, x: 60 + (index * 3) % 30, y: 60 + (index * 4) % 30, color: '#3B5975', radius: 20, hint: 'Cool shadow area' }
-    ]
-}));
+    isPremium: index > 2,
+    difficulty,
+    palette,
+    regions: generateRegions(index, difficulty),
+  };
+});

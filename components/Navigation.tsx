@@ -153,6 +153,54 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
             </button>
         </div>
       </nav>
+
+      {/* Mobile Menu Panel */}
+      <div className={`xl:hidden fixed inset-0 z-[99] transition-all duration-500 ${mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        style={{ transitionTimingFunction: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' }}
+      >
+        <div className="absolute inset-0 bg-white/95 backdrop-blur-xl" onClick={() => setMobileMenuOpen(false)} />
+        <div className={`absolute inset-y-0 right-0 w-full max-w-sm bg-white shadow-2xl flex flex-col pt-24 pb-12 px-8 transition-transform duration-500 ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
+          style={{ transitionTimingFunction: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' }}
+        >
+          <button className="absolute top-6 right-6 p-2 text-stone-400 hover:text-stone-900" onClick={() => setMobileMenuOpen(false)}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+
+          <nav className="flex flex-col gap-1 flex-1">
+            {navItems.map((item, i) => (
+              <button
+                key={item.id}
+                onClick={() => { onNavigate(item.id as ViewState); setMobileMenuOpen(false); }}
+                className={`flex items-center gap-3 py-4 text-left border-b border-stone-100 transition-all duration-300 ${currentView === item.id ? 'text-black font-extrabold' : 'text-stone-400 font-bold'}`}
+                style={{ animationDelay: `${i * 40}ms` }}
+              >
+                {item.icon}
+                <span className="text-sm uppercase tracking-[0.25em]">{item.label}</span>
+              </button>
+            ))}
+          </nav>
+
+          <div className="mt-8 flex items-center justify-between">
+            <div className="flex gap-3">
+              {['zh', 'en', 'ja', 'fr', 'es'].map(l => (
+                <button key={l} onClick={() => setLanguage(l as any)}
+                  className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${language === l ? 'text-art-primary' : 'text-stone-300 hover:text-stone-600'}`}>
+                  {l}
+                </button>
+              ))}
+            </div>
+            {user ? (
+              <button onClick={() => { onLogout(); setMobileMenuOpen(false); }} className="text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-red-500 transition-colors">
+                登出
+              </button>
+            ) : (
+              <button onClick={() => { onNavigate('login'); setMobileMenuOpen(false); }} className="text-[10px] font-bold uppercase tracking-widest text-art-primary">
+                {t('nav.login')}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
     </>
   );
 };

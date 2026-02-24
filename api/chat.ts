@@ -40,7 +40,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         : validation.sanitized;
 
     const response = await client.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.0-flash',
       contents: chatContents,
       config: {
         systemInstruction:

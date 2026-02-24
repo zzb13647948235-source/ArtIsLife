@@ -82,7 +82,6 @@ const PageTransition: React.FC<{ viewKey: string; children: React.ReactNode; ind
 
     useLayoutEffect(() => {
         if (isActive && scrollContainerRef.current) {
-            // 优化：更加安全的滚动重置
             const resetScroll = () => {
                 if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
             };
@@ -92,41 +91,47 @@ const PageTransition: React.FC<{ viewKey: string; children: React.ReactNode; ind
         }
     }, [isActive]);
 
-    // Enhanced Subtle Transition Effects
     let transform = 'translate3d(0, 0, 0) scale(1)';
     let opacity = 1;
     let filter = 'blur(0px)';
 
-    if (isBehind) { 
-        transform = 'translate3d(0, -5vh, 0) scale(0.95)'; 
-        opacity = 0; 
-        filter = 'blur(5px)';
-    } 
-    else if (isUpcoming) { 
-        transform = 'translate3d(0, 100vh, 0) scale(1)'; 
-        opacity = 1; 
+    if (isBehind) {
+        transform = 'translate3d(0, -4vh, 0) scale(0.97)';
+        opacity = 0;
+        filter = 'blur(4px)';
+    } else if (isUpcoming) {
+        transform = 'translate3d(0, 100vh, 0) scale(1)';
+        opacity = 1;
     }
 
     return (
-        <div 
-            className="absolute inset-0 w-full h-full overflow-hidden transition-all duration-[1200ms] cubic-bezier(0.645, 0.045, 0.355, 1.000)"
-            style={{ 
-                zIndex: isActive ? 60 : isUpcoming ? 70 : 40, 
-                transform, 
-                opacity, 
+        <div
+            style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                overflow: 'hidden',
+                zIndex: isActive ? 60 : isUpcoming ? 70 : 40,
+                transform,
+                opacity,
                 filter,
-                visibility: (isActive || isUpcoming) ? 'visible' : 'hidden', 
-                pointerEvents: isActive ? 'auto' : 'none' 
+                visibility: (isActive || isUpcoming) ? 'visible' : 'hidden',
+                pointerEvents: isActive ? 'auto' : 'none',
+                transition: 'transform 680ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 680ms cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 680ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                willChange: 'transform, opacity',
+                WebkitBackfaceVisibility: 'hidden',
+                backfaceVisibility: 'hidden',
             }}
-            id={`page-${viewKey}`} 
+            id={`page-${viewKey}`}
         >
-            <div 
-                ref={scrollContainerRef} 
+            <div
+                ref={scrollContainerRef}
                 className={`w-full h-full scroll-container ${isActive ? 'overflow-y-auto' : 'overflow-hidden'}`}
-                style={{ 
+                style={{
                     WebkitOverflowScrolling: 'touch',
                     overscrollBehavior: 'contain',
-                    scrollBehavior: 'auto'
+                    scrollBehavior: 'auto',
                 }}
             >
                 {children}
@@ -160,6 +165,8 @@ function AppContent() {
   const [legalModalType, setLegalModalType] = useState<'privacy' | 'terms' | null>(null);
   
   const lastScrollTime = useRef(0);
+  const touchStartY = useRef(0);
+  const touchStartX = useRef(0);
 
   useEffect(() => {
     try {
@@ -208,8 +215,50 @@ function AppContent() {
           }
       };
 
-      window.addEventListener('wheel', handleWheel, { passive: false }); 
+      window.addEventListener('wheel', handleWheel, { passive: false });
       return () => window.removeEventListener('wheel', handleWheel);
+  }, [currentView, showAuthOverlay, isImmersiveMode, isFullScreenModalOpen]);
+
+  useEffect(() => {
+      const handleTouchStart = (e: TouchEvent) => {
+          touchStartY.current = e.touches[0].clientY;
+          touchStartX.current = e.touches[0].clientX;
+      };
+
+      const handleTouchEnd = (e: TouchEvent) => {
+          if (showAuthOverlay || isImmersiveMode || isFullScreenModalOpen) return;
+          const dy = touchStartY.current - e.changedTouches[0].clientY;
+          const dx = Math.abs(touchStartX.current - e.changedTouches[0].clientX);
+          if (Math.abs(dy) < 60 || dx > Math.abs(dy) * 0.8) return;
+
+          const now = Date.now();
+          if (now - lastScrollTime.current < 800) return;
+
+          const currentContainer = document.getElementById(`page-${currentView}`)?.querySelector('.scroll-container');
+          if (!currentContainer) return;
+
+          const tolerance = 8;
+          const isAtBottom = Math.abs(currentContainer.scrollHeight - currentContainer.scrollTop - currentContainer.clientHeight) < tolerance;
+          const isAtTop = currentContainer.scrollTop === 0;
+          const currentIndex = NAV_ORDER.indexOf(currentView);
+
+          if (dy > 0 && isAtBottom && currentIndex < NAV_ORDER.length - 1) {
+              setPreviousView(currentView);
+              setCurrentView(NAV_ORDER[currentIndex + 1]);
+              lastScrollTime.current = now;
+          } else if (dy < 0 && isAtTop && currentIndex > 0) {
+              setPreviousView(currentView);
+              setCurrentView(NAV_ORDER[currentIndex - 1]);
+              lastScrollTime.current = now;
+          }
+      };
+
+      window.addEventListener('touchstart', handleTouchStart, { passive: true });
+      window.addEventListener('touchend', handleTouchEnd, { passive: true });
+      return () => {
+          window.removeEventListener('touchstart', handleTouchStart);
+          window.removeEventListener('touchend', handleTouchEnd);
+      };
   }, [currentView, showAuthOverlay, isImmersiveMode, isFullScreenModalOpen]);
 
   const handleNavigate = useCallback((v: ViewState) => {
