@@ -6,6 +6,50 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
      return import.meta.env.VITE_GEMINI_API_KEY; 
    } 
    return '';  
+ };
+ 
+ /**
+  * 与艺术专家进行文本对话
+  * @param message - The user's message.
+  * @param history - The chat history.
+  * @param systemInstruction - The system instruction for the model.
+  * @returns The model's response.
+  */
+ export const chatWithArtExpert = async (
+   message: string,
+   history: any[],
+   systemInstruction: string
+ ) => {
+   if (!API_KEY) {
+     console.error('API Key is missing!');
+     throw new Error('未检测到 API Key，请检查环境变量配置。');
+   }
+ 
+   try {
+     const model = genAI.getGenerativeModel({
+       model: "gemini-1.5-flash",
+       systemInstruction: systemInstruction,
+     });
+ 
+     const chat = model.startChat({
+       history: history,
+       generationConfig: {
+         maxOutputTokens: 1000,
+       },
+     });
+ 
+     const result = await chat.sendMessage(message);
+     const response = await result.response;
+     const text = response.text();
+ 
+     // A simple check for grounding links, you might need a more robust implementation
+     const groundingLinks = text.match(/\[source: (.*?)\]/g) || [];
+ 
+     return { text, links: groundingLinks };
+   } catch (error) {
+     console.error('chatWithArtExpert 调用失败:', error);
+     throw error;
+   }
  }; 
   
  const API_KEY = getApiKey(); 
