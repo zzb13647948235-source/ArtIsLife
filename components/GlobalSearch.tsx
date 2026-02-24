@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, X, ArrowRight } from 'lucide-react';
 import { MASTERPIECE_COLLECTION, ART_STYLES, GAME_LEVELS } from '../constants';
 import { ViewState } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface SearchResult {
   type: 'artwork' | 'style' | 'game';
@@ -57,6 +58,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ onNavigate }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { t } = useLanguage();
 
   const search = useCallback((q: string) => {
     if (!q.trim()) { setResults([]); return; }
@@ -89,7 +91,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ onNavigate }) => {
     setOpen(false);
   };
 
-  const typeLabel = { artwork: '画作', style: '风格', game: '挑战' };
+  const typeLabel = { artwork: t('search.type_artwork'), style: t('search.type_style'), game: t('search.type_game') };
   const typeColor = { artwork: 'text-art-primary', style: 'text-indigo-500', game: 'text-emerald-500' };
 
   return (
@@ -100,8 +102,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ onNavigate }) => {
         className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-stone-200 dark:border-white/10 text-stone-400 hover:text-stone-700 dark:hover:text-white hover:border-stone-300 transition-all text-xs bg-white/50 dark:bg-white/5 backdrop-blur-sm"
       >
         <Search size={12} />
-        <span className="hidden sm:inline">搜索</span>
-        <kbd className="hidden sm:inline text-[9px] px-1.5 py-0.5 bg-stone-100 dark:bg-white/10 rounded font-mono">⌘K</kbd>
+        <span className="hidden sm:inline">{t('search.trigger')}</span>
       </button>
 
       {/* Modal */}
@@ -118,7 +119,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ onNavigate }) => {
                 ref={inputRef}
                 value={query}
                 onChange={e => setQuery(e.target.value)}
-                placeholder="搜索画作、艺术家、风格..."
+                placeholder={t('search.placeholder')}
                 className="flex-1 bg-transparent text-stone-900 dark:text-white placeholder-stone-400 outline-none text-base"
               />
               {query && <button onClick={() => setQuery('')}><X size={16} className="text-stone-400 hover:text-stone-700" /></button>}
@@ -147,9 +148,9 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ onNavigate }) => {
                 ))}
               </ul>
             ) : query ? (
-              <div className="py-12 text-center text-stone-400 text-sm">未找到相关结果</div>
+              <div className="py-12 text-center text-stone-400 text-sm">{t('search.no_results')}</div>
             ) : (
-              <div className="py-8 text-center text-stone-400 text-xs">输入关键词搜索画作、艺术家或风格</div>
+              <div className="py-8 text-center text-stone-400 text-xs">{t('search.empty_hint')}</div>
             )}
           </div>
         </div>

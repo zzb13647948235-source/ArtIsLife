@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, Zap, Palette, Star, Check, Gift, Flame, ShoppingBag, Coins } from 'lucide-react';
+import { X, Check, Flame, ShoppingBag } from 'lucide-react';
 import { User } from '../types';
 import { authService } from '../services/authService';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ShopItem {
   id: string;
-  name: string;
-  desc: string;
   price: number;
   category: 'tool' | 'cosmetic' | 'collectible';
   rarity: 'common' | 'rare' | 'legendary';
@@ -14,15 +13,15 @@ interface ShopItem {
 }
 
 const SHOP_ITEMS: ShopItem[] = [
-  { id: 'hint_pack',     name: '色彩提示包',   desc: '获得 3 次游戏色彩提示机会',        price: 200,  category: 'tool',        rarity: 'common',    emoji: '💡' },
-  { id: 'magic_brush',   name: '神来之笔',     desc: '游戏中一键完美修复一个区域',        price: 500,  category: 'tool',        rarity: 'rare',      emoji: '🖌️' },
-  { id: 'hd_export',     name: '高清导出券',   desc: '将 AI 画作导出为 4K 超清画质',     price: 300,  category: 'tool',        rarity: 'common',    emoji: '🖼️' },
-  { id: 'silver_frame',  name: '银色头像框',   desc: '为你的头像添加精致银色边框',        price: 500,  category: 'cosmetic',    rarity: 'common',    emoji: '🪞' },
-  { id: 'gold_frame',    name: '金色头像框',   desc: '尊贵金色头像框，彰显艺术品味',      price: 1000, category: 'cosmetic',    rarity: 'rare',      emoji: '👑' },
-  { id: 'artist_badge',  name: '艺术家徽章',   desc: '专属徽章，展示你的创作热情',        price: 800,  category: 'cosmetic',    rarity: 'rare',      emoji: '🎨' },
-  { id: 'wallpaper_pack',name: '大师壁纸包',   desc: '解锁 10 张独家大师作品壁纸',       price: 400,  category: 'collectible', rarity: 'common',    emoji: '🗂️' },
-  { id: 'color_theory',  name: '色彩理论课',   desc: '解锁专属色彩理论深度内容',          price: 600,  category: 'collectible', rarity: 'rare',      emoji: '🎭' },
-  { id: 'master_seal',   name: '大师印章',     desc: '传说级收藏品，证明你的艺术造诣',    price: 2000, category: 'collectible', rarity: 'legendary', emoji: '⭐' },
+  { id: 'hint_pack',      price: 200,  category: 'tool',        rarity: 'common',    emoji: '💡' },
+  { id: 'magic_brush',    price: 500,  category: 'tool',        rarity: 'rare',      emoji: '🖌️' },
+  { id: 'hd_export',      price: 300,  category: 'tool',        rarity: 'common',    emoji: '🖼️' },
+  { id: 'silver_frame',   price: 500,  category: 'cosmetic',    rarity: 'common',    emoji: '🪞' },
+  { id: 'gold_frame',     price: 1000, category: 'cosmetic',    rarity: 'rare',      emoji: '👑' },
+  { id: 'artist_badge',   price: 800,  category: 'cosmetic',    rarity: 'rare',      emoji: '🎨' },
+  { id: 'wallpaper_pack', price: 400,  category: 'collectible', rarity: 'common',    emoji: '🗂️' },
+  { id: 'color_theory',   price: 600,  category: 'collectible', rarity: 'rare',      emoji: '🎭' },
+  { id: 'master_seal',    price: 2000, category: 'collectible', rarity: 'legendary', emoji: '⭐' },
 ];
 
 const CHECKIN_REWARDS = [100, 150, 200, 250, 300, 400, 500];
@@ -33,9 +32,6 @@ const rarityStyle: Record<string, string> = {
   common:    'border-stone-200 bg-white',
   rare:      'border-indigo-200 bg-indigo-50/40',
   legendary: 'border-amber-300 bg-amber-50/60 ring-1 ring-amber-300/40',
-};
-const rarityLabel: Record<string, string> = {
-  common: '普通', rare: '稀有', legendary: '传说',
 };
 const rarityBadge: Record<string, string> = {
   common:    'bg-stone-100 text-stone-500',
@@ -57,6 +53,7 @@ const ArtCoinShop: React.FC<ArtCoinShopProps> = ({ user, onClose, onUserUpdate, 
   const [checkinDone, setCheckinDone] = useState(false);
   const [streak, setStreak] = useState(0);
   const [checkinLoading, setCheckinLoading] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     try {
@@ -91,7 +88,7 @@ const ArtCoinShop: React.FC<ArtCoinShopProps> = ({ user, onClose, onUserUpdate, 
       onUserUpdate(updated);
       setCheckinDone(true);
       setStreak(newStreak);
-      showToast(`签到成功！获得 ${reward} ArtCoin 🎉`, true);
+      showToast(`${t('shop.checkin_title')} +${reward} ArtCoin 🎉`, true);
     } catch (e: any) {
       showToast(e.message || '签到失败', false);
     } finally {
@@ -106,9 +103,9 @@ const ArtCoinShop: React.FC<ArtCoinShopProps> = ({ user, onClose, onUserUpdate, 
     try {
       const updated = await authService.purchaseItem(user.id, item.price, item.id);
       onUserUpdate(updated);
-      showToast(`「${item.name}」已收入囊中 ✨`, true);
+      showToast(t('shop.toast_success').replace('{name}', t(`shop.item_${item.id}_name`)), true);
     } catch (e: any) {
-      showToast(e.message || '购买失败', false);
+      showToast(e.message || t('shop.toast_fail'), false);
     } finally {
       setPurchasing(null);
     }
@@ -127,7 +124,7 @@ const ArtCoinShop: React.FC<ArtCoinShopProps> = ({ user, onClose, onUserUpdate, 
         <div className="flex items-center justify-between px-8 pt-8 pb-4 shrink-0">
           <div className="flex items-center gap-3">
             <ShoppingBag size={22} className="text-art-primary" />
-            <h2 className="font-serif text-2xl italic text-art-accent">ArtCoin 兑换商店</h2>
+            <h2 className="font-serif text-2xl italic text-art-accent">{t('shop.title')}</h2>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-full">
@@ -144,9 +141,9 @@ const ArtCoinShop: React.FC<ArtCoinShopProps> = ({ user, onClose, onUserUpdate, 
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-art-primary/10 flex items-center justify-center text-2xl">🎁</div>
             <div>
-              <p className="font-bold text-art-accent text-sm">每日签到</p>
+              <p className="font-bold text-art-accent text-sm">{t('shop.checkin_title')}</p>
               <p className="text-stone-500 text-xs mt-0.5">
-                {streak > 0 ? <span className="flex items-center gap-1"><Flame size={11} className="text-orange-500" />连续 {streak} 天</span> : '今日尚未签到'}
+                {streak > 0 ? <span className="flex items-center gap-1"><Flame size={11} className="text-orange-500" />{t('shop.checkin_streak').replace('{n}', String(streak))}</span> : t('shop.checkin_idle')}
               </p>
             </div>
             <div className="flex gap-1.5 ml-2">
@@ -164,17 +161,17 @@ const ArtCoinShop: React.FC<ArtCoinShopProps> = ({ user, onClose, onUserUpdate, 
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all active:scale-95
               ${checkinDone ? 'bg-stone-100 text-stone-400 cursor-default' : 'bg-art-primary text-white hover:bg-art-accent shadow-md'}`}
           >
-            {checkinDone ? <span className="flex items-center gap-1.5"><Check size={12} /> 已签到</span> : checkinLoading ? '...' : `领取 +${todayReward}`}
+            {checkinDone ? <span className="flex items-center gap-1.5"><Check size={12} /> {t('shop.checkin_done')}</span> : checkinLoading ? '...' : t('shop.checkin_claim').replace('{n}', String(todayReward))}
           </button>
         </div>
 
         {/* Tabs */}
         <div className="flex gap-2 px-8 mb-4 shrink-0">
-          {([['all','全部'], ['tool','道具'], ['cosmetic','装扮'], ['collectible','藏品']] as const).map(([key, label]) => (
+          {(['all','tool','cosmetic','collectible'] as const).map((key) => (
             <button key={key} onClick={() => setTab(key)}
               className={`px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all
                 ${tab === key ? 'bg-art-accent text-white shadow-sm' : 'bg-white text-stone-500 hover:text-stone-800 border border-stone-200'}`}>
-              {label}
+              {t(`shop.tab_${key}`)}
             </button>
           ))}
         </div>
@@ -191,10 +188,10 @@ const ArtCoinShop: React.FC<ArtCoinShopProps> = ({ user, onClose, onUserUpdate, 
                   {item.rarity === 'legendary' && <div className="absolute -top-px left-4 right-4 h-px bg-gradient-to-r from-transparent via-amber-400 to-transparent" />}
                   <div className="text-3xl mb-3">{item.emoji}</div>
                   <div className="flex items-start justify-between gap-1 mb-1">
-                    <p className="font-bold text-art-accent text-sm leading-tight">{item.name}</p>
-                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${rarityBadge[item.rarity]}`}>{rarityLabel[item.rarity]}</span>
+                    <p className="font-bold text-art-accent text-sm leading-tight">{t(`shop.item_${item.id}_name`)}</p>
+                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${rarityBadge[item.rarity]}`}>{t(`shop.rarity_${item.rarity}`)}</span>
                   </div>
-                  <p className="text-stone-400 text-[11px] leading-relaxed mb-4">{item.desc}</p>
+                  <p className="text-stone-400 text-[11px] leading-relaxed mb-4">{t(`shop.item_${item.id}_desc`)}</p>
                   <div className="flex items-center justify-between">
                     <span className="text-amber-600 font-bold text-sm flex items-center gap-1">🪙 {item.price.toLocaleString()}</span>
                     <button
@@ -205,7 +202,7 @@ const ArtCoinShop: React.FC<ArtCoinShopProps> = ({ user, onClose, onUserUpdate, 
                           : !canAfford ? 'bg-stone-100 text-stone-300 cursor-not-allowed'
                           : 'bg-art-accent text-white hover:bg-art-primary shadow-sm'}`}
                     >
-                      {isOwned ? <span className="flex items-center gap-1"><Check size={10} />已拥有</span> : isBuying ? '...' : !canAfford ? '不足' : '兑换'}
+                      {isOwned ? <span className="flex items-center gap-1"><Check size={10} />{t('shop.owned')}</span> : isBuying ? '...' : !canAfford ? t('shop.insufficient') : t('shop.redeem')}
                     </button>
                   </div>
                 </div>

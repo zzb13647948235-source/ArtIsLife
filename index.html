@@ -42,14 +42,14 @@
             },
             colors: {
               art: {
-                bg: '#F9F8F6', 
-                surface: '#FFFFFF', 
-                primary: '#BC4B1A', 
-                secondary: '#2D2A26', 
-                accent: '#0F0F0F', 
-                muted: '#8E8E93', 
-                border: '#E5E5EA', 
-                gold: '#C5A059',   
+                bg:        'var(--art-bg)',
+                surface:   'var(--art-surface)',
+                primary:   'var(--art-primary)',
+                secondary: 'var(--art-secondary)',
+                accent:    'var(--art-accent)',
+                muted:     'var(--art-muted)',
+                border:    'var(--art-border)',
+                gold:      'var(--art-gold)',
               }
             },
             boxShadow: {
@@ -115,12 +115,32 @@
       }
     </script>
     <style>
+      :root {
+        --art-bg:        #F9F8F6;
+        --art-surface:   #FFFFFF;
+        --art-primary:   #BC4B1A;
+        --art-secondary: #2D2A26;
+        --art-accent:    #0F0F0F;
+        --art-muted:     #8E8E93;
+        --art-border:    #E5E5EA;
+        --art-gold:      #C5A059;
+      }
+      .dark {
+        --art-bg:        #111110;
+        --art-surface:   #1C1C1A;
+        --art-primary:   #E05A22;
+        --art-secondary: #D4CFC8;
+        --art-accent:    #F5F4F0;
+        --art-muted:     #8E8E93;
+        --art-border:    #2D2D2A;
+        --art-gold:      #D4AF37;
+      }
       html, body {
         margin: 0;
         padding: 0;
         height: 100%;
         width: 100%;
-        background-color: #F9F8F6; 
+        background-color: var(--art-bg);
         cursor: default; /* Reset to default, handle custom cursor via React */
         overflow: hidden; /* Prevent body scroll, handle inside App */
         overscroll-behavior: none;
