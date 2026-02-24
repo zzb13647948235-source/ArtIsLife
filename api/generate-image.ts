@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { applySecurityHeaders, ensurePost, validatePrompt } from './_lib/security';
-import { getClient } from './_lib/gemini-client';
+import { applySecurityHeaders, ensurePost, validatePrompt } from './_lib/security.js';
+import { getClient } from './_lib/gemini-client.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   applySecurityHeaders(res);
