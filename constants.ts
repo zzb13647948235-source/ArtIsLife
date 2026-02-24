@@ -375,10 +375,135 @@ export const ART_STYLES = [
         imageUrl: '/artworks/paintings/Saskia as Flora.jpg'
       },
       {
-        title: '自画像',
+        title: '夜巡',
         artist: '伦勃朗·凡·莱因',
-        desc: '伦勃朗一生创作了近百幅自画像，被称为"画布上的自传"。这幅晚年自画像中，饱经沧桑的面容在暗色背景中浮现，深邃的目光中饱含着对人生的洞察和对艺术的执着。',
-        imageUrl: '/artworks/paintings/Self-Portrait.jpg'
+        desc: '这是西方美术史上最著名的群像画之一。伦勃朗打破了传统群像画的静态构图，将阿姆斯特丹民兵队描绘成正在出发巡逻的动态场景。强烈的明暗对比和戏剧性的光线，赋予了画面震撼人心的生命力。',
+        imageUrl: '/artworks/paintings/Rembrandt - The Night Watch.jpg'
+      }
+    ]
+  },
+  {
+    id: 'neoclassicism',
+    name: '新古典主义',
+    enName: 'Neoclassicism',
+    period: '1760 - 1850',
+    color: 'bg-slate-50 border-slate-200',
+    era: '18-19世纪',
+    region: '法国',
+    medium: '油画',
+    tags: ['理性', '历史', '英雄', '古典'],
+    works: [
+      {
+        title: '荷拉斯兄弟之誓',
+        artist: '雅克-路易·大卫',
+        desc: '大卫以古罗马英雄主义题材，创作了这幅新古典主义的奠基之作。三兄弟向父亲宣誓为国捐躯，刚毅的姿态与悲泣的女眷形成强烈对比。严谨的构图和冷峻的色调，传达出理性与牺牲精神的崇高。',
+        imageUrl: '/artworks/paintings/David - Oath of the Horatii.jpg'
+      },
+      {
+        title: '马拉之死',
+        artist: '雅克-路易·大卫',
+        desc: '法国大革命的视觉纪念碑。大卫以近乎宗教圣像的庄严感，描绘了革命领袖马拉在浴缸中遇刺的场景。极简的构图、强烈的光影和手中未放下的笔，将一个政治事件升华为永恒的殉道图像。',
+        imageUrl: '/artworks/paintings/David - The Death of Marat.jpg'
+      }
+    ]
+  },
+  {
+    id: 'spanish-golden-age',
+    name: '西班牙黄金时代',
+    enName: 'Spanish Golden Age',
+    period: '1550 - 1700',
+    color: 'bg-red-50 border-red-300',
+    era: '16-17世纪',
+    region: '西班牙',
+    medium: '油画',
+    tags: ['宗教', '宫廷', '戏剧', '光影'],
+    works: [
+      {
+        title: '宫娥',
+        artist: '迭戈·委拉斯开兹',
+        desc: '西方绘画史上最神秘的杰作之一。画面中，委拉斯开兹本人正在作画，小公主玛格丽特被侍女环绕，而背景镜中隐约映出国王夫妇的身影。这幅画对观看者与被观看者关系的探讨，令后世艺术家和哲学家着迷不已。',
+        imageUrl: '/artworks/paintings/Velazquez - Las Meninas.jpg'
+      },
+      {
+        title: '托莱多风景',
+        artist: '埃尔·格列柯',
+        desc: '格列柯以扭曲拉长的人物和强烈的色彩著称，而这幅风景画则展现了他另一面的天才。乌云翻滚的天空笼罩着古城托莱多，绿色的山丘与灰白的建筑在暴风雨前的光线中显得神秘而震撼，被视为西方风景画的先驱之作。',
+        imageUrl: '/artworks/paintings/El Greco - View of Toledo.jpg'
+      }
+    ]
+  },
+  {
+    id: 'expressionism',
+    name: '表现主义',
+    enName: 'Expressionism',
+    period: '1890 - 1940',
+    color: 'bg-gray-100 border-gray-300',
+    era: '19世纪末-20世纪初',
+    region: '北欧/中欧',
+    medium: '油画',
+    tags: ['焦虑', '情感', '扭曲', '内心'],
+    works: [
+      {
+        title: '呐喊',
+        artist: '爱德华·蒙克',
+        desc: '这是现代艺术史上最具辨识度的图像之一。蒙克描绘了一个在血红色天空下发出无声呐喊的人物，扭曲的线条和强烈的色彩将人类内心深处的焦虑与存在主义恐惧外化为视觉语言，成为现代人精神困境的永恒象征。',
+        imageUrl: '/artworks/paintings/Munch - The Scream.jpg'
+      },
+      {
+        title: '带绷带的自画像',
+        artist: '文森特·梵高',
+        desc: '梵高在割掉自己耳朵后不久创作了这幅自画像。他以平静而直接的目光注视着观者，包扎的耳朵和厚重的冬衣诉说着刚刚经历的痛苦。这幅画是梵高内心世界最真实的写照，也是艺术史上最令人动容的自我审视之一。',
+        imageUrl: '/artworks/paintings/Van Gogh - Self-Portrait with Bandaged Ear.jpg'
+      }
+    ]
+  },
+  {
+    id: 'cubism-fauvism',
+    name: '立体主义与野兽派',
+    enName: 'Cubism & Fauvism',
+    period: '1905 - 1940',
+    color: 'bg-violet-50 border-violet-200',
+    era: '20世纪初',
+    region: '法国',
+    medium: '油画',
+    tags: ['解构', '色彩', '形式', '革命'],
+    works: [
+      {
+        title: '格尔尼卡',
+        artist: '巴勃罗·毕加索',
+        desc: '毕加索为抗议纳粹德国轰炸西班牙小镇格尔尼卡而创作的这幅巨作，是20世纪最有力的反战宣言。黑白灰的色调、破碎扭曲的人体与动物，将战争的恐怖与人类的苦难凝固成永恒的控诉，震撼着每一位观者的良知。',
+        imageUrl: '/artworks/paintings/Picasso - Guernica.jpg'
+      },
+      {
+        title: '舞蹈',
+        artist: '亨利·马蒂斯',
+        desc: '马蒂斯用最简洁的线条和最纯粹的色彩，描绘了五个裸体人物手拉手围成圆圈起舞的场景。鲜艳的红色人体、蓝色天空和绿色大地，构成了一首关于生命、喜悦与自由的视觉颂歌，是野兽派艺术的巅峰之作。',
+        imageUrl: '/artworks/paintings/Matisse - The Dance.jpg'
+      }
+    ]
+  },
+  {
+    id: 'russian-realism',
+    name: '俄罗斯现实主义',
+    enName: 'Russian Realism',
+    period: '1860 - 1900',
+    color: 'bg-cyan-50 border-cyan-200',
+    era: '19世纪',
+    region: '俄罗斯',
+    medium: '油画',
+    tags: ['社会', '历史', '民族', '批判'],
+    works: [
+      {
+        title: '伊凡雷帝杀子',
+        artist: '伊利亚·列宾',
+        desc: '列宾以极度写实的手法，描绘了俄国沙皇伊凡雷帝在盛怒之下杀死亲生儿子后的悔恨瞬间。父亲颤抖的双手捂住儿子的伤口，儿子垂死的眼神中没有怨恨，只有宽恕。这幅画因过于震撼而曾被沙皇下令禁止展出。',
+        imageUrl: '/artworks/paintings/Ivan the Terrible and His Son Ivan.jpg'
+      },
+      {
+        title: '博亚里娜·莫罗佐娃',
+        artist: '瓦西里·苏里科夫',
+        desc: '苏里科夫描绘了17世纪俄国宗教改革中，贵族女信徒莫罗佐娃被押送流放时高举两指（旧礼仪派手势）的悲壮场景。雪地上的囚车、围观人群的各异神情，构成了一幅震撼人心的历史画卷，是俄罗斯历史画的巅峰之作。',
+        imageUrl: '/artworks/paintings/Surikov - Boyarina Morozova.jpg'
       }
     ]
   }
@@ -508,6 +633,122 @@ export const MASTERPIECE_COLLECTION = [
     { title: "Rain, Steam and Speed", artist: "J.M.W. Turner", url: "/artworks/paintings/Turner - Rain Steam and Speed.jpg", type: "landscape", year: "1844" },
     { title: "Snowstorm at Sea", artist: "J.M.W. Turner", url: "/artworks/paintings/Turner - Snowstorm at Sea.jpg", type: "landscape", year: "1842" },
     { title: "Venice from the Porch", artist: "J.M.W. Turner", url: "/artworks/paintings/Turner - Venice from the Porch.jpg", type: "landscape", year: "1835" },
+    // --- 100 new public-domain masterpieces ---
+    // Vermeer
+    { title: "Girl with a Pearl Earring", artist: "Johannes Vermeer", url: "/artworks/paintings/Vermeer - Girl with a Pearl Earring.jpg", type: "portrait", year: "1665" },
+    { title: "The Milkmaid", artist: "Johannes Vermeer", url: "/artworks/paintings/Vermeer - The Milkmaid.jpg", type: "portrait", year: "1658" },
+    { title: "Woman Reading a Letter", artist: "Johannes Vermeer", url: "/artworks/paintings/Vermeer - Woman Reading a Letter.jpg", type: "portrait", year: "1663" },
+    { title: "The Art of Painting", artist: "Johannes Vermeer", url: "/artworks/paintings/Vermeer - The Art of Painting.jpg", type: "portrait", year: "1668" },
+    { title: "View of Delft", artist: "Johannes Vermeer", url: "/artworks/paintings/Vermeer - View of Delft.jpg", type: "landscape", year: "1661" },
+    // Botticelli
+    { title: "Birth of Venus", artist: "Sandro Botticelli", url: "/artworks/paintings/Botticelli - Birth of Venus.jpg", type: "portrait", year: "1485" },
+    { title: "Pallas and the Centaur", artist: "Sandro Botticelli", url: "/artworks/paintings/Botticelli - Pallas and the Centaur.jpg", type: "portrait", year: "1482" },
+    { title: "Portrait of a Young Woman", artist: "Sandro Botticelli", url: "/artworks/paintings/Botticelli - Portrait of a Young Woman.jpg", type: "portrait", year: "1480" },
+    // Titian
+    { title: "Venus of Urbino", artist: "Titian", url: "/artworks/paintings/Titian - Venus of Urbino.jpg", type: "portrait", year: "1538" },
+    { title: "Bacchus and Ariadne", artist: "Titian", url: "/artworks/paintings/Titian - Bacchus and Ariadne.jpg", type: "portrait", year: "1523" },
+    { title: "Portrait of a Man", artist: "Titian", url: "/artworks/paintings/Titian - Portrait of a Man.jpg", type: "portrait", year: "1512" },
+    { title: "Assumption of the Virgin", artist: "Titian", url: "/artworks/paintings/Titian - Assumption of the Virgin.jpg", type: "portrait", year: "1518" },
+    // Rubens
+    { title: "The Garden of Love", artist: "Peter Paul Rubens", url: "/artworks/paintings/Rubens - The Garden of Love.jpg", type: "portrait", year: "1633" },
+    { title: "Samson and Delilah", artist: "Peter Paul Rubens", url: "/artworks/paintings/Rubens - Samson and Delilah.jpg", type: "portrait", year: "1610" },
+    { title: "The Three Graces", artist: "Peter Paul Rubens", url: "/artworks/paintings/Rubens - The Three Graces.jpg", type: "portrait", year: "1635" },
+    { title: "Descent from the Cross", artist: "Peter Paul Rubens", url: "/artworks/paintings/Rubens - Descent from the Cross.jpg", type: "portrait", year: "1614" },
+    // Rembrandt
+    { title: "The Night Watch", artist: "Rembrandt van Rijn", url: "/artworks/paintings/Rembrandt - The Night Watch.jpg", type: "portrait", year: "1642" },
+    { title: "The Anatomy Lesson of Dr. Tulp", artist: "Rembrandt van Rijn", url: "/artworks/paintings/Rembrandt - The Anatomy Lesson.jpg", type: "portrait", year: "1632" },
+    { title: "Return of the Prodigal Son", artist: "Rembrandt van Rijn", url: "/artworks/paintings/Rembrandt - Return of the Prodigal Son.jpg", type: "portrait", year: "1669" },
+    { title: "Belshazzar's Feast", artist: "Rembrandt van Rijn", url: "/artworks/paintings/Rembrandt - Belshazzar Feast.jpg", type: "portrait", year: "1635" },
+    // Velázquez
+    { title: "Las Meninas", artist: "Diego Velázquez", url: "/artworks/paintings/Velazquez - Las Meninas.jpg", type: "portrait", year: "1656" },
+    { title: "Portrait of Pope Innocent X", artist: "Diego Velázquez", url: "/artworks/paintings/Velazquez - Portrait of Pope Innocent X.jpg", type: "portrait", year: "1650" },
+    { title: "The Surrender of Breda", artist: "Diego Velázquez", url: "/artworks/paintings/Velazquez - The Surrender of Breda.jpg", type: "realism", year: "1635" },
+    // Goya
+    { title: "Saturn Devouring His Son", artist: "Francisco Goya", url: "/artworks/paintings/Goya - Saturn Devouring His Son.jpg", type: "abstract", year: "1823" },
+    { title: "The Third of May 1808", artist: "Francisco Goya", url: "/artworks/paintings/Goya - The Third of May 1808.jpg", type: "realism", year: "1814" },
+    { title: "The Naked Maja", artist: "Francisco Goya", url: "/artworks/paintings/Goya - The Naked Maja.jpg", type: "portrait", year: "1800" },
+    { title: "The Clothed Maja", artist: "Francisco Goya", url: "/artworks/paintings/Goya - The Clothed Maja.jpg", type: "portrait", year: "1803" },
+    // El Greco
+    { title: "View of Toledo", artist: "El Greco", url: "/artworks/paintings/El Greco - View of Toledo.jpg", type: "landscape", year: "1600" },
+    { title: "The Burial of the Count of Orgaz", artist: "El Greco", url: "/artworks/paintings/El Greco - The Burial of the Count of Orgaz.jpg", type: "portrait", year: "1588" },
+    { title: "The Disrobing of Christ", artist: "El Greco", url: "/artworks/paintings/El Greco - The Disrobing of Christ.jpg", type: "portrait", year: "1579" },
+    // Neoclassicism
+    { title: "Et in Arcadia Ego", artist: "Nicolas Poussin", url: "/artworks/paintings/Poussin - Et in Arcadia Ego.jpg", type: "portrait", year: "1637" },
+    { title: "Pilgrimage to Cythera", artist: "Antoine Watteau", url: "/artworks/paintings/Watteau - Pilgrimage to Cythera.jpg", type: "landscape", year: "1717" },
+    { title: "Oath of the Horatii", artist: "Jacques-Louis David", url: "/artworks/paintings/David - Oath of the Horatii.jpg", type: "realism", year: "1784" },
+    { title: "The Death of Marat", artist: "Jacques-Louis David", url: "/artworks/paintings/David - The Death of Marat.jpg", type: "realism", year: "1793" },
+    { title: "Napoleon Crossing the Alps", artist: "Jacques-Louis David", url: "/artworks/paintings/David - Napoleon Crossing the Alps.jpg", type: "portrait", year: "1801" },
+    { title: "La Grande Odalisque", artist: "Jean-Auguste-Dominique Ingres", url: "/artworks/paintings/Ingres - La Grande Odalisque.jpg", type: "portrait", year: "1814" },
+    { title: "The Turkish Bath", artist: "Jean-Auguste-Dominique Ingres", url: "/artworks/paintings/Ingres - The Turkish Bath.jpg", type: "portrait", year: "1862" },
+    // Realism / Barbizon
+    { title: "A Burial at Ornans", artist: "Gustave Courbet", url: "/artworks/paintings/Courbet - A Burial at Ornans.jpg", type: "realism", year: "1850" },
+    { title: "The Origin of the World", artist: "Gustave Courbet", url: "/artworks/paintings/Courbet - The Origin of the World.jpg", type: "realism", year: "1866" },
+    { title: "The Gleaners", artist: "Jean-François Millet", url: "/artworks/paintings/Millet - The Gleaners.jpg", type: "realism", year: "1857" },
+    { title: "The Angelus", artist: "Jean-François Millet", url: "/artworks/paintings/Millet - The Angelus.jpg", type: "realism", year: "1859" },
+    // Impressionism (new works)
+    { title: "Impression, Sunrise", artist: "Claude Monet", url: "/artworks/paintings/Monet - Impression Sunrise.jpg", type: "landscape", year: "1872" },
+    { title: "Haystacks at Sunset", artist: "Claude Monet", url: "/artworks/paintings/Monet - Haystacks at Sunset.jpg", type: "landscape", year: "1891" },
+    { title: "Poplars on the Epte", artist: "Claude Monet", url: "/artworks/paintings/Monet - Poplars on the Epte.jpg", type: "landscape", year: "1891" },
+    { title: "The Japanese Footbridge", artist: "Claude Monet", url: "/artworks/paintings/Monet - The Japanese Footbridge.jpg", type: "landscape", year: "1899" },
+    { title: "Dance at Le Moulin de la Galette", artist: "Pierre-Auguste Renoir", url: "/artworks/paintings/Renoir - Dance at Le Moulin de la Galette.jpg", type: "portrait", year: "1876" },
+    { title: "Two Sisters on the Terrace", artist: "Pierre-Auguste Renoir", url: "/artworks/paintings/Renoir - Two Sisters on the Terrace.jpg", type: "portrait", year: "1881" },
+    { title: "The Umbrellas", artist: "Pierre-Auguste Renoir", url: "/artworks/paintings/Renoir - The Umbrellas.jpg", type: "portrait", year: "1886" },
+    { title: "Boulevard Montmartre", artist: "Camille Pissarro", url: "/artworks/paintings/Pissarro - Boulevard Montmartre.jpg", type: "landscape", year: "1897" },
+    { title: "Flood at Port-Marly", artist: "Alfred Sisley", url: "/artworks/paintings/Sisley - Flood at Port-Marly.jpg", type: "landscape", year: "1876" },
+    // Post-Impressionism (new works)
+    { title: "The Card Players", artist: "Paul Cézanne", url: "/artworks/paintings/Cezanne - The Card Players.jpg", type: "realism", year: "1895" },
+    { title: "Mont Sainte-Victoire", artist: "Paul Cézanne", url: "/artworks/paintings/Cezanne - Mont Sainte-Victoire.jpg", type: "landscape", year: "1904" },
+    { title: "The Large Bathers", artist: "Paul Cézanne", url: "/artworks/paintings/Cezanne - The Large Bathers.jpg", type: "portrait", year: "1906" },
+    { title: "Where Do We Come From? What Are We? Where Are We Going?", artist: "Paul Gauguin", url: "/artworks/paintings/Gauguin - Where Do We Come From.jpg", type: "abstract", year: "1898" },
+    { title: "The Vision After the Sermon", artist: "Paul Gauguin", url: "/artworks/paintings/Gauguin - The Vision After the Sermon.jpg", type: "abstract", year: "1888" },
+    { title: "Spirit of the Dead Watching", artist: "Paul Gauguin", url: "/artworks/paintings/Gauguin - Spirit of the Dead Watching.jpg", type: "portrait", year: "1892" },
+    { title: "The Starry Night", artist: "Vincent van Gogh", url: "/artworks/paintings/Van Gogh - The Starry Night.jpg", type: "landscape", year: "1889" },
+    { title: "Sunflowers", artist: "Vincent van Gogh", url: "/artworks/paintings/Van Gogh - Sunflowers.jpg", type: "landscape", year: "1888" },
+    { title: "Self-Portrait with Bandaged Ear", artist: "Vincent van Gogh", url: "/artworks/paintings/Van Gogh - Self-Portrait with Bandaged Ear.jpg", type: "portrait", year: "1889" },
+    { title: "The Potato Eaters", artist: "Vincent van Gogh", url: "/artworks/paintings/Van Gogh - The Potato Eaters.jpg", type: "realism", year: "1885" },
+    { title: "A Sunday on La Grande Jatte", artist: "Georges Seurat", url: "/artworks/paintings/Seurat - A Sunday on La Grande Jatte.jpg", type: "landscape", year: "1886" },
+    { title: "At the Moulin Rouge", artist: "Henri de Toulouse-Lautrec", url: "/artworks/paintings/Toulouse-Lautrec - At the Moulin Rouge.jpg", type: "portrait", year: "1895" },
+    { title: "Jane Avril Dancing", artist: "Henri de Toulouse-Lautrec", url: "/artworks/paintings/Toulouse-Lautrec - Jane Avril Dancing.jpg", type: "portrait", year: "1892" },
+    // Vienna Secession / Expressionism
+    { title: "The Kiss", artist: "Gustav Klimt", url: "/artworks/paintings/Klimt - The Kiss.jpg", type: "abstract", year: "1908" },
+    { title: "Judith I", artist: "Gustav Klimt", url: "/artworks/paintings/Klimt - Judith I.jpg", type: "portrait", year: "1901" },
+    { title: "Hope II", artist: "Gustav Klimt", url: "/artworks/paintings/Klimt - Hope II.jpg", type: "portrait", year: "1908" },
+    { title: "Self-Portrait with Physalis", artist: "Egon Schiele", url: "/artworks/paintings/Schiele - Self-Portrait with Physalis.jpg", type: "portrait", year: "1912" },
+    { title: "The Scream", artist: "Edvard Munch", url: "/artworks/paintings/Munch - The Scream.jpg", type: "abstract", year: "1893" },
+    { title: "Madonna", artist: "Edvard Munch", url: "/artworks/paintings/Munch - Madonna.jpg", type: "portrait", year: "1894" },
+    // Abstract / Modernism
+    { title: "Composition VII", artist: "Wassily Kandinsky", url: "/artworks/paintings/Kandinsky - Composition VII.jpg", type: "abstract", year: "1913" },
+    { title: "Yellow-Red-Blue", artist: "Wassily Kandinsky", url: "/artworks/paintings/Kandinsky - Yellow-Red-Blue.jpg", type: "abstract", year: "1925" },
+    { title: "Broadway Boogie Woogie", artist: "Piet Mondrian", url: "/artworks/paintings/Mondrian - Broadway Boogie Woogie.jpg", type: "abstract", year: "1943" },
+    { title: "Black Square", artist: "Kazimir Malevich", url: "/artworks/paintings/Malevich - Black Square.jpg", type: "abstract", year: "1915" },
+    { title: "Suprematist Composition", artist: "Kazimir Malevich", url: "/artworks/paintings/Malevich - Suprematist Composition.jpg", type: "abstract", year: "1916" },
+    { title: "Les Demoiselles d'Avignon", artist: "Pablo Picasso", url: "/artworks/paintings/Picasso - Les Demoiselles d Avignon.jpg", type: "abstract", year: "1907" },
+    { title: "Guernica", artist: "Pablo Picasso", url: "/artworks/paintings/Picasso - Guernica.jpg", type: "abstract", year: "1937" },
+    { title: "The Weeping Woman", artist: "Pablo Picasso", url: "/artworks/paintings/Picasso - The Weeping Woman.jpg", type: "portrait", year: "1937" },
+    { title: "The Dance", artist: "Henri Matisse", url: "/artworks/paintings/Matisse - The Dance.jpg", type: "abstract", year: "1910" },
+    { title: "Woman with a Hat", artist: "Henri Matisse", url: "/artworks/paintings/Matisse - Woman with a Hat.jpg", type: "portrait", year: "1905" },
+    { title: "Reclining Nude", artist: "Amedeo Modigliani", url: "/artworks/paintings/Modigliani - Reclining Nude.jpg", type: "portrait", year: "1917" },
+    { title: "Portrait of Jeanne Hébuterne", artist: "Amedeo Modigliani", url: "/artworks/paintings/Modigliani - Portrait of Jeanne Hebuterne.jpg", type: "portrait", year: "1919" },
+    // British / American
+    { title: "Madame X", artist: "John Singer Sargent", url: "/artworks/paintings/Sargent - Madame X.jpg", type: "portrait", year: "1884" },
+    { title: "Arrangement in Grey and Black No.1", artist: "James McNeill Whistler", url: "/artworks/paintings/Whistler - Arrangement in Grey and Black.jpg", type: "portrait", year: "1871" },
+    { title: "Ophelia", artist: "John Everett Millais", url: "/artworks/paintings/Millais - Ophelia.jpg", type: "portrait", year: "1852" },
+    { title: "Beata Beatrix", artist: "Dante Gabriel Rossetti", url: "/artworks/paintings/Rossetti - Beata Beatrix.jpg", type: "portrait", year: "1870" },
+    { title: "The Golden Stairs", artist: "Edward Burne-Jones", url: "/artworks/paintings/Burne-Jones - The Golden Stairs.jpg", type: "portrait", year: "1880" },
+    { title: "The Roses of Heliogabalus", artist: "Lawrence Alma-Tadema", url: "/artworks/paintings/Alma-Tadema - The Roses of Heliogabalus.jpg", type: "portrait", year: "1888" },
+    { title: "The Birth of Venus", artist: "William-Adolphe Bouguereau", url: "/artworks/paintings/Bouguereau - The Birth of Venus.jpg", type: "portrait", year: "1879" },
+    { title: "Nymphs and Satyr", artist: "William-Adolphe Bouguereau", url: "/artworks/paintings/Bouguereau - Nymphs and Satyr.jpg", type: "portrait", year: "1873" },
+    { title: "Flaming June", artist: "Frederic Leighton", url: "/artworks/paintings/Leighton - Flaming June.jpg", type: "portrait", year: "1895" },
+    { title: "The Ball on Shipboard", artist: "James Tissot", url: "/artworks/paintings/Tissot - The Ball on Shipboard.jpg", type: "portrait", year: "1874" },
+    { title: "Walk on the Beach", artist: "Joaquín Sorolla", url: "/artworks/paintings/Sorolla - Walk on the Beach.jpg", type: "landscape", year: "1909" },
+    // Russian School
+    { title: "Unexpected Visitors", artist: "Ilya Repin", url: "/artworks/paintings/Repin - Unexpected Visitors.jpg", type: "realism", year: "1884" },
+    { title: "Above Eternal Peace", artist: "Isaac Levitan", url: "/artworks/paintings/Levitan - Above Eternal Peace.jpg", type: "landscape", year: "1894" },
+    { title: "Golden Autumn", artist: "Isaac Levitan", url: "/artworks/paintings/Levitan - Golden Autumn.jpg", type: "landscape", year: "1895" },
+    { title: "Morning of the Streltsy Execution", artist: "Vasily Surikov", url: "/artworks/paintings/Surikov - Morning of the Streltsy Execution.jpg", type: "realism", year: "1881" },
+    { title: "Boyarina Morozova", artist: "Vasily Surikov", url: "/artworks/paintings/Surikov - Boyarina Morozova.jpg", type: "realism", year: "1887" },
+    { title: "What is Truth?", artist: "Nikolai Ge", url: "/artworks/paintings/Ge - What is Truth.jpg", type: "realism", year: "1890" },
+    { title: "Christ in the Wilderness", artist: "Ivan Kramskoi", url: "/artworks/paintings/Kramskoi - Christ in the Wilderness.jpg", type: "realism", year: "1872" },
 ];
 
 // Dynamically generate levels from the masterpiece collection
