@@ -1,6 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { applySecurityHeaders, ensurePost, validatePrompt } from './_lib/security.js';
-import { getGenAI } from './_lib/gemini-client.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   applySecurityHeaders(res);
@@ -13,34 +12,56 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: validation.error });
     }
 
-    const genAI = getGenAI();
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'API key not configured' });
+    }
 
-    const result = await model.generateContent({
-      contents: [{
-        role: 'user',
-        parts: [{ text: `Generate a high quality oil painting style artwork: ${validation.sanitized}` }],
-      }],
-      generationConfig: {
-        responseModalities: ['TEXT', 'IMAGE'],
-      },
-    } as any);
-
-    const response = result.response;
-    const parts = response.candidates?.[0]?.content?.parts;
+    // Use Imagen 3 REST API directly
+    const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict';
     
-    if (parts) {
-      for (const part of parts) {
-        if ((part as any).inlineData?.data) {
-          const inlineData = (part as any).inlineData;
-          const mimeType = inlineData.mimeType || 'image/png';
-          if (!['image/png', 'image/jpeg', 'image/webp'].includes(mimeType)) {
-            return res.status(500).json({ error: '不支持的图片格式' });
-          }
-          return res.status(200).json({
-            imageData: `data:${mimeType};base64,${inlineData.data}`,
-          });
-        }
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey,
+      },
+      body: JSON.stringify({
+        instances: [
+          {
+            prompt: `High quality oil painting style artwork: ${validation.sanitized}`,
+          },
+        ],
+        parameters: {
+          sampleCount: 1,
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[generate-image API error]', response.status, errorText);
+      
+      if (response.status === 400) {
+        return res.status(400).json({
+          error: '请求被拒绝：提示词可能违反了安全策略，请调整后重试。',
+        });
+      }
+      return res.status(500).json({
+        error: '图片生成服务暂时不可用，请稍后重试。',
+      });
+    }
+
+    const data = await response.json();
+    
+    // Extract base64 image from response
+    const predictions = data.predictions;
+    if (predictions && predictions.length > 0) {
+      const imageData = predictions[0].bytesBase64Encoded;
+      if (imageData) {
+        return res.status(200).json({
+          imageData: `data:image/png;base64,${imageData}`,
+        });
       }
     }
 
@@ -49,13 +70,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (error: any) {
     console.error('[generate-image error]', error?.message || error);
-    const is400 =
-      error.message?.includes('400') ||
-      error.message?.includes('INVALID_ARGUMENT');
-    return res.status(is400 ? 400 : 500).json({
-      error: is400
-        ? '请求被拒绝：提示词可能违反了安全策略，请调整后重试。'
-        : '服务器内部错误，请稍后重试。',
+    return res.status(500).json({
+      error: '服务器内部错误，请稍后重试。',
     });
   }
 }

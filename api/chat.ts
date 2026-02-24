@@ -17,7 +17,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Sanitize history
-    const sanitizedHistory = Array.isArray(history)
+    let sanitizedHistory = Array.isArray(history)
       ? history.slice(-20).map((h: any) => ({
           role: h.role === 'user' || h.role === 'model' ? h.role : 'user',
           parts: Array.isArray(h.parts)
@@ -27,6 +27,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             : [],
         }))
       : [];
+
+    // Ensure first message is from 'user' role
+    while (sanitizedHistory.length > 0 && sanitizedHistory[0].role !== 'user') {
+      sanitizedHistory.shift();
+    }
 
     const genAI = getGenAI();
     const model = genAI.getGenerativeModel({
