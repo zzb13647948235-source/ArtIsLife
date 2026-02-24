@@ -1,69 +1,70 @@
-
-import { GroundingLink } from "../types";
-
-/**
- * Helper: Call backend API proxy endpoints.
- * All Gemini API calls are routed through the Vite dev server middleware,
- * so the API key is never exposed to the frontend.
- */
-const apiCall = async (endpoint: string, body: Record<string, any>): Promise<any> => {
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error || `请求失败 (${response.status})`);
-  }
-
-  return data;
-};
-
-/**
- * Generate an image using Gemini (via backend proxy)
- */
-export const generateArtImage = async (prompt: string): Promise<string> => {
-  try {
-    const data = await apiCall('/api/generate-image', { prompt });
-    return data.imageData;
-  } catch (error: any) {
-    console.error("Image generation error:", error);
-    throw error;
-  }
-};
-
-/**
- * Chat with Art Expert — Gemini + Search Grounding (via backend proxy)
- */
-export const chatWithArtExpert = async (
-  message: string,
-  history: { role: string; parts: { text: string }[] }[],
-  systemInstruction?: string
-): Promise<{ text: string; links: GroundingLink[] }> => {
-  try {
-    const data = await apiCall('/api/chat', { message, history, systemInstruction });
-    return { text: data.text, links: data.links || [] };
-  } catch (error: any) {
-    console.error("Chat error:", error);
-    throw error;
-  }
-};
-
-/**
- * Find museums — Gemini + Maps Grounding (via backend proxy)
- */
-export const findMuseums = async (
-  query: string,
-  location?: { lat: number; lng: number }
-): Promise<{ text: string; links: GroundingLink[] }> => {
-  try {
-    const data = await apiCall('/api/find-museums', { query, location });
-    return { text: data.text, links: data.links || [] };
-  } catch (error: any) {
-    console.error("Museum search error:", error);
-    throw error;
-  }
-};
+import { GoogleGenerativeAI } from '@google/generative-ai'; 
+  
+ // 获取前端环境变量中的 API Key (适配 Vite 环境变量) 
+ const getApiKey = () => { 
+   if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_GEMINI_API_KEY) { 
+     return import.meta.env.VITE_GEMINI_API_KEY; 
+   } 
+   return '';  
+ }; 
+  
+ const API_KEY = getApiKey(); 
+  
+ // 导出 genAI 实例供其他文本/对话功能使用 
+ export const genAI = new GoogleGenerativeAI(API_KEY); 
+  
+ /** 
+  * 调用 Gemini API 生成图片 
+  * 已修复：将模型从 imagen-3.0 升级为 imagen-4.0-generate-001 
+  */ 
+ export const generateImage = async (prompt: string): Promise<string> => { 
+   if (!API_KEY) { 
+     console.error('API Key is missing!'); 
+     throw new Error('未检测到 API Key，请检查环境变量配置。'); 
+   } 
+  
+   try { 
+     // 优化提示词，确保出图质量 
+     const enhancedPrompt = `${prompt}, masterpiece, best quality, highly detailed`; 
+  
+     const response = await fetch( 
+       `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${API_KEY}`, 
+       { 
+         method: 'POST', 
+         headers: { 
+           'Content-Type': 'application/json', 
+         }, 
+         body: JSON.stringify({ 
+           instances: [ 
+             { 
+               prompt: enhancedPrompt, 
+             } 
+           ], 
+           parameters: { 
+             sampleCount: 1, 
+             // aspect_ratio: "1:1" // 如果需要特定比例可以在此添加 
+           } 
+         }), 
+       } 
+     ); 
+  
+     if (!response.ok) { 
+       const errorText = await response.text(); 
+       console.error('生图 API 响应错误 (Image generation failed):', errorText); 
+       throw new Error(`Failed to generate image: HTTP ${response.status}`); 
+     } 
+  
+     const data = await response.json(); 
+      
+     // 解析 Imagen 4.0 返回的 Base64 图像数据 
+     if (data.predictions && data.predictions.length > 0) { 
+       const base64Image = data.predictions[0].bytesBase64Encoded; 
+       return `data:image/png;base64,${base64Image}`; 
+     } else { 
+       throw new Error('API 成功响应，但未返回任何图片数据'); 
+     } 
+   } catch (error) { 
+     console.error('generateImage 调用失败:', error); 
+     throw error; 
+   } 
+ };
