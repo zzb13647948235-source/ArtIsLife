@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { applySecurityHeaders, ensurePost, sanitizeInput, validatePrompt } from './_lib/security.js';
-import { getClient } from './_lib/gemini-client.js';
+import { applySecurityHeaders, ensurePost, validatePrompt } from './_lib/security.js';
+import { getGenAI } from './_lib/gemini-client.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   applySecurityHeaders(res);
@@ -15,8 +15,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: validation.error });
     }
 
-    // Validate location if provided
-    let validLocation: { latitude: number; longitude: number } | null = null;
+    // Build location context if provided
+    let locationContext = '';
     if (location && typeof location === 'object') {
       const lat = parseFloat(location.lat);
       const lng = parseFloat(location.lng);
@@ -28,47 +28,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         lng >= -180 &&
         lng <= 180
       ) {
-        validLocation = { latitude: lat, longitude: lng };
+        locationContext = ` near coordinates (${lat}, ${lng})`;
       }
     }
 
-    const config: any = { tools: [{ googleMaps: {} }] };
-    if (validLocation) {
-      config.toolConfig = {
-        retrievalConfig: { latLng: validLocation },
-      };
-    }
-
-    const client = getClient();
-    const response = await client.models.generateContent({
+    const genAI = getGenAI();
+    const model = genAI.getGenerativeModel({
       model: 'gemini-1.5-flash',
-      contents: `Recommend art museums related to: ${validation.sanitized}. Provide a list with brief descriptions.`,
-      config,
+      systemInstruction: '你是一个专业的艺术博物馆顾问。请提供详细、准确的博物馆推荐信息，包括博物馆名称、地址、特色馆藏等。',
     });
 
-    const text = response.text || 'No results found.';
-    const links: any[] = [];
-    const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
-    if (chunks) {
-      for (const chunk of chunks) {
-        if (chunk.web?.uri && chunk.web?.title) {
-          links.push({
-            title: sanitizeInput(chunk.web.title),
-            url: chunk.web.uri,
-            source: 'Web',
-          });
-        }
-        if (chunk.maps?.uri && chunk.maps?.title) {
-          links.push({
-            title: sanitizeInput(chunk.maps.title),
-            url: chunk.maps.uri,
-            source: 'Google Maps',
-          });
-        }
-      }
-    }
+    const prompt = `推荐与"${validation.sanitized}"相关的艺术博物馆${locationContext}。请提供博物馆列表，包含简要介绍。`;
+    
+    const result = await model.generateContent(prompt);
+    const text = result.response.text() || '未找到相关博物馆信息。';
 
-    return res.status(200).json({ text, links: links.slice(0, 15) });
+    return res.status(200).json({ text, links: [] });
   } catch (error: any) {
     console.error('[find-museums error]', error?.message || error);
     const is400 =

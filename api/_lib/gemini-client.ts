@@ -1,14 +1,14 @@
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-let client: GoogleGenAI | null = null;
+let genAI: GoogleGenerativeAI | null = null;
 
-export function getClient(): GoogleGenAI {
-  if (!client) {
+export function getGenAI(): GoogleGenerativeAI {
+  if (!genAI) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       throw new Error('GEMINI_API_KEY environment variable is not configured');
     }
-    client = new GoogleGenAI({ apiKey });
+    genAI = new GoogleGenerativeAI(apiKey);
   }
-  return client;
+  return genAI;
 }
