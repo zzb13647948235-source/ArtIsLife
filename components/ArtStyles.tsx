@@ -257,9 +257,14 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
         clearTimeout(timeout);
         observerRef.current?.disconnect();
     };
-  }, [isActive, searchQuery]);
+  }, [isActive, searchQuery, activeEra, activeRegion, activeMedium]);
 
-  const handleTryStyle = useCallback((styleName: string) => {
+  const handleFilterChange = useCallback((setter: (v: string) => void, value: string, resets: Array<(v: string) => void>) => {
+    setter(value);
+    resets.forEach(r => r('全部'));
+    const scrollContainer = containerRef.current?.closest('.scroll-container') as HTMLElement | null;
+    if (scrollContainer) scrollContainer.scrollTop = 0;
+  }, []);
     if (setPrefilledPrompt) {
       setPrefilledPrompt(`请创作一幅${styleName}风格的油画，画面内容是...`);
     }
@@ -331,15 +336,15 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
         {[
           {
             label: t('styles.filter_era'), values: eras, active: activeEra,
-            onSelect: (v: string) => { setActiveEra(v); setActiveRegion('全部'); setActiveMedium('全部'); }
+            onSelect: (v: string) => handleFilterChange(setActiveEra, v, [setActiveRegion, setActiveMedium])
           },
           {
             label: t('styles.filter_region'), values: regions, active: activeRegion,
-            onSelect: (v: string) => { setActiveRegion(v); setActiveEra('全部'); setActiveMedium('全部'); }
+            onSelect: (v: string) => handleFilterChange(setActiveRegion, v, [setActiveEra, setActiveMedium])
           },
           {
             label: t('styles.filter_medium'), values: mediums, active: activeMedium,
-            onSelect: (v: string) => { setActiveMedium(v); setActiveEra('全部'); setActiveRegion('全部'); }
+            onSelect: (v: string) => handleFilterChange(setActiveMedium, v, [setActiveEra, setActiveRegion])
           },
         ].map(({ label, values, active, onSelect }) => (
           <div key={label} className="flex items-center gap-3 mb-3 flex-wrap">
