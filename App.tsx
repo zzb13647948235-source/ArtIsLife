@@ -18,6 +18,7 @@ import Preloader from './components/Preloader';
 import ArtJournal from './components/ArtJournal';
 import ArtMarket from './components/ArtMarket';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { DarkModeProvider } from './contexts/DarkModeContext';
 import { ViewState, GeneratedImage, ChatMessage, UserTier, User } from './types';
 import { authService } from './services/authService';
 import { MessageSquare, AlertTriangle, RefreshCw, X } from 'lucide-react';
@@ -279,7 +280,7 @@ function AppContent() {
     <ErrorBoundary>
       <Preloader onComplete={() => { setLoadingComplete(true); setTimeout(() => setAppReady(true), 600); }} />
 
-      <div className={`h-screen w-screen text-stone-800 font-sans selection:bg-art-primary/20 flex flex-col overflow-hidden relative z-10 bg-art-bg transition-all duration-[2s] ${loadingComplete ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-[1.1] blur-2xl'}`}>
+      <div className={`h-screen w-screen text-stone-800 dark:text-stone-100 font-sans selection:bg-art-primary/20 flex flex-col overflow-hidden relative z-10 bg-art-bg dark:bg-stone-950 transition-all duration-[2s] ${loadingComplete ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-[1.1] blur-2xl'}`}>
           <LiquidBackground currentView={currentView} />
           <ParticleBackground />
           <CustomCursor />
@@ -354,5 +355,5 @@ function AppContent() {
   );
 }
 
-function App() { return (<LanguageProvider><AppContent /></LanguageProvider>); }
+function App() { return (<DarkModeProvider><LanguageProvider><AppContent /></LanguageProvider></DarkModeProvider>); }
 export default App;

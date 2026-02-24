@@ -1,8 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { ViewState, User } from '../types';
-import { Menu, Crown, User as UserIcon } from 'lucide-react';
+import { Menu, Crown, Moon, Sun } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useDarkMode } from '../contexts/DarkModeContext';
+import GlobalSearch from './GlobalSearch';
 
 interface NavigationProps {
   currentView: ViewState;
@@ -17,6 +19,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const { t, language, setLanguage } = useLanguage();
+  const { isDark, toggle: toggleDark } = useDarkMode();
   
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -97,7 +100,15 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
             </div>
 
             {/* Actions Area */}
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-6">
+
+                 {/* Dark Mode Toggle */}
+                 <button onClick={toggleDark} className={`p-2 rounded-full transition-all hover:bg-stone-100 dark:hover:bg-white/10 ${baseTextColor}`} title={isDark ? '切换亮色' : '切换暗色'}>
+                   {isDark ? <Sun size={16} /> : <Moon size={16} />}
+                 </button>
+
+                 {/* Search */}
+                 <GlobalSearch onNavigate={onNavigate} />
                  
                  {/* Language Switcher - Text Only */}
                  <div className="relative group">

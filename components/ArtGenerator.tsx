@@ -358,19 +358,26 @@ const ArtGenerator: React.FC<ArtGeneratorProps> = ({
                 </div>
                 <div className="mt-12 text-center space-y-6">
                     <p className="font-serif italic text-3xl text-art-accent leading-relaxed tracking-tight px-10">"{selectedImage.prompt}"</p>
-                    <div className="pt-8 flex justify-center gap-4">
-                        <a href={selectedImage.url} download className="inline-flex items-center gap-4 px-8 py-4 bg-white/80 backdrop-blur-xl border border-white/50 rounded-full text-[10px] font-bold uppercase tracking-[0.4em] text-art-accent hover:bg-art-primary hover:text-white transition-all shadow-hard active:scale-95 group/down">
-                            <Download size={18} /> {t('generator.modal.download')}
+                    <div className="pt-8 flex justify-center gap-3 flex-wrap">
+                        <a href={selectedImage.url} download className="inline-flex items-center gap-3 px-6 py-3.5 bg-white/80 backdrop-blur-xl border border-white/50 rounded-full text-[10px] font-bold uppercase tracking-[0.4em] text-art-accent hover:bg-art-primary hover:text-white transition-all shadow-hard active:scale-95">
+                            <Download size={16} /> {t('generator.modal.download')}
                         </a>
-                        <button 
+                        <button
                             onClick={handleShare}
-                            className={`inline-flex items-center gap-4 px-8 py-4 bg-white/80 backdrop-blur-xl border border-white/50 rounded-full text-[10px] font-bold uppercase tracking-[0.4em] transition-all shadow-hard active:scale-95
-                                ${shareStatus === 'success' ? 'text-green-600 border-green-200' : 'text-art-accent hover:bg-stone-900 hover:text-white'}
-                            `}
+                            className={`inline-flex items-center gap-3 px-6 py-3.5 bg-white/80 backdrop-blur-xl border border-white/50 rounded-full text-[10px] font-bold uppercase tracking-[0.4em] transition-all shadow-hard active:scale-95
+                                ${shareStatus === 'success' ? 'text-green-600 border-green-200' : 'text-art-accent hover:bg-stone-900 hover:text-white'}`}
                         >
-                            {shareStatus === 'success' ? <Check size={18} /> : <Share2 size={18} />}
+                            {shareStatus === 'success' ? <Check size={16} /> : <Share2 size={16} />}
                             {shareStatus === 'success' ? t('generator.modal.share_success') : t('generator.modal.share')}
                         </button>
+                        <a
+                            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`我用 AI 创作了一幅画：「${selectedImage.prompt}」✨ @ArtIsLife`)}&url=${encodeURIComponent('https://artislife.vercel.app')}`}
+                            target="_blank" rel="noopener noreferrer"
+                            className="inline-flex items-center gap-3 px-6 py-3.5 bg-black text-white rounded-full text-[10px] font-bold uppercase tracking-[0.4em] hover:bg-stone-800 transition-all shadow-hard active:scale-95"
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                            分享到 X
+                        </a>
                     </div>
                 </div>
             </div>
