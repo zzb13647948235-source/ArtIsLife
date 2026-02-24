@@ -87,6 +87,10 @@ const zhTranslations = {
         'pre-raphaelite_desc': '拉斐尔前派是19世纪中叶在英国兴起的艺术运动，主张回归拉斐尔之前的艺术纯真。画家们以细腻的笔触、鲜艳的色彩和丰富的细节，描绘中世纪传说、文学故事和宗教主题，追求一种理想化的浪漫之美。',
         'dutch-golden-age_name': '荷兰黄金时代',
         'dutch-golden-age_desc': '荷兰黄金时代是17世纪荷兰艺术的鼎盛时期。以伦勃朗、维米尔为代表的画家们，以精湛的光影技法和对日常生活的细腻观察，创作了大量肖像画、风俗画和静物画，反映了新兴市民阶层的审美需求。',
+        filter_era: '时代',
+        filter_region: '地区',
+        filter_medium: '媒介',
+        recommendations: '你可能喜欢',
     },
     generator: {
         title: '数字画室',
@@ -384,6 +388,10 @@ const enTranslations = {
         'pre-raphaelite_desc': 'Pre-Raphaelitism emerged in mid-19th century England, advocating a return to the artistic purity before Raphael. Painters used delicate brushwork, vivid colors, and rich details to depict medieval legends, literary stories, and religious themes.',
         'dutch-golden-age_name': 'Dutch Golden Age',
         'dutch-golden-age_desc': 'The Dutch Golden Age was the peak of 17th-century Dutch art. Painters like Rembrandt and Vermeer created numerous portraits, genre scenes, and still lifes with masterful light techniques and keen observation of daily life.',
+        filter_era: 'Era',
+        filter_region: 'Region',
+        filter_medium: 'Medium',
+        recommendations: 'You Might Also Like',
     },
     generator: {
         title: 'Digital Atelier',

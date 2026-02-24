@@ -88,8 +88,12 @@ export const ART_STYLES = [
     enName: 'Impressionism',
     period: '1860s - 1890s',
     color: 'bg-blue-50 border-blue-200',
+    era: '19世纪',
+    region: '法国',
+    medium: '油画',
+    tags: ['光影', '户外', '色彩', '笔触'],
     works: [
-      { 
+      {
         title: '鲁昂大教堂，阳光下的入口', 
         artist: '克劳德·莫奈', 
         desc: '莫奈对光与色变化的痴迷，在鲁昂大教堂系列中达到顶峰。他租赁了教堂对面的房间，在一天中的不同时间、不同天气下，描绘了超过30幅教堂正面。这幅画捕捉了阳光直射下的景象，石材的质感几乎消融在灿烂的金色光辉中。',
@@ -109,8 +113,12 @@ export const ART_STYLES = [
     enName: 'Post-Impressionism',
     period: '1886 - 1905',
     color: 'bg-yellow-50 border-yellow-200',
+    era: '19世纪末',
+    region: '法国',
+    medium: '油画',
+    tags: ['情感', '色彩', '笔触', '表现'],
     works: [
-      { 
+      {
         title: '阿尔勒的夜晚露天咖啡座', 
         artist: '文森特·梵高', 
         desc: '梵高用他标志性的高饱和度色彩和厚涂笔触，描绘了法国阿尔勒一家咖啡馆的温暖室外场景。深蓝色的星空与明亮的黄色灯光形成强烈对比，营造出一种既宁静又充满活力的独特氛围。',
@@ -130,6 +138,10 @@ export const ART_STYLES = [
     enName: 'Romanticism',
     period: '1800 - 1850',
     color: 'bg-red-50 border-red-200',
+    era: '19世纪初',
+    region: '欧洲',
+    medium: '油画',
+    tags: ['情感', '自然', '崇高', '历史'],
     works: [
       { 
         title: '暴风雨中的船只',
@@ -151,6 +163,10 @@ export const ART_STYLES = [
     enName: 'Realism',
     period: '1840s - 1880s',
     color: 'bg-stone-100 border-stone-200',
+    era: '19世纪',
+    region: '法国',
+    medium: '油画',
+    tags: ['劳动', '社会', '写实', '日常'],
     works: [
       { 
         title: '地板刨工', 
@@ -172,6 +188,10 @@ export const ART_STYLES = [
     enName: 'Abstract Art',
     period: '1910 - Present',
     color: 'bg-purple-50 border-purple-200',
+    era: '20世纪',
+    region: '欧洲',
+    medium: '混合媒介',
+    tags: ['几何', '色彩', '形式', '精神'],
     works: [
       { 
         title: '构图八号', 
@@ -193,6 +213,10 @@ export const ART_STYLES = [
     enName: 'Baroque',
     period: '1600 - 1750',
     color: 'bg-amber-50 border-amber-200',
+    era: '17世纪',
+    region: '欧洲',
+    medium: '油画',
+    tags: ['戏剧', '光影', '运动', '宗教'],
     works: [
       {
         title: '劫夺留基伯的女儿',
@@ -214,6 +238,10 @@ export const ART_STYLES = [
     enName: 'Renaissance',
     period: '1400 - 1600',
     color: 'bg-emerald-50 border-emerald-200',
+    era: '15-16世纪',
+    region: '意大利',
+    medium: '壁画/油画',
+    tags: ['人文', '宗教', '透视', '古典'],
     works: [
       {
         title: '最后的晚餐',
@@ -235,6 +263,10 @@ export const ART_STYLES = [
     enName: 'Rococo',
     period: '1720 - 1780',
     color: 'bg-pink-50 border-pink-200',
+    era: '18世纪',
+    region: '法国',
+    medium: '油画',
+    tags: ['装饰', '优雅', '享乐', '贵族'],
     works: [
       {
         title: '秋千',
@@ -256,6 +288,10 @@ export const ART_STYLES = [
     enName: 'Vienna Secession',
     period: '1897 - 1920',
     color: 'bg-yellow-50 border-yellow-300',
+    era: '19世纪末',
+    region: '奥地利',
+    medium: '油画/装饰',
+    tags: ['装饰', '象征', '金色', '女性'],
     works: [
       {
         title: '阿黛勒·布洛赫-鲍尔肖像 I',
@@ -277,6 +313,10 @@ export const ART_STYLES = [
     enName: 'Naturalism',
     period: '1870 - 1900',
     color: 'bg-green-50 border-green-200',
+    era: '19世纪',
+    region: '俄罗斯',
+    medium: '油画',
+    tags: ['自然', '风景', '写实', '细节'],
     works: [
       {
         title: '松树林中的早晨',
@@ -298,6 +338,10 @@ export const ART_STYLES = [
     enName: 'Pre-Raphaelitism',
     period: '1848 - 1860s',
     color: 'bg-rose-50 border-rose-200',
+    era: '19世纪',
+    region: '英国',
+    medium: '油画',
+    tags: ['中世纪', '文学', '细节', '女性'],
     works: [
       {
         title: '授勋',
@@ -319,6 +363,10 @@ export const ART_STYLES = [
     enName: 'Dutch Golden Age',
     period: '1588 - 1672',
     color: 'bg-orange-50 border-orange-200',
+    era: '17世纪',
+    region: '荷兰',
+    medium: '油画',
+    tags: ['肖像', '光影', '写实', '日常'],
     works: [
       {
         title: '扮作花神的莎斯姬亚',

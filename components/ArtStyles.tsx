@@ -219,6 +219,24 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
   const observerRef = useRef<IntersectionObserver | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeEra, setActiveEra] = useState('全部');
+  const [activeRegion, setActiveRegion] = useState('全部');
+  const [activeMedium, setActiveMedium] = useState('全部');
+
+  const getRecommendations = useCallback((style: any) => {
+    return ART_STYLES
+      .filter(s => s.id !== style.id)
+      .map(s => {
+        let score = 0;
+        const tagOverlap = ((s as any).tags || []).filter((tag: string) => ((style as any).tags || []).includes(tag)).length;
+        score += tagOverlap * 3;
+        if ((s as any).era === (style as any).era) score += 2;
+        if ((s as any).region === (style as any).region) score += 1;
+        return { ...s, score };
+      })
+      .sort((a: any, b: any) => b.score - a.score)
+      .slice(0, 3);
+  }, []);
 
   useEffect(() => {
     if (!isActive || !containerRef.current) return;
@@ -248,20 +266,28 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
     onNavigate('gallery');
   }, [setPrefilledPrompt, onNavigate]);
 
+  const eras = useMemo(() => ['全部', ...Array.from(new Set(ART_STYLES.map(s => (s as any).era).filter(Boolean)))], []);
+  const regions = useMemo(() => ['全部', ...Array.from(new Set(ART_STYLES.map(s => (s as any).region).filter(Boolean)))], []);
+  const mediums = useMemo(() => ['全部', ...Array.from(new Set(ART_STYLES.map(s => (s as any).medium).filter(Boolean)))], []);
+
   const filteredStyles = useMemo(() => {
-      if (!searchQuery.trim()) return ART_STYLES;
-      const query = searchQuery.toLowerCase();
-      return ART_STYLES.filter(style => {
-          const styleName = t(`styles.${style.id}_name`).toLowerCase();
-          const enName = style.enName.toLowerCase();
-          if (styleName.includes(query) || enName.includes(query)) return true;
-          return style.works.some(work => {
-              const workTitle = work.title.toLowerCase();
-              const artist = work.artist.toLowerCase();
-              return workTitle.includes(query) || artist.includes(query);
+      let result: typeof ART_STYLES = ART_STYLES;
+      if (searchQuery.trim()) {
+          const query = searchQuery.toLowerCase();
+          result = result.filter(style => {
+              const styleName = t(`styles.${style.id}_name`).toLowerCase();
+              const enName = style.enName.toLowerCase();
+              if (styleName.includes(query) || enName.includes(query)) return true;
+              return style.works.some(work => {
+                  return work.title.toLowerCase().includes(query) || work.artist.toLowerCase().includes(query);
+              });
           });
-      });
-  }, [searchQuery, t]);
+      }
+      if (activeEra !== '全部') result = result.filter(s => (s as any).era === activeEra);
+      if (activeRegion !== '全部') result = result.filter(s => (s as any).region === activeRegion);
+      if (activeMedium !== '全部') result = result.filter(s => (s as any).medium === activeMedium);
+      return result;
+  }, [searchQuery, activeEra, activeRegion, activeMedium, t]);
 
   return (
     <div ref={containerRef} className="min-h-screen bg-transparent py-32 relative overflow-x-hidden">
@@ -301,6 +327,31 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
         </div>
       </div>
 
+      <div className={`px-6 md:px-12 max-w-[1800px] mx-auto mb-8 transition-all duration-1000 delay-900 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        {[
+          { label: t('styles.filter_era'), values: eras, active: activeEra, set: setActiveEra },
+          { label: t('styles.filter_region'), values: regions, active: activeRegion, set: setActiveRegion },
+          { label: t('styles.filter_medium'), values: mediums, active: activeMedium, set: setActiveMedium },
+        ].map(({ label, values, active, set }) => (
+          <div key={label} className="flex items-center gap-3 mb-3 flex-wrap">
+            <span className="text-xs font-bold uppercase tracking-widest text-stone-400 w-10 shrink-0">{label}</span>
+            {values.map(v => (
+              <button
+                key={v}
+                onClick={() => set(v)}
+                className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-all duration-200 ${
+                  active === v
+                    ? 'bg-art-accent text-white border-art-accent shadow-sm'
+                    : 'bg-white/60 text-stone-600 border-stone-200 hover:border-art-accent/50 hover:text-art-accent'
+                }`}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+
       <ArtStyleList 
         styles={filteredStyles}
         t={t}
@@ -338,6 +389,13 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
                           <div className="font-mono text-xs text-stone-500 flex items-center gap-2">
                             <span>{selectedStyle.period}</span>
                           </div>
+                          {((selectedStyle as any).era || (selectedStyle as any).region || (selectedStyle as any).medium) && (
+                            <div className="flex flex-wrap gap-2 pt-2">
+                              {(selectedStyle as any).era && <span className="px-2 py-1 bg-stone-100 rounded text-[10px] text-stone-500">{(selectedStyle as any).era}</span>}
+                              {(selectedStyle as any).region && <span className="px-2 py-1 bg-stone-100 rounded text-[10px] text-stone-500">{(selectedStyle as any).region}</span>}
+                              {(selectedStyle as any).medium && <span className="px-2 py-1 bg-stone-100 rounded text-[10px] text-stone-500">{(selectedStyle as any).medium}</span>}
+                            </div>
+                          )}
                           <p className="text-stone-600 leading-relaxed text-sm pt-4 border-t border-stone-200">{t(`styles.${selectedStyle.id}_desc`)}</p>
                       </div>
                   </div>
@@ -362,6 +420,31 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
                               );
                           })}
                       </div>
+                      {(() => {
+                        const recs = getRecommendations(selectedStyle);
+                        if (recs.length === 0) return null;
+                        return (
+                          <div className="px-12 pb-12 border-t border-stone-100 pt-8">
+                            <h5 className="text-xs font-bold uppercase tracking-widest text-stone-400 mb-6">{t('styles.recommendations')}</h5>
+                            <div className="flex flex-col gap-3">
+                              {recs.map((rec: any) => (
+                                <button
+                                  key={rec.id}
+                                  onClick={() => setSelectedStyle(rec)}
+                                  className="flex items-center gap-4 p-3 rounded-xl hover:bg-stone-50 transition-colors text-left group"
+                                >
+                                  <div className={`w-10 h-10 rounded-lg ${rec.color} border flex-shrink-0`}></div>
+                                  <div>
+                                    <p className="font-serif text-sm text-art-accent group-hover:text-art-primary transition-colors">{t(`styles.${rec.id}_name`)}</p>
+                                    <p className="text-xs text-stone-400">{rec.period}</p>
+                                  </div>
+                                  <ArrowUpRight size={14} className="ml-auto text-stone-300 group-hover:text-art-primary transition-colors" />
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })()}
                   </div>
               </div>
           </div>
