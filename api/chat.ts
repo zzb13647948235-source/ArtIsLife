@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { applySecurityHeaders, ensurePost, sanitizeInput, validatePrompt } from './_lib/security.js';
-import { getGenAI } from './_lib/gemini-client.js';
+import { getClient } from './_lib/gemini-client.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   applySecurityHeaders(res);
@@ -33,23 +33,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       sanitizedHistory.shift();
     }
 
-    const genAI = getGenAI();
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-pro',
-      systemInstruction:
-        systemInstruction ||
-        '你是一个专业的艺术顾问和油画鉴赏专家。请用优美、专业的中文回答用户关于艺术的问题。',
+    const client = getClient();
+    const chatContents =
+      sanitizedHistory.length > 0
+        ? [...sanitizedHistory, { role: 'user', parts: [{ text: validation.sanitized }] }]
+        : validation.sanitized;
+
+    const response = await client.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: chatContents,
+      config: {
+        systemInstruction:
+          systemInstruction ||
+          '你是一个专业的艺术顾问和油画鉴赏专家。请用优美、专业的中文回答用户关于艺术的问题。',
+      },
     });
 
-    let result;
-    if (sanitizedHistory.length > 0) {
-      const chat = model.startChat({ history: sanitizedHistory });
-      result = await chat.sendMessage(validation.sanitized!);
-    } else {
-      result = await model.generateContent(validation.sanitized!);
-    }
-
-    const text = result.response.text() || '抱歉，我无法回答这个问题。';
+    const text = response.text || '抱歉，我无法回答这个问题。';
 
     return res.status(200).json({ text, links: [] });
   } catch (error: any) {

@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { applySecurityHeaders, ensurePost, validatePrompt } from './_lib/security.js';
-import { getGenAI } from './_lib/gemini-client.js';
+import { getClient } from './_lib/gemini-client.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   applySecurityHeaders(res);
@@ -32,16 +32,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    const genAI = getGenAI();
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-pro',
-      systemInstruction: '你是一个专业的艺术博物馆顾问。请提供详细、准确的博物馆推荐信息，包括博物馆名称、地址、特色馆藏等。',
+    const client = getClient();
+    const response = await client.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: `推荐与"${validation.sanitized}"相关的艺术博物馆${locationContext}。请提供博物馆列表，包含简要介绍。`,
+      config: {
+        systemInstruction: '你是一个专业的艺术博物馆顾问。请提供详细、准确的博物馆推荐信息，包括博物馆名称、地址、特色馆藏等。',
+      },
     });
 
-    const prompt = `推荐与"${validation.sanitized}"相关的艺术博物馆${locationContext}。请提供博物馆列表，包含简要介绍。`;
-    
-    const result = await model.generateContent(prompt);
-    const text = result.response.text() || '未找到相关博物馆信息。';
+    const text = response.text || '未找到相关博物馆信息。';
 
     return res.status(200).json({ text, links: [] });
   } catch (error: any) {
