@@ -21,7 +21,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const client = getClient();
 
     const response = await client.models.generateContent({
-      model: 'gemini-2.0-flash-preview-image-generation',
+      model: 'gemini-2.0-flash-exp-image-generation',
       contents: enhancedPrompt,
       config: { responseModalities: ['TEXT', 'IMAGE'] } as any,
     });
@@ -37,8 +37,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       imageUrl: `data:${imagePart.inlineData.mimeType || 'image/png'};base64,${imagePart.inlineData.data}`,
     });
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : 'Unknown error';
-    console.error('[generate-image error]', msg);
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error('[generate-image error]', JSON.stringify(error));
     const is403 = msg.includes('403') || msg.includes('PERMISSION_DENIED') || msg.includes('leaked');
     const is400 = msg.includes('400') || msg.includes('INVALID_ARGUMENT');
     const is404 = msg.includes('404') || msg.includes('NOT_FOUND');
@@ -48,6 +48,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
            : is400 ? '提示词不符合要求，请修改后重试'
            : is404 ? '图像生成模型暂时不可用，请稍后重试'
            : '图片生成服务暂时不可用，请稍后重试',
+      _debug: msg,
     });
   }
 }
