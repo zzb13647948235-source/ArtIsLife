@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { applySecurityHeaders, ensurePost, validatePrompt } from './_lib/security.js';
-import { getClient, resetClient } from './_lib/gemini-client.js';
+import { getClient, resetClient } from './_lib/hunyuan-client.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   applySecurityHeaders(res);
@@ -17,36 +17,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: validation.error });
     }
 
-    const enhancedPrompt = `${validation.sanitized}, masterpiece, best quality, highly detailed artwork, fine art painting`;
-    const client = getClient();
+    const enhancedPrompt = `${validation.sanitized}，油画风格，大师级作品，精细笔触，丰富色彩，高质量艺术创作`;
 
-    const response = await client.models.generateContent({
-      model: 'gemini-2.0-flash-exp-image-generation',
-      contents: enhancedPrompt,
-      config: { responseModalities: ['TEXT', 'IMAGE'] } as any,
+    const client = getClient();
+    const response = await client.TextToImageLite({
+      Prompt: enhancedPrompt,
+      NegativePrompt: 'low quality, blurry, distorted, ugly, watermark',
+      Styles: ['201'],
+      ResultConfig: { Resolution: '1024:1024' },
+      LogoAdd: 0,
+      RspImgType: 'base64',
     });
 
-    const parts: any[] = (response as any).candidates?.[0]?.content?.parts || [];
-    const imagePart = parts.find((p: any) => p.inlineData?.data);
-
-    if (!imagePart?.inlineData) {
+    if (!response?.ResultImage) {
       return res.status(500).json({ error: '图片生成失败，请重试' });
     }
 
     return res.status(200).json({
-      imageUrl: `data:${imagePart.inlineData.mimeType || 'image/png'};base64,${imagePart.inlineData.data}`,
+      imageUrl: `data:image/png;base64,${response.ResultImage}`,
     });
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : String(error);
-    console.error('[generate-image error]', JSON.stringify(error));
-    const is403 = msg.includes('403') || msg.includes('PERMISSION_DENIED') || msg.includes('leaked');
-    const is400 = msg.includes('400') || msg.includes('INVALID_ARGUMENT');
-    const is404 = msg.includes('404') || msg.includes('NOT_FOUND');
-    if (is403) resetClient();
-    return res.status(is403 ? 403 : is400 ? 400 : 500).json({
-      error: is403 ? 'API 密钥已失效，请联系管理员更新密钥。'
-           : is400 ? '提示词不符合要求，请修改后重试'
-           : is404 ? '图像生成模型暂时不可用，请稍后重试'
+
+  } catch (error: any) {
+    console.error('[generate-image error]', error?.message || error);
+    const msg = error?.message || '';
+    const isAuth = msg.includes('AuthFailure') || msg.includes('InvalidCredential');
+    const isBad = msg.includes('InvalidParameter') || msg.includes('400');
+    if (isAuth) resetClient();
+    return res.status(isAuth ? 403 : isBad ? 400 : 500).json({
+      error: isAuth ? 'API 密钥已失效，请联系管理员更新密钥。'
+           : isBad  ? '提示词不符合要求，请修改后重试'
            : '图片生成服务暂时不可用，请稍后重试',
       _debug: msg,
     });
