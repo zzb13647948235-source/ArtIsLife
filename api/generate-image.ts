@@ -23,7 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const response = await client.models.generateContent({
       model: 'gemini-2.0-flash-exp',
       contents: enhancedPrompt,
-      config: { responseModalities: ['IMAGE'] } as any,
+      config: { responseModalities: ['TEXT', 'IMAGE'] } as any,
     });
 
     const parts: any[] = (response as any).candidates?.[0]?.content?.parts || [];
