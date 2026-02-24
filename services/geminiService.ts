@@ -63,38 +63,26 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
  * @param aspectRatio - The desired aspect ratio for the image.
  * @returns The base64 encoded image data URL.
  */
-export const generateImage = async (
-  prompt: string,
-  aspectRatio: '1:1' | '3:4' | '4:3' | '9:16' | '16:9' = '1:1'
-): Promise<string> => {
-  try {
-    const response = await fetch('/api/generate-image', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        prompt,
-        aspectRatio,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      // 将后端返回的详细错误信息抛出
-      throw new Error(data.details || data.error || `API request failed with status ${response.status}`);
-    }
-
-    if (!data.imageUrl) {
-      throw new Error('API did not return a valid image URL.');
-    }
-
-    return data.imageUrl;
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred during image generation.';
-    console.error('generateImage service error:', errorMessage);
-    // 重新抛出错误，以便 UI 层可以捕获并显示
-    throw new Error(errorMessage);
-  }
-};
+export const generateImage = async (prompt: string): Promise<string> => { 
+   try { 
+     // 这里的相对路径会自动请求到后端的 api/generate-image.ts 
+     const response = await fetch('/api/generate-image', { 
+       method: 'POST', 
+       headers: { 
+         'Content-Type': 'application/json', 
+       }, 
+       body: JSON.stringify({ prompt }) 
+     }); 
+ 
+     if (!response.ok) { 
+       const errorData = await response.json().catch(() => ({})); 
+       throw new Error(errorData.error || `Failed to generate image: HTTP ${response.status}`); 
+     } 
+ 
+     const data = await response.json(); 
+     return data.imageUrl; // 后端已经拼装好了完整的 base64 字符串 
+   } catch (error) { 
+     console.error('生图请求失败:', error); 
+     throw error; 
+   } 
+ };
