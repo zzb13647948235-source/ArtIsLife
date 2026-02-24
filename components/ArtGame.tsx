@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { GAME_LEVELS } from '../constants';
 import { GameLevel, User, ViewState } from '../types';
 import { Palette, Play, ArrowRight, X, Star, ChevronLeft, Trophy, Eye, EyeOff, Grid3X3, Lock, CheckCircle, Lightbulb, BrainCircuit, Sparkles, Crown, MousePointer2, Timer, Check, AlertCircle, Brush, HelpCircle, Shuffle, Coins, Calendar, Medal } from 'lucide-react';
@@ -69,18 +69,25 @@ const ConfettiCanvas: React.FC = () => {
 };
 
 const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequired, onNavigate }) => {
-  const [gameMode, setGameMode] = useState<'restoration' | 'puzzle' | 'quiz' | null>(null);
+  const [gameMode, setGameMode] = useState<'restoration' | 'puzzle' | 'quiz' | 'daily' | null>(null);
   const [currentLevelId, setCurrentLevelId] = useState<number | null>(null);
   const [gameState, setGameState] = useState<'mode-select' | 'level-select' | 'intro' | 'playing' | 'won' | 'level-complete'>('mode-select');
 
-  const [earnedCoins, setEarnedCoins] = useState(0); 
+  const [earnedCoins, setEarnedCoins] = useState(0);
   const { t } = useLanguage();
-  
+
   const userTier = user?.tier || 'guest';
+
+  // Daily challenge: pick level based on today's date
+  const dailyLevelId = useMemo(() => {
+    const d = new Date(); const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+    return (seed % GAME_LEVELS.length) + 1;
+  }, []);
+  const dailyLevel = GAME_LEVELS.find(l => l.id === dailyLevelId) || GAME_LEVELS[0];
 
   // Restoration State
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
-  const [restoredRegions, setRestoredRegions] = useState<number[]>([]); 
+  const [restoredRegions, setRestoredRegions] = useState<number[]>([]);
   const [mistakes, setMistakes] = useState(0);
   const [showReference, setShowReference] = useState(false);
   const [hoverRegionId, setHoverRegionId] = useState<number | null>(null);
@@ -96,6 +103,7 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
   const [quizQuestions, setQuizQuestions] = useState<any[]>([]);
   const [currentQuizIdx, setCurrentQuizIdx] = useState(0);
   const [lastAnswerCorrect, setLastAnswerCorrect] = useState<boolean | null>(null);
+  const [selectedAnswerId, setSelectedAnswerId] = useState<number | null>(null);
   const [showFact, setShowFact] = useState(false);
 
   // Puzzle State
@@ -207,6 +215,7 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
   const handleQuizAnswer = (levelId: number) => {
       if (showFact) return;
       const isCorrect = levelId === quizQuestions[currentQuizIdx].target.id;
+      setSelectedAnswerId(levelId);
       setLastAnswerCorrect(isCorrect);
       if (isCorrect) {
           setQuizScore(s => s + Math.round(quizTimer * (1 + quizStreak * 0.1)));
@@ -221,6 +230,7 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
   const nextQuizStep = () => {
       setShowFact(false);
       setLastAnswerCorrect(null);
+      setSelectedAnswerId(null);
       setQuizTimer(100);
       if (currentQuizIdx + 1 < quizQuestions.length) {
           setCurrentQuizIdx(prev => prev + 1);
@@ -457,20 +467,54 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
                   <h2 className="font-serif text-6xl md:text-8xl text-art-accent italic tracking-tighter drop-shadow-sm"><AppleText text={t('game.title')} delay={0.2} /></h2>
                   <p className="max-w-xl mx-auto text-stone-500 text-lg font-light leading-relaxed">{t('game.subtitle')}</p>
              </div>
+
+             {/* Daily Challenge Banner */}
+             <div className="w-full mb-8 group cursor-pointer" onClick={() => {
+               if (!user) { onAuthRequired(); return; }
+               setGameMode('restoration');
+               setCurrentLevelId(dailyLevel.id);
+               setGameState('intro');
+               setRestoredRegions([]); setMistakes(0);
+             }}>
+               <div className="relative rounded-[32px] overflow-hidden border border-art-gold/30 bg-gradient-to-r from-stone-900 via-[#1a1208] to-stone-900 p-8 flex items-center gap-8 hover:border-art-gold/60 transition-all shadow-lg hover:shadow-art-gold/10">
+                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_left,_rgba(197,160,89,0.12),_transparent_60%)] pointer-events-none" />
+                 <div className="relative w-20 h-20 rounded-2xl overflow-hidden shrink-0 ring-2 ring-art-gold/40 shadow-xl">
+                   <img src={dailyLevel.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                 </div>
+                 <div className="flex-1 min-w-0">
+                   <div className="flex items-center gap-2 mb-2">
+                     <Calendar size={12} className="text-art-gold" />
+                     <span className="text-art-gold text-[9px] font-black uppercase tracking-[0.4em]">今日挑战 · Daily Challenge</span>
+                   </div>
+                   <h3 className="font-serif text-2xl text-white truncate">{dailyLevel.title}</h3>
+                   <p className="text-white/40 text-xs mt-1">{dailyLevel.artist} · {dailyLevel.year}</p>
+                 </div>
+                 <div className="shrink-0 flex items-center gap-3">
+                   <div className="flex items-center gap-1.5 px-3 py-1.5 bg-art-gold/10 rounded-full border border-art-gold/20">
+                     <Medal size={12} className="text-art-gold" />
+                     <span className="text-art-gold text-[9px] font-bold">+200 ArtCoin</span>
+                   </div>
+                   <div className="w-10 h-10 rounded-full bg-art-gold flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                     <Play size={16} className="text-black" fill="currentColor" />
+                   </div>
+                 </div>
+               </div>
+             </div>
+
              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
                  {['restoration', 'puzzle', 'quiz'].map((m, i) => {
                     const bgColors = m === 'restoration' ? 'from-amber-100 to-orange-50' : m === 'puzzle' ? 'from-blue-50 to-indigo-50' : 'from-emerald-50 to-teal-50';
                     const iconColor = m === 'restoration' ? 'text-amber-600' : m === 'puzzle' ? 'text-indigo-600' : 'text-emerald-600';
                     const Icon = m === 'restoration' ? Palette : m === 'puzzle' ? Grid3X3 : BrainCircuit;
                     return (
-                        <button key={m} onClick={() => handleModeSelect(m)} className="group relative h-[450px] rounded-[40px] overflow-hidden shadow-soft hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer border border-white/60 text-left bg-white" style={{ animationDelay: `${i * 150}ms` }}>
+                        <button key={m} onClick={() => handleModeSelect(m)} className="group relative h-[420px] rounded-[40px] overflow-hidden shadow-soft hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer border border-white/60 text-left bg-white" style={{ animationDelay: `${i * 150}ms` }}>
                              <div className={`absolute inset-0 bg-gradient-to-br ${bgColors} opacity-50 group-hover:opacity-80 transition-opacity`}></div>
                              <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/40 rounded-full blur-3xl"></div>
-                             <div className="absolute top-8 right-8 w-32 h-32 rounded-2xl overflow-hidden shadow-lg transform rotate-6 group-hover:rotate-12 transition-transform duration-700 border-2 border-white"><img src={GAME_LEVELS[i % GAME_LEVELS.length].imageUrl} className="w-full h-full object-cover" /></div>
-                             <div className="absolute inset-x-0 bottom-0 p-10 flex flex-col h-full justify-end">
-                                <div className={`w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-6 ${iconColor} group-hover:scale-110 transition-transform duration-500`}><Icon size={28} strokeWidth={1.5} /></div>
-                                <h3 className="font-serif text-4xl mb-3 text-stone-800">{t(`game.mode_${m}`)}</h3>
-                                <p className="text-stone-500 font-light text-sm mb-8 leading-relaxed pr-8 min-h-[3em]">{t(`game.desc_${m}`)}</p>
+                             <div className="absolute top-8 right-8 w-28 h-28 rounded-2xl overflow-hidden shadow-lg transform rotate-6 group-hover:rotate-12 transition-transform duration-700 border-2 border-white"><img src={GAME_LEVELS[i % GAME_LEVELS.length].imageUrl} className="w-full h-full object-cover" /></div>
+                             <div className="absolute inset-x-0 bottom-0 p-8 flex flex-col h-full justify-end">
+                                <div className={`w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-5 ${iconColor} group-hover:scale-110 transition-transform duration-500`}><Icon size={24} strokeWidth={1.5} /></div>
+                                <h3 className="font-serif text-3xl mb-2 text-stone-800">{t(`game.mode_${m}`)}</h3>
+                                <p className="text-stone-500 font-light text-sm mb-6 leading-relaxed pr-8 min-h-[3em]">{t(`game.desc_${m}`)}</p>
                                 <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.3em] text-art-primary opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500"><span>{t('game.start')}</span> <ArrowRight size={14} /></div>
                              </div>
                         </button>
@@ -603,15 +647,15 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
                        <h3 className="font-serif text-3xl text-stone-800 text-center lg:text-left mb-8">Which masterpiece is this detail from?</h3>
                        <div className="grid grid-cols-1 gap-4">
                            {currentQ.options.map((opt: any) => {
-                               let btnClass = "p-6 rounded-2xl border border-stone-200 text-left font-serif text-xl transition-all hover:border-art-primary hover:shadow-md bg-white text-stone-600";
+                               let btnClass = "p-5 rounded-2xl border-2 border-stone-200 text-left font-serif text-lg transition-all hover:border-art-primary hover:shadow-md bg-white text-stone-700 hover:-translate-y-0.5";
                                if (showFact) {
-                                   if (opt.id === currentQ.target.id) btnClass = "p-6 rounded-2xl border border-green-500 bg-green-50 text-green-700 font-bold shadow-md";
-                                   else if (!lastAnswerCorrect && opt.id === currentQ.options.find((o: any) => o.id !== currentQ.target.id && o.id === /* user selection logic needed but simplifying */ -1)?.id) btnClass = "p-6 rounded-2xl border border-red-200 bg-red-50 text-red-500 opacity-60";
-                                   else btnClass = "p-6 rounded-2xl border border-stone-100 bg-stone-50 text-stone-400 opacity-50";
+                                   if (opt.id === currentQ.target.id) btnClass = "p-5 rounded-2xl border-2 border-green-500 bg-green-50 text-green-800 font-bold shadow-md";
+                                   else if (opt.id === selectedAnswerId && !lastAnswerCorrect) btnClass = "p-5 rounded-2xl border-2 border-red-400 bg-red-50 text-red-600 opacity-80";
+                                   else btnClass = "p-5 rounded-2xl border-2 border-stone-100 bg-stone-50 text-stone-400 opacity-50";
                                }
                                return (
-                                   <button 
-                                      key={opt.id} 
+                                   <button
+                                      key={opt.id}
                                       onClick={() => handleQuizAnswer(opt.id)}
                                       disabled={showFact}
                                       className={btnClass}
@@ -619,7 +663,7 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
                                        {opt.title}
                                        <span className="block text-xs font-sans font-bold uppercase tracking-widest text-stone-400 mt-1">{opt.artist}</span>
                                    </button>
-                               )
+                               );
                            })}
                        </div>
                        
