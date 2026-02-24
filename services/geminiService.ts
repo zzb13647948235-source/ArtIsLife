@@ -57,58 +57,44 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
  // 导出 genAI 实例供其他文本/对话功能使用 
  export const genAI = new GoogleGenerativeAI(API_KEY); 
   
- /** 
-  * 调用 Gemini API 生成图片 
-  * 已修复：将模型从 imagen-3.0 升级为 imagen-4.0-generate-001 
-  */ 
- export const generateImage = async (prompt: string): Promise<string> => { 
-   if (!API_KEY) { 
-     console.error('API Key is missing!'); 
-     throw new Error('未检测到 API Key，请检查环境变量配置。'); 
-   } 
-  
-   try { 
-     // 优化提示词，确保出图质量 
-     const enhancedPrompt = `${prompt}, masterpiece, best quality, highly detailed`; 
-  
-     const response = await fetch( 
-       `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${API_KEY}`, 
-       { 
-         method: 'POST', 
-         headers: { 
-           'Content-Type': 'application/json', 
-         }, 
-         body: JSON.stringify({ 
-           instances: [ 
-             { 
-               prompt: enhancedPrompt, 
-             } 
-           ], 
-           parameters: { 
-             sampleCount: 1, 
-             // aspect_ratio: "1:1" // 如果需要特定比例可以在此添加 
-           } 
-         }), 
-       } 
-     ); 
-  
-     if (!response.ok) { 
-       const errorText = await response.text(); 
-       console.error('生图 API 响应错误 (Image generation failed):', errorText); 
-       throw new Error(`Failed to generate image: HTTP ${response.status}`); 
-     } 
-  
-     const data = await response.json(); 
-      
-     // 解析 Imagen 4.0 返回的 Base64 图像数据 
-     if (data.predictions && data.predictions.length > 0) { 
-       const base64Image = data.predictions[0].bytesBase64Encoded; 
-       return `data:image/png;base64,${base64Image}`; 
-     } else { 
-       throw new Error('API 成功响应，但未返回任何图片数据'); 
-     } 
-   } catch (error) { 
-     console.error('generateImage 调用失败:', error); 
-     throw error; 
-   } 
- };
+ /**
+ * 调用后端 /api/generate-image 接口生成图片
+ * @param prompt - The user's prompt.
+ * @param aspectRatio - The desired aspect ratio for the image.
+ * @returns The base64 encoded image data URL.
+ */
+export const generateImage = async (
+  prompt: string,
+  aspectRatio: '1:1' | '3:4' | '4:3' | '9:16' | '16:9' = '1:1'
+): Promise<string> => {
+  try {
+    const response = await fetch('/api/generate-image', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt,
+        aspectRatio,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      // 将后端返回的详细错误信息抛出
+      throw new Error(data.details || data.error || `API request failed with status ${response.status}`);
+    }
+
+    if (!data.imageUrl) {
+      throw new Error('API did not return a valid image URL.');
+    }
+
+    return data.imageUrl;
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred during image generation.';
+    console.error('generateImage service error:', errorMessage);
+    // 重新抛出错误，以便 UI 层可以捕获并显示
+    throw new Error(errorMessage);
+  }
+};
