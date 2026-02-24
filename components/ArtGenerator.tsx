@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { generateArtImage } from '../services/geminiService';
+import { generateImage as generateArtImage } from '../services/geminiService';
 import { GeneratedImage, ImageSize, UserTier, ViewState } from '../types';
 import { ART_STYLES } from '../constants';
 import { Wand2, Download, Loader2, Trash2, History, Quote, PenTool, Brush, Maximize2, Sparkles, LogIn, Crown, Lock, Shuffle, Plus, X, Share2, Check } from 'lucide-react';
