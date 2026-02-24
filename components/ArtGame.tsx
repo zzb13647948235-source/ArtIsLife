@@ -102,7 +102,8 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
   const [puzzleGrid, setPuzzleGrid] = useState<number[]>([]);
   const [selectedTileIndex, setSelectedTileIndex] = useState<number | null>(null);
   const [puzzleMoves, setPuzzleMoves] = useState(0);
-  const [isPeeking, setIsPeeking] = useState(false); 
+  const [isPeeking, setIsPeeking] = useState(false);
+  const [showUpsellModal, setShowUpsellModal] = useState(false);
 
   // --- ACCESS CONTROL LOGIC ---
   const isContentLocked = (level: GameLevel) => {

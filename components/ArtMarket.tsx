@@ -419,7 +419,7 @@ const ArtMarket: React.FC<ArtMarketProps> = ({ onNavigate, isActive, onFullScree
 
   useEffect(() => {
       const unsub = authService.subscribe((u) => setUser(u));
-      return () => unsub();
+      return () => { unsub(); };
   }, []);
 
   const allItems = useMemo(() => generateMockItems(), []); 

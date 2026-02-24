@@ -550,6 +550,8 @@ export const translations: Record<Language, typeof zhTranslations> = {
   zh: zhTranslations,
   en: enTranslations,
   ja: jaTranslations as typeof zhTranslations,
+  fr: enTranslations,
+  es: enTranslations,
 };
 
 export const getTranslation = (language: Language) => translations[language];

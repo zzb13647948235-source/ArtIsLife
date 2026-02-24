@@ -172,7 +172,7 @@ function AppContent() {
     const unsubscribe = authService.subscribe(newUser => {
         setUser(newUser);
     });
-    return () => unsubscribe();
+    return () => { unsubscribe(); };
   }, []);
 
   useEffect(() => {
