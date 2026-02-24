@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { applySecurityHeaders, ensurePost, sanitizeInput, validatePrompt } from './_lib/security.js';
-import { getClient, resetClient } from './_lib/hunyuan-client.js';
+import { chatCompletions, Message } from './_lib/siliconflow-client.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   applySecurityHeaders(res);
@@ -15,15 +15,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: validation.error });
     }
 
-    // Build messages array
-    const messages: { Role: string; Content: string }[] = [];
+    const messages: Message[] = [];
 
-    // System instruction
     const sysPrompt = systemInstruction ||
       '你是一个专业的艺术顾问和油画鉴赏专家。请用优美、专业的中文回答用户关于艺术的问题。';
-    messages.push({ Role: 'system', Content: sysPrompt });
+    messages.push({ role: 'system', content: sysPrompt });
 
-    // Sanitized history (last 20 turns)
     if (Array.isArray(history)) {
       history.slice(-20).forEach((h: any) => {
         const role = h.role === 'model' ? 'assistant' : (h.role === 'user' ? 'user' : null);
@@ -31,34 +28,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const content = Array.isArray(h.parts)
           ? h.parts.map((p: any) => (typeof p.text === 'string' ? sanitizeInput(p.text) : '')).join('')
           : '';
-        if (content) messages.push({ Role: role, Content: content });
+        if (content) messages.push({ role, content });
       });
     }
 
     // Ensure history starts with user message
-    const historyStart = messages.findIndex(m => m.Role !== 'system');
-    while (historyStart !== -1 && messages[historyStart]?.Role !== 'user') {
+    const historyStart = messages.findIndex(m => m.role !== 'system');
+    while (historyStart !== -1 && messages[historyStart]?.role !== 'user') {
       messages.splice(historyStart, 1);
     }
 
-    messages.push({ Role: 'user', Content: validation.sanitized });
+    messages.push({ role: 'user', content: validation.sanitized! });
 
-    const client = getClient();
-    const response = await client.ChatCompletions({
-      Model: 'hunyuan-turbo',
-      Messages: messages,
-      Stream: false,
-    });
-
-    const text = response?.Choices?.[0]?.Message?.Content || '抱歉，我无法回答这个问题。';
+    const text = await chatCompletions(messages);
     return res.status(200).json({ text, links: [] });
 
   } catch (error: any) {
     console.error('[chat error]', error?.message || error);
     const msg = error?.message || '';
-    const isAuth = msg.includes('AuthFailure') || msg.includes('InvalidCredential');
-    const isBad = msg.includes('InvalidParameter') || msg.includes('400');
-    if (isAuth) resetClient();
+    const isAuth = msg.includes('401') || msg.includes('Unauthorized') || msg.includes('API key');
+    const isBad = msg.includes('400') || msg.includes('invalid');
     return res.status(isAuth ? 403 : isBad ? 400 : 500).json({
       error: isAuth ? 'API 密钥已失效，请联系管理员更新密钥。'
            : isBad  ? '请求被拒绝：提示词可能违反了安全策略，请调整后重试。'

@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { applySecurityHeaders, ensurePost, validatePrompt } from './_lib/security.js';
-import { getClient, resetClient } from './_lib/hunyuan-client.js';
+import { generateImage } from './_lib/siliconflow-client.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   applySecurityHeaders(res);
@@ -17,37 +17,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: validation.error });
     }
 
-    const enhancedPrompt = `${validation.sanitized}，油画风格，大师级作品，精细笔触，丰富色彩，高质量艺术创作`;
+    const enhancedPrompt = `${validation.sanitized}，oil painting style, masterpiece, fine brushwork, rich colors, high quality art`;
 
-    const client = getClient();
-    const response = await client.TextToImageLite({
-      Prompt: enhancedPrompt,
-      NegativePrompt: 'low quality, blurry, distorted, ugly, watermark',
-      Styles: ['201'],
-      ResultConfig: { Resolution: '1024:1024' },
-      LogoAdd: 0,
-      RspImgType: 'base64',
-    });
-
-    if (!response?.ResultImage) {
-      return res.status(500).json({ error: '图片生成失败，请重试' });
-    }
-
-    return res.status(200).json({
-      imageUrl: `data:image/png;base64,${response.ResultImage}`,
-    });
+    const imageUrl = await generateImage(enhancedPrompt);
+    return res.status(200).json({ imageUrl });
 
   } catch (error: any) {
     console.error('[generate-image error]', error?.message || error);
     const msg = error?.message || '';
-    const isAuth = msg.includes('AuthFailure') || msg.includes('InvalidCredential');
-    const isBad = msg.includes('InvalidParameter') || msg.includes('400');
-    if (isAuth) resetClient();
+    const isAuth = msg.includes('401') || msg.includes('Unauthorized') || msg.includes('API key');
+    const isBad = msg.includes('400') || msg.includes('invalid');
     return res.status(isAuth ? 403 : isBad ? 400 : 500).json({
       error: isAuth ? 'API 密钥已失效，请联系管理员更新密钥。'
            : isBad  ? '提示词不符合要求，请修改后重试'
            : '图片生成服务暂时不可用，请稍后重试',
-      _debug: msg,
     });
   }
 }
