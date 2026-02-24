@@ -65,7 +65,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
  */
 export const generateImage = async (prompt: string): Promise<string> => { 
    try { 
-     // 这里的相对路径会自动请求到后端的 api/generate-image.ts 
+     // 请求我们自己的 Vercel 后端接口，避免前端直接请求 Google 暴露 API Key 及触发 IP 限制 
      const response = await fetch('/api/generate-image', { 
        method: 'POST', 
        headers: { 
@@ -80,7 +80,7 @@ export const generateImage = async (prompt: string): Promise<string> => {
      } 
  
      const data = await response.json(); 
-     return data.imageUrl; // 后端已经拼装好了完整的 base64 字符串 
+     return data.imageUrl; // 获取后端返回的 Base64 图片 
    } catch (error) { 
      console.error('生图请求失败:', error); 
      throw error; 
