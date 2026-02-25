@@ -122,6 +122,8 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
   const [readingProgress, setReadingProgress] = useState(0);
   const heroCardRef    = useRef<HTMLDivElement>(null);
   const spacerRef      = useRef<HTMLDivElement>(null);
+  const scaleRef       = useRef<HTMLDivElement>(null);
+  const contentRef     = useRef<HTMLDivElement>(null);
   const doneRef        = useRef(false);
 
   useEffect(() => {
@@ -140,102 +142,68 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
       return () => reader?.removeEventListener('scroll', handleScroll);
   }, [selectedArticle]);
 
-  // ── GSAP timeline + scrub transition ─────────────────────────────
+  // ── GSAP pin + scale transition ──────────────────────────────────
   useEffect(() => {
     if (!isTransitioning) return;
 
-    const sc     = document.querySelector('#page-journal .scroll-container') as HTMLElement;
-    const card   = heroCardRef.current;
-    const spacer = spacerRef.current;
-    if (!sc || !card || !spacer) return;
+    const sc      = document.querySelector('#page-journal .scroll-container') as HTMLElement;
+    const pin     = spacerRef.current;
+    const scaleEl = scaleRef.current;
+    const content = contentRef.current;
+    if (!sc || !pin || !scaleEl || !content) return;
 
     doneRef.current = false;
 
-    // Real card invisible — holds space & provides target rect
-    card.style.opacity       = '0';
-    card.style.pointerEvents = 'none';
-
-    // Clone as fixed overlay — this is what animates
-    const overlay = card.cloneNode(true) as HTMLDivElement;
-    overlay.addEventListener('click', () => card.click());
-    Object.assign(overlay.style, {
-      position: 'fixed', top: '0', left: '0',
-      width: '100%', height: '100%',
-      zIndex: '9999', borderRadius: '0px',
-      transformOrigin: 'center center',
-      overflow: 'hidden',
-      display: 'flex',
+    // 1. Pin 全屏停留
+    ScrollTrigger.create({
+      trigger: pin,
+      scroller: sc,
+      start: 'top top',
+      end: '+=150%',
+      pin: true,
+      pinSpacing: true,
+      scrub: 1,
     });
-    document.body.appendChild(overlay);
-    // DEBUG: start visible on screen so we can confirm element exists
-    gsap.set(overlay, { y: '0vh' });
 
-    const tl = gsap.timeline({
+    // 2. 全屏卡片慢慢缩小
+    gsap.to(scaleEl, {
+      scale: 0.6,
+      y: '-20%',
+      opacity: 0.95,
+      ease: 'none',
       scrollTrigger: {
-        trigger: spacer,
+        trigger: pin,
         scroller: sc,
         start: 'top top',
-        end: '+=2000',
+        end: '+=100%',
         scrub: 1,
-        markers: true,
-        // pin:true 不用 — JSX 里的 sticky 布局已经实现了相同的视觉效果：
-        // journal 内容钉在顶部，用户滚动 2000px 跑道来播放动画。
-        // 在自定义 scroller 里加 pin:true 会破坏 React 的 DOM 管理。
-        onLeave: () => {
-          if (!doneRef.current) {
-            doneRef.current          = true;
-            card.style.opacity       = '1';
-            card.style.pointerEvents = 'auto';
-            requestAnimationFrame(() => { overlay.remove(); onTransitionComplete?.(); });
-          }
+      },
+    });
+
+    // 3. 日志正文从下方淡入
+    gsap.fromTo(content,
+      { y: 100, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: pin,
+          scroller: sc,
+          start: 'top top',
+          end: '+=120%',
+          scrub: 1,
+          onLeave: () => {
+            if (!doneRef.current) {
+              doneRef.current = true;
+              onTransitionComplete?.();
+            }
+          },
         },
-      },
-    });
+      }
+    );
 
-    // Phase A (0–20%): 从屏幕底部滑入全屏
-    tl.to(overlay, { y: '0vh', ease: 'power2.out', duration: 2 });
-
-    // Phase B (20–40%): 全屏停留，让用户看清内容
-    tl.to(overlay, { duration: 2 });
-
-    // Phase C (40–100%): 缩小并精准飞回卡片占位符
-    tl.to(overlay, {
-      duration: 6,
-      ease: 'power2.inOut',
-      borderRadius: '24px',
-      x: () => {
-        const r = card.getBoundingClientRect();
-        return (r.left + r.width / 2) - window.innerWidth / 2;
-      },
-      y: () => {
-        const r = card.getBoundingClientRect();
-        return (r.top + r.height / 2) - window.innerHeight / 2;
-      },
-      scale: () => {
-        const r = card.getBoundingClientRect();
-        return Math.min(r.width / window.innerWidth, r.height / window.innerHeight);
-      },
-      onComplete: () => {
-        if (!doneRef.current) {
-          doneRef.current          = true;
-          card.style.opacity       = '1';
-          card.style.pointerEvents = 'auto';
-          requestAnimationFrame(() => { overlay.remove(); onTransitionComplete?.(); });
-        }
-      },
-    });
-
-    requestAnimationFrame(() => {
-      sc.scrollTop = 0;
-      ScrollTrigger.refresh();
-    });
-
-    return () => {
-      tl.kill();
-      overlay.remove();
-      card.style.opacity       = '';
-      card.style.pointerEvents = '';
-    };
+    return () => ScrollTrigger.getAll().forEach(t => t.kill());
   }, [isTransitioning, onTransitionComplete]);
 
   const featured = {
@@ -374,6 +342,7 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
                 </p>
            </div>
 
+           <div ref={scaleRef} style={{ transformOrigin: 'center center' }}>
            <div ref={heroCardRef} onClick={() => !isTransitioning && setSelectedArticle(featured)} className={`grid grid-cols-1 lg:grid-cols-12 gap-0 shadow-2xl rounded-[40px] overflow-hidden bg-white border border-stone-100 group cursor-pointer${isTransitioning ? '' : ' animate-fade-in-up transform transition-transform hover:scale-[1.01]'}`}>
                 <div className="lg:col-span-7 relative h-[60vh] lg:h-auto overflow-hidden">
                     <FadeInImage src={featured.image} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105" />
@@ -399,7 +368,9 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
                     </div>
                 </div>
            </div>
+           </div>{/* /scaleRef */}
 
+           <div ref={contentRef}>
            <div className="py-8 border-y border-stone-200 overflow-hidden">
                <div className="flex items-center gap-12 animate-marquee whitespace-nowrap text-stone-400 font-serif italic text-xl">
                    {["Renaissance Secrets", "AI & Art Ethics", "The New Baroque", "Color Theory 101", "Museums of Tomorrow", "Digital Restoration"].map((topic, i) => (
@@ -461,6 +432,7 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
 
            <div className="h-20"></div>
        </div>
+       </div>{/* /contentRef */}
 
        {selectedArticle && (           <div className="fixed inset-0 z-[2000] bg-white animate-page-enter">
                <div className="fixed top-0 left-0 w-full h-1 bg-stone-100 z-[2020]">
