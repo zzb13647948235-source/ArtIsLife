@@ -139,11 +139,11 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
               {/* Bold geometric display title */}
               <h1 className="font-sans text-art-accent tracking-[-0.04em] select-none flex flex-col gap-0 relative z-30 mb-10 w-full uppercase">
                 {/* Sparkle decorations */}
-                <Sparkle size={32} opacity={0.9} className="absolute -top-4 left-[30%] text-art-primary" />
-                <Sparkle size={18} opacity={0.5} className="absolute top-8 left-[55%] text-art-accent" />
-                <Sparkle size={24} opacity={0.7} className="absolute top-2 right-8 text-art-gold" />
-                <Sparkle size={14} opacity={0.4} variant="circle" className="absolute top-16 left-[20%] text-art-primary" />
-                <Sparkle size={10} opacity={0.35} variant="circle" className="absolute -top-2 left-[70%] text-art-muted" />
+                <Sparkle size={32} opacity={0.9} className="absolute -top-4 left-[30%] text-art-primary" style={{ animationDelay: '0s' }} />
+                <Sparkle size={18} opacity={0.5} className="absolute top-8 left-[55%] text-art-accent" style={{ animationDelay: '0.6s' }} />
+                <Sparkle size={24} opacity={0.7} className="absolute top-2 right-8 text-art-gold" style={{ animationDelay: '1.2s' }} />
+                <Sparkle size={14} opacity={0.4} variant="circle" className="absolute top-16 left-[20%] text-art-primary" style={{ animationDelay: '1.8s' }} />
+                <Sparkle size={10} opacity={0.35} variant="circle" className="absolute -top-2 left-[70%] text-art-muted" style={{ animationDelay: '0.9s' }} />
 
                 <span className="text-[18vw] lg:text-[10rem] leading-[0.88] block font-black">
                     <BrushText text={t('hero.title_1')} delay={0.2} />
@@ -156,9 +156,9 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
                 </span>
 
                 {/* Bottom sparkles */}
-                <Sparkle size={28} opacity={0.8} className="absolute bottom-4 left-[10%] text-art-primary" />
-                <Sparkle size={16} opacity={0.45} className="absolute bottom-8 left-[45%] text-art-accent" />
-                <Sparkle size={12} opacity={0.3} variant="circle" className="absolute bottom-2 right-12 text-art-gold" />
+                <Sparkle size={28} opacity={0.8} className="absolute bottom-4 left-[10%] text-art-primary" style={{ animationDelay: '0.4s' }} />
+                <Sparkle size={16} opacity={0.45} className="absolute bottom-8 left-[45%] text-art-accent" style={{ animationDelay: '1.5s' }} />
+                <Sparkle size={12} opacity={0.3} variant="circle" className="absolute bottom-2 right-12 text-art-gold" style={{ animationDelay: '2.1s' }} />
               </h1>
 
            <div className="relative pl-6 border-l-2 border-art-primary/30 max-w-md animate-fade-in-up delay-[1200ms]">

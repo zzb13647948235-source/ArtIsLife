@@ -22,7 +22,7 @@ const Sparkle: React.FC<SparkleProps> = ({
         height={size}
         viewBox="0 0 24 24"
         fill="none"
-        className={className}
+        className={`sparkle-twinkle ${className}`}
         style={{ opacity, ...style }}
         aria-hidden="true"
       >
@@ -38,7 +38,7 @@ const Sparkle: React.FC<SparkleProps> = ({
       height={size}
       viewBox="0 0 24 24"
       fill="none"
-      className={className}
+      className={`sparkle-twinkle ${className}`}
       style={{ opacity, ...style }}
       aria-hidden="true"
     >

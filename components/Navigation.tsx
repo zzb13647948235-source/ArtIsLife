@@ -131,7 +131,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
                 {language.toUpperCase()}
               </button>
               <ul role="listbox" aria-label="选择语言"
-                className={`absolute top-full right-0 mt-4 w-24 bg-white rounded-none shadow-lg border border-stone-200 py-2 transition-all duration-300 origin-top-right z-[110]
+                className={`absolute top-full right-0 mt-4 w-24 bg-white rounded-2xl shadow-lg border border-stone-100 py-2 transition-all duration-300 origin-top-right z-[110]
                   ${langMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
                 {(['zh', 'en', 'ja', 'fr', 'es'] as const).map((l) => (
                   <li key={l} role="option" aria-selected={language === l}>

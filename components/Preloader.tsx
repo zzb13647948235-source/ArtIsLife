@@ -102,8 +102,8 @@ const Preloader: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
 
          {/* Cinematic Progress Bar */}
          <div className="w-80 h-[1.5px] bg-stone-900 relative overflow-hidden rounded-full mb-14 border border-white/5">
-            <div 
-                className="absolute top-0 left-0 h-full bg-art-primary shadow-[0_0_20px_rgba(188,75,26,0.8)] transition-all duration-200 ease-out"
+            <div
+                className="absolute top-0 left-0 h-full bg-art-primary shadow-[0_0_20px_rgba(188,75,26,0.8)] transition-all duration-200 ease-out shimmer-bar relative overflow-hidden"
                 style={{ width: `${progress}%` }}
             ></div>
          </div>

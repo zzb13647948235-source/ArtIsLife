@@ -20,7 +20,7 @@ import ArtMarket from './components/ArtMarket';
 import ArtCoinShop from './components/ArtCoinShop';
 import UGCGallery from './components/UGCGallery';
 import IntroShowcase from './components/IntroShowcase';
-import PageTransitionBeam from './components/PageTransitionBeam';
+import BotanicalDecor from './components/BotanicalDecor';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { DarkModeProvider } from './contexts/DarkModeContext';
 import { ViewState, GeneratedImage, ChatMessage, UserTier, User } from './types';
@@ -82,10 +82,11 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 const PageTransition: React.FC<{
     viewKey: string;
     children: React.ReactNode;
+    overlay?: React.ReactNode;
     index: number;
     currentIndex: number;
     prevIndex: number;
-}> = ({ children, viewKey, index, currentIndex, prevIndex }) => {
+}> = ({ children, overlay, viewKey, index, currentIndex, prevIndex }) => {
     const isActive = index === currentIndex;
     const isAdjacent = Math.abs(index - currentIndex) <= 1;
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -150,6 +151,7 @@ const PageTransition: React.FC<{
             >
                 {isAdjacent ? children : null}
             </div>
+            {isAdjacent && overlay}
         </div>
     );
 };
@@ -327,7 +329,6 @@ function AppContent() {
           <LiquidBackground currentView={currentView} />
           <ParticleBackground />
           <CustomCursor />
-          <PageTransitionBeam currentView={currentView} previousView={previousView} />
 
           <Navigation
               currentView={currentView}
@@ -340,7 +341,8 @@ function AppContent() {
           
       <main id="main-content" role="main" className={`flex-1 relative w-full h-full transition-all duration-1000 ${showAuthOverlay ? 'scale-[0.95] blur-sm opacity-50' : 'scale-100 opacity-100'}`}>
               {NAV_ORDER.map((viewKey, index) => (
-                  <PageTransition key={viewKey} viewKey={viewKey} index={index} currentIndex={currentIndex} prevIndex={prevIndex}>
+                  <PageTransition key={viewKey} viewKey={viewKey} index={index} currentIndex={currentIndex} prevIndex={prevIndex}
+                      overlay={viewKey !== 'intro' ? <BotanicalDecor page={viewKey} /> : undefined}>
                       {viewKey === 'intro' && <IntroShowcase onNavigate={handleNavigate} isActive={currentView === 'intro'} />}
                       {viewKey === 'home' && <Hero onNavigate={handleNavigate} isActive={currentView === 'home'} />}
                       {viewKey === 'journal' && <ArtJournal onNavigate={handleNavigate} isActive={currentView === 'journal'} onArticleOpen={setIsFullScreenModalOpen} />}

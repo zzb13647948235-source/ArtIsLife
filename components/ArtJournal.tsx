@@ -254,11 +254,11 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
                     {t('journal.tag_curated')}
                 </div>
                 <div className="relative inline-block">
-                  <Sparkle size={36} opacity={0.85} className="absolute -top-6 -left-8 text-art-primary" />
-                  <Sparkle size={20} opacity={0.5} className="absolute -top-2 right-0 text-art-accent" />
-                  <Sparkle size={14} opacity={0.4} variant="circle" className="absolute top-8 -left-4 text-art-gold" />
-                  <Sparkle size={28} opacity={0.6} className="absolute -bottom-4 right-4 text-art-primary" />
-                  <Sparkle size={12} opacity={0.35} variant="circle" className="absolute bottom-0 -right-6 text-art-muted" />
+                  <Sparkle size={36} opacity={0.85} className="absolute -top-6 -left-8 text-art-primary" style={{ animationDelay: '0s' }} />
+                  <Sparkle size={20} opacity={0.5} className="absolute -top-2 right-0 text-art-accent" style={{ animationDelay: '0.7s' }} />
+                  <Sparkle size={14} opacity={0.4} variant="circle" className="absolute top-8 -left-4 text-art-gold" style={{ animationDelay: '1.4s' }} />
+                  <Sparkle size={28} opacity={0.6} className="absolute -bottom-4 right-4 text-art-primary" style={{ animationDelay: '0.4s' }} />
+                  <Sparkle size={12} opacity={0.35} variant="circle" className="absolute bottom-0 -right-6 text-art-muted" style={{ animationDelay: '2s' }} />
                   <h2 className="font-sans font-black text-7xl md:text-9xl text-stone-900 tracking-[-0.05em] leading-none select-none uppercase">
                       {isActive && <AppleText text={t('journal.title')} delay={0.2} />}
                       <span className="text-art-primary">.</span>

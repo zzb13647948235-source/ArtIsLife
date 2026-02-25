@@ -260,6 +260,56 @@
       .frame-reveal.from-left { transform: translateX(-100px) rotate(-3deg); }
       .frame-reveal.active { opacity: 1; transform: translateX(0) rotate(0); }
 
+      /* ── Sparkle twinkle ─────────────────────────────────────────────────── */
+      @keyframes sparkleTwinkle {
+        0%, 100% { opacity: 1;    transform: scale(1)    rotate(0deg);  }
+        40%       { opacity: 0.3; transform: scale(0.75) rotate(20deg); }
+        70%       { opacity: 0.8; transform: scale(1.1)  rotate(-10deg);}
+      }
+      .sparkle-twinkle { animation: sparkleTwinkle 3s ease-in-out infinite; }
+
+      /* ── Progress bar shimmer ────────────────────────────────────────────── */
+      @keyframes shimmerSweep {
+        0%   { transform: translateX(-100%); }
+        100% { transform: translateX(500%);  }
+      }
+      .shimmer-bar::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        width: 30%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+        animation: shimmerSweep 1.6s ease-in-out infinite;
+      }
+
+      /* ── Botanical wind-sway animations ─────────────────────────────────── */
+      @keyframes windSwayL {
+        0%,100% { transform: rotate(0deg); }
+        25%      { transform: rotate(-4deg); }
+        75%      { transform: rotate(2.5deg); }
+      }
+      @keyframes windSwayR {
+        0%,100% { transform: rotate(0deg); }
+        25%      { transform: rotate(4deg); }
+        75%      { transform: rotate(-2.5deg); }
+      }
+      @keyframes windSwayLFast {
+        0%,100% { transform: rotate(0deg); }
+        30%      { transform: rotate(-6deg); }
+        70%      { transform: rotate(3.5deg); }
+      }
+      @keyframes windSwayRFast {
+        0%,100% { transform: rotate(0deg); }
+        30%      { transform: rotate(6deg); }
+        70%      { transform: rotate(-3.5deg); }
+      }
+      .wind-sway-slow   { animation: windSwayL     5.5s ease-in-out infinite; transform-origin: bottom center; }
+      .wind-sway-med    { animation: windSwayL     3.8s ease-in-out infinite; transform-origin: bottom center; }
+      .wind-sway-fast   { animation: windSwayLFast 2.6s ease-in-out infinite; transform-origin: bottom center; }
+      .wind-sway-slow-r { animation: windSwayR     6.2s ease-in-out infinite; transform-origin: bottom center; }
+      .wind-sway-med-r  { animation: windSwayR     4.1s ease-in-out infinite; transform-origin: bottom center; }
+      .wind-sway-fast-r { animation: windSwayRFast 2.9s ease-in-out infinite; transform-origin: bottom center; }
+
       /* Touch-friendly minimum tap target */
       button, a, [role="button"] {
         min-height: 44px;
