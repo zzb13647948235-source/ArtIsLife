@@ -6,43 +6,66 @@ interface PageTransitionBeamProps {
   previousView: ViewState;
 }
 
-// Color palette per transition — warm art-site tones with spectrum accent
-const BEAM_CONFIGS: Record<string, { beams: string[]; angle: number }> = {
-  'intro-home':      { beams: ['#bc4b1a', '#e8a045', '#f5d08a', '#e8a045', '#bc4b1a'], angle: -18 },
-  'home-journal':    { beams: ['#7c5cbf', '#bc4b1a', '#e8a045', '#c084fc', '#7c5cbf'], angle: 15 },
-  'journal-styles':  { beams: ['#e8a045', '#f472b6', '#bc4b1a', '#f5d08a', '#e8a045'], angle: -12 },
-  'styles-gallery':  { beams: ['#34d399', '#e8a045', '#f472b6', '#34d399', '#bc4b1a'], angle: 20 },
-  'gallery-chat':    { beams: ['#60a5fa', '#c084fc', '#e8a045', '#60a5fa', '#bc4b1a'], angle: -15 },
-  'chat-game':       { beams: ['#f472b6', '#bc4b1a', '#e8a045', '#f472b6', '#7c5cbf'], angle: 12 },
-  'game-map':        { beams: ['#34d399', '#60a5fa', '#e8a045', '#34d399', '#bc4b1a'], angle: -20 },
-  'map-market':      { beams: ['#e8a045', '#bc4b1a', '#f5d08a', '#e8a045', '#7c5cbf'], angle: 16 },
-  'market-community':{ beams: ['#f472b6', '#e8a045', '#c084fc', '#f472b6', '#bc4b1a'], angle: -14 },
-};
+// SVG canvas size
+const S = 440;
 
-function getKey(from: ViewState, to: ViewState) {
-  return `${from}-${to}`;
+// Retro rainbow stripes — outside to inside, matching flowfest palette
+const STRIPES = [
+  { outer: 420, inner: 336, color: '#f472b6' }, // pink
+  { outer: 336, inner: 252, color: '#e8572a' }, // coral
+  { outer: 252, inner: 168, color: '#f5a623' }, // orange
+  { outer: 168, inner: 84,  color: '#f5c842' }, // gold
+  { outer: 84,  inner: 0,   color: '#f5a623' }, // orange (solid innermost)
+];
+
+// Quarter-circle arc path, center at bottom-left corner (0, S)
+function arcPath(outer: number, inner: number): string {
+  if (inner <= 0) {
+    return `M ${outer},${S} A ${outer},${outer} 0 0,0 0,${S - outer} L 0,${S} Z`;
+  }
+  return [
+    `M ${outer},${S}`,
+    `A ${outer},${outer} 0 0,0 0,${S - outer}`,
+    `L 0,${S - inner}`,
+    `A ${inner},${inner} 0 0,1 ${inner},${S}`,
+    `Z`,
+  ].join(' ');
 }
+
+const ArcGroup: React.FC<{ flip?: boolean }> = ({ flip }) => (
+  <svg
+    width={S}
+    height={S}
+    viewBox={`0 0 ${S} ${S}`}
+    style={flip ? { transform: 'rotate(180deg)' } : undefined}
+    overflow="visible"
+  >
+    {STRIPES.map((s, i) => (
+      <path
+        key={i}
+        d={arcPath(s.outer, s.inner)}
+        fill={s.color}
+        stroke="#111111"
+        strokeWidth="3.5"
+        strokeLinejoin="round"
+      />
+    ))}
+  </svg>
+);
 
 const PageTransitionBeam: React.FC<PageTransitionBeamProps> = ({ currentView, previousView }) => {
   const [visible, setVisible] = useState(false);
-  const [config, setConfig] = useState(BEAM_CONFIGS['intro-home']);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (currentView === previousView) return;
-    const key = getKey(previousView, currentView);
-    const reverseKey = getKey(currentView, previousView);
-    const cfg = BEAM_CONFIGS[key] || BEAM_CONFIGS[reverseKey];
-    if (!cfg) return;
-
-    setConfig(cfg);
-    setVisible(true);
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setVisible(false), 900);
+    setVisible(true);
+    timerRef.current = setTimeout(() => setVisible(false), 550);
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [currentView, previousView]);
 
-  if (!visible) return null;
+  const tr = 'transform 420ms cubic-bezier(0.22, 1, 0.36, 1)';
 
   return (
     <div
@@ -50,36 +73,27 @@ const PageTransitionBeam: React.FC<PageTransitionBeamProps> = ({ currentView, pr
       style={{ zIndex: 200 }}
       aria-hidden="true"
     >
-      {config.beams.map((color, i) => {
-        const width = 60 + i * 30;
-        const left = -20 + i * 22;
-        const delay = i * 60;
-        return (
-          <div
-            key={i}
-            style={{
-              position: 'absolute',
-              top: '-20%',
-              left: `${left}%`,
-              width: `${width}px`,
-              height: '140%',
-              background: `linear-gradient(180deg, transparent 0%, ${color}55 20%, ${color}99 50%, ${color}55 80%, transparent 100%)`,
-              transform: `rotate(${config.angle}deg)`,
-              filter: 'blur(18px)',
-              mixBlendMode: 'screen',
-              animation: `beamSweep 0.9s ease-out ${delay}ms both`,
-            }}
-          />
-        );
-      })}
-      <style>{`
-        @keyframes beamSweep {
-          0%   { opacity: 0; transform: rotate(${config.angle}deg) translateX(-60px); }
-          30%  { opacity: 1; }
-          70%  { opacity: 0.8; }
-          100% { opacity: 0; transform: rotate(${config.angle}deg) translateX(60px); }
-        }
-      `}</style>
+      {/* Bottom-left arc */}
+      <div style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        transform: visible ? 'translate(0, 0)' : 'translate(-115%, 115%)',
+        transition: tr,
+      }}>
+        <ArcGroup />
+      </div>
+
+      {/* Top-right arc (rotated 180°) */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        transform: visible ? 'translate(0, 0)' : 'translate(115%, -115%)',
+        transition: tr,
+      }}>
+        <ArcGroup flip />
+      </div>
     </div>
   );
 };
