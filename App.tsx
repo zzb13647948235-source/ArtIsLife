@@ -26,7 +26,7 @@ import { authService } from './services/authService';
 import { MessageSquare, AlertTriangle, RefreshCw, X } from 'lucide-react';
 
 const STORAGE_KEY_ART_HISTORY = 'artislife_history';
-const NAV_ORDER: ViewState[] = ['home', 'journal', 'styles', 'gallery', 'chat', 'game', 'map', 'community', 'market'];
+const NAV_ORDER: ViewState[] = ['home', 'journal', 'styles', 'gallery', 'chat', 'game', 'map', 'market', 'community'];
 
 interface ErrorBoundaryProps { children?: ReactNode; }
 interface ErrorBoundaryState { hasError: boolean; }

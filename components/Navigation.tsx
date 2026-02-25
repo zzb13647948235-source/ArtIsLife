@@ -51,8 +51,8 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
     { id: 'chat',       label: t('nav.chat') },
     { id: 'game',       label: t('nav.game') },
     { id: 'map',        label: t('nav.map') },
-    { id: 'community',  label: '社区', icon: <Users size={12} className="mb-0.5 text-art-primary" /> },
     { id: 'market',     label: t('nav.market') },
+    { id: 'community',  label: '社区', icon: <Users size={12} className="mb-0.5 text-art-primary" /> },
     { id: 'membership', label: 'VIP', icon: <Crown size={12} className="mb-0.5 text-art-gold" /> },
   ];
 
@@ -101,12 +101,11 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
                 role="listitem"
                 onClick={() => onNavigate(item.id as ViewState)}
                 aria-current={currentView === item.id ? 'page' : undefined}
-                className={`relative text-xs font-extrabold uppercase tracking-[0.2em] transition-all duration-300 group flex items-center gap-2
+                className={`relative text-xs font-extrabold uppercase tracking-[0.2em] transition-all duration-300 group flex flex-col items-center gap-2
                   ${currentView === item.id ? activeClass : inactiveClass}`}
               >
-                {item.icon}
-                {item.label}
-                <span aria-hidden="true" className={`absolute -bottom-2 left-0 w-full h-[2px] bg-current transform scale-x-0 transition-transform duration-300 ${currentView === item.id ? 'scale-x-100' : 'group-hover:scale-x-50'}`} />
+                <span className="flex items-center gap-2">{item.icon}{item.label}</span>
+                <span aria-hidden="true" className={`w-1.5 h-1.5 rounded-full bg-current transition-all duration-300 ${currentView === item.id ? 'opacity-100 scale-100' : 'opacity-0 scale-0 group-hover:opacity-50 group-hover:scale-75'}`} />
               </button>
             ))}
           </div>
