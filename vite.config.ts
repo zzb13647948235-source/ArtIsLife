@@ -26,12 +26,13 @@ export default defineConfig({
       },
       format: { comments: false },
     },
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'three-vendor': ['three', '@react-three/fiber'],
-          'ui-vendor': ['lucide-react', 'react-markdown'],
+        manualChunks(id) {
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) return 'react-vendor';
+          if (id.includes('node_modules/three') || id.includes('node_modules/@react-three')) return 'three-vendor';
+          if (id.includes('node_modules/lucide-react') || id.includes('node_modules/react-markdown')) return 'ui-vendor';
         },
       },
     },

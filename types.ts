@@ -34,7 +34,7 @@ export interface GeneratedImage {
 }
 
 // Added 'journal' and 'market'
-export type ViewState = 'home' | 'journal' | 'styles' | 'gallery' | 'market' | 'chat' | 'game' | 'membership' | 'about' | 'login' | 'map' | 'community';
+export type ViewState = 'intro' | 'home' | 'journal' | 'styles' | 'gallery' | 'market' | 'chat' | 'game' | 'membership' | 'about' | 'login' | 'map' | 'community';
 
 export interface UGCComment {
   id: string;
