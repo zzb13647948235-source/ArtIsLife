@@ -1,7 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-gsap.registerPlugin(ScrollTrigger);
+import React, { useState, useEffect } from 'react';
 import { ViewState } from '../types';
 import { ArrowRight, User, Bookmark, MessageCircle, Share2, Clock, Zap, Star, X, AlignLeft, Loader2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -11,8 +8,6 @@ interface ArtJournalProps {
   onNavigate: (view: ViewState) => void;
   isActive?: boolean;
   onArticleOpen?: (isOpen: boolean) => void;
-  isTransitioning?: boolean;
-  onTransitionComplete?: () => void;
 }
 
 const FadeInImage: React.FC<{ src: string; className?: string }> = ({ src, className = "" }) => {
@@ -116,17 +111,10 @@ const LEIGHTON_ACCOLADE_CONTENT = `
   <p>与同时代的印象派画家追求户外光影、捕捉瞬间感受不同，莱顿等学院派画家更注重构图的完美、技法的精湛和主题的崇高。他们的作品如同精雕细琢的宝石，散发着一种遥远时代的理想光辉。</p>
 `;
 
-const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticleOpen, isTransitioning, onTransitionComplete }) => {
+const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticleOpen }) => {
   const { t } = useLanguage();
   const [selectedArticle, setSelectedArticle] = useState<any | null>(null);
   const [readingProgress, setReadingProgress] = useState(0);
-  const heroCardRef    = useRef<HTMLDivElement>(null);
-  const sectionRef     = useRef<HTMLDivElement>(null);
-  const spacerRef      = useRef<HTMLDivElement>(null);
-  const scaleRef       = useRef<HTMLDivElement>(null);
-  const contentRef     = useRef<HTMLDivElement>(null);
-  const ctxRef         = useRef<gsap.Context | null>(null);
-  const doneRef        = useRef(false);
 
   useEffect(() => {
       onArticleOpen?.(!!selectedArticle);
@@ -143,80 +131,6 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
       if (reader) reader.addEventListener('scroll', handleScroll);
       return () => reader?.removeEventListener('scroll', handleScroll);
   }, [selectedArticle]);
-
-  // ── GSAP context + pin + scale transition ────────────────────────
-  useEffect(() => {
-    if (!isTransitioning) return;
-
-    const sc = document.querySelector('#page-journal .scroll-container') as HTMLElement;
-    if (!sc) return;
-
-    ctxRef.current = gsap.context(() => {
-      const section = sectionRef.current;
-      const pin     = spacerRef.current;
-      const scaleEl = scaleRef.current;
-      const content = contentRef.current;
-      if (!section || !pin || !scaleEl || !content) return;
-
-      ScrollTrigger.normalizeScroll(true);
-
-      // 1. Pin 全屏停留
-      ScrollTrigger.create({
-        trigger: section,
-        scroller: sc,
-        start: 'top top',
-        end: '+=220%',
-        pin: pin,
-        pinSpacing: true,
-        scrub: 1,
-        anticipatePin: 1,
-        pinType: 'transform',
-      });
-
-      // 2. 全屏卡片缩小
-      gsap.to(scaleEl, {
-        scale: 0.58,
-        y: '-18%',
-        borderRadius: '28px',
-        ease: 'none',
-        scrollTrigger: {
-          trigger: section,
-          scroller: sc,
-          start: 'top top',
-          end: '+=180%',
-          scrub: 1,
-        },
-      });
-
-      // 3. 正文从下方推入
-      gsap.fromTo(content,
-        { y: 200, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: section,
-            scroller: sc,
-            start: 'top top',
-            end: '+=200%',
-            scrub: 1,
-            onLeave: () => {
-              if (!doneRef.current) {
-                doneRef.current = true;
-                onTransitionComplete?.();
-              }
-            },
-          },
-        }
-      );
-    });
-
-    return () => {
-      ctxRef.current?.revert();
-      ScrollTrigger.getAll().forEach(t => t.kill());
-    };
-  }, [isTransitioning, onTransitionComplete]);
 
   const featured = {
       title: '数字工具如何重塑当代绘画技巧',
@@ -332,21 +246,8 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
   ];
 
   return (
-    <>
-      <div
-        ref={sectionRef}
-        style={isTransitioning ? { position: 'relative', minHeight: '280vh' } : {}}
-      >
-      <div
-        ref={isTransitioning ? spacerRef : undefined}
-        className={isTransitioning ? 'relative h-screen w-full overflow-hidden' : 'min-h-screen pt-32 pb-24 px-6 md:px-12 max-w-[1400px] mx-auto'}
-      >
-      <div
-        ref={isTransitioning ? scaleRef : undefined}
-        className={isTransitioning ? 'absolute inset-0 flex items-center justify-center' : ''}
-        style={{ transformOrigin: 'center center' }}
-      >
-      <div className={isTransitioning ? 'w-full h-full' : 'space-y-32'}>
+    <div className="min-h-screen pt-32 pb-24 px-6 md:px-12 max-w-[1400px] mx-auto">
+       <div className="space-y-32">
            <div className="text-center space-y-4 animate-fade-in">
                 <div className="inline-block px-3 py-1 bg-art-primary/10 text-art-primary rounded-full text-[10px] font-bold uppercase tracking-[0.4em] mb-4">
                     {t('journal.tag_curated')}
@@ -360,8 +261,7 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
                 </p>
            </div>
 
-           <div ref={scaleRef} style={{ transformOrigin: 'center center' }}>
-           <div ref={heroCardRef} onClick={() => !isTransitioning && setSelectedArticle(featured)} className={`grid grid-cols-1 lg:grid-cols-12 gap-0 shadow-2xl rounded-[40px] overflow-hidden bg-white border border-stone-100 group cursor-pointer${isTransitioning ? '' : ' animate-fade-in-up transform transition-transform hover:scale-[1.01]'}`}>
+           <div onClick={() => setSelectedArticle(featured)} className="grid grid-cols-1 lg:grid-cols-12 gap-0 shadow-2xl rounded-[40px] overflow-hidden bg-white border border-stone-100 group cursor-pointer animate-fade-in-up transform transition-transform hover:scale-[1.01]">
                 <div className="lg:col-span-7 relative h-[60vh] lg:h-auto overflow-hidden">
                     <FadeInImage src={featured.image} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent pointer-events-none"></div>
@@ -386,9 +286,7 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
                     </div>
                 </div>
            </div>
-           </div>{/* /scaleRef */}
 
-           <div ref={contentRef} style={isTransitioning ? { paddingTop: '140vh' } : {}}>
            <div className="py-8 border-y border-stone-200 overflow-hidden">
                <div className="flex items-center gap-12 animate-marquee whitespace-nowrap text-stone-400 font-serif italic text-xl">
                    {["Renaissance Secrets", "AI & Art Ethics", "The New Baroque", "Color Theory 101", "Museums of Tomorrow", "Digital Restoration"].map((topic, i) => (
@@ -450,9 +348,9 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
 
            <div className="h-20"></div>
        </div>
-       </div>{/* /contentRef */}
 
-       {selectedArticle && (           <div className="fixed inset-0 z-[2000] bg-white animate-page-enter">
+       {selectedArticle && (
+           <div className="fixed inset-0 z-[2000] bg-white animate-page-enter">
                <div className="fixed top-0 left-0 w-full h-1 bg-stone-100 z-[2020]">
                    <div className="h-full bg-art-primary transition-all duration-100 ease-out" style={{ width: `${readingProgress * 100}%` }}></div>
                </div>
@@ -487,11 +385,7 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
                </div>
            </div>
        )}
-    </div>{/* /space-y-32 or w-full */}
-    </div>{/* /scaleRef */}
-    </div>{/* /spacerRef (pinRef) */}
-    </div>{/* /sectionRef */}
-    </>
+    </div>
   );
 };
 

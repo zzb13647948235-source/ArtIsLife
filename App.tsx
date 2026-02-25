@@ -19,8 +19,6 @@ import ArtJournal from './components/ArtJournal';
 import ArtMarket from './components/ArtMarket';
 import ArtCoinShop from './components/ArtCoinShop';
 import UGCGallery from './components/UGCGallery';
-import JournalTransition from './components/JournalTransition';
-import IntroShowcase from './components/IntroShowcase';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { DarkModeProvider } from './contexts/DarkModeContext';
 import { ViewState, GeneratedImage, ChatMessage, UserTier, User } from './types';
@@ -28,7 +26,7 @@ import { authService } from './services/authService';
 import { MessageSquare, AlertTriangle, RefreshCw, X } from 'lucide-react';
 
 const STORAGE_KEY_ART_HISTORY = 'artislife_history';
-const NAV_ORDER: ViewState[] = ['intro', 'home', 'journal', 'styles', 'gallery', 'chat', 'game', 'map', 'market', 'community'];
+const NAV_ORDER: ViewState[] = ['home', 'journal', 'styles', 'gallery', 'chat', 'game', 'map', 'market', 'community'];
 
 interface ErrorBoundaryProps { children?: ReactNode; }
 interface ErrorBoundaryState { hasError: boolean; }
@@ -108,13 +106,13 @@ const PageTransition: React.FC<{
     if (index < currentIndex) {
         // Page is behind/above: slide up and fade
         transform = goingForward
-            ? 'translate3d(0, -8vh, 0) scale(0.96)'
+            ? 'translate3d(0, -6vh, 0) scale(0.97)'
             : 'translate3d(0, -2vh, 0) scale(0.99)';
         opacity = 0;
     } else if (index > currentIndex) {
         // Page is ahead/below: sit just below viewport
-        transform = 'translate3d(0, 100%, 0) scale(1.015)';
-        opacity = 0.6;
+        transform = 'translate3d(0, 100%, 0) scale(1)';
+        opacity = 1;
     }
 
     return (
@@ -131,8 +129,8 @@ const PageTransition: React.FC<{
                 visibility: isAdjacent ? 'visible' : 'hidden',
                 pointerEvents: isActive ? 'auto' : 'none',
                 transition: isActive
-                    ? 'transform 600ms cubic-bezier(0.24, 1, 0.36, 1), opacity 400ms cubic-bezier(0.24, 1, 0.36, 1)'
-                    : 'transform 600ms cubic-bezier(0.24, 1, 0.36, 1), opacity 350ms ease-in',
+                    ? 'transform 480ms cubic-bezier(0.22, 1, 0.36, 1), opacity 320ms ease-out'
+                    : 'transform 480ms cubic-bezier(0.22, 1, 0.36, 1), opacity 280ms ease-in',
                 willChange: isAdjacent ? 'transform, opacity' : 'auto',
                 WebkitBackfaceVisibility: 'hidden',
                 backfaceVisibility: 'hidden',
@@ -157,8 +155,8 @@ const PageTransition: React.FC<{
 function AppContent() {
   const [appReady, setAppReady] = useState(false);
   const [loadingComplete, setLoadingComplete] = useState(false); 
-  const [currentView, setCurrentView] = useState<ViewState>('intro');
-  const [previousView, setPreviousView] = useState<ViewState>('intro'); 
+  const [currentView, setCurrentView] = useState<ViewState>('home');
+  const [previousView, setPreviousView] = useState<ViewState>('home'); 
   
   // 优化：懒初始化状态，避免因 authService 报错导致白屏
   const [user, setUser] = useState<User | null>(() => {
@@ -171,8 +169,6 @@ function AppContent() {
   });
 
   const [isFullScreenModalOpen, setIsFullScreenModalOpen] = useState(false);
-  const [showJournalTransition, setShowJournalTransition] = useState(false);
-  const [isJournalTransitioning, setIsJournalTransitioning] = useState(false);
   const [showAuthOverlay, setShowAuthOverlay] = useState(false);
   const [showShop, setShowShop] = useState(false);
   const [artHistory, setArtHistory] = useState<GeneratedImage[]>([]);
@@ -212,32 +208,18 @@ function AppContent() {
           const isAtBottom = Math.abs(currentContainer.scrollHeight - currentContainer.scrollTop - currentContainer.clientHeight) < bottomTolerance;
           const isAtTop = currentContainer.scrollTop < topTolerance;
 
-          // For intro page: do not allow wheel-based page switching at all
-          if (currentView === 'intro') return;
-
           if (Math.abs(e.deltaY) > 30) {
               const currentIndex = NAV_ORDER.indexOf(currentView);
               if (e.deltaY > 0) {
                   if (isAtBottom && currentIndex < NAV_ORDER.length - 1) {
-                      const nextView = NAV_ORDER[currentIndex + 1];
-                      if (currentView === 'home' && nextView === 'journal') {
-                          setPreviousView(currentView);
-                          setCurrentView(nextView);
-                          setIsJournalTransitioning(true);
-                          lastScrollTime.current = now;
-                      } else {
-                          setPreviousView(currentView);
-                          setCurrentView(nextView);
-                          lastScrollTime.current = now;
-                      }
+                      setPreviousView(currentView);
+                      setCurrentView(NAV_ORDER[currentIndex + 1]);
+                      lastScrollTime.current = now;
                   }
               } else if (e.deltaY < 0) {
                   if (isAtTop && currentIndex > 0) {
-                      const prevView = NAV_ORDER[currentIndex - 1];
-                      // Prevent going back to intro from home
-                      if (prevView === 'intro') return;
                       setPreviousView(currentView);
-                      setCurrentView(prevView);
+                      setCurrentView(NAV_ORDER[currentIndex - 1]);
                       lastScrollTime.current = now;
                   }
               }
@@ -279,28 +261,15 @@ function AppContent() {
           const isAtTop = currentContainer.scrollTop < 10;
           const currentIndex = NAV_ORDER.indexOf(currentView);
 
-          // For intro page: do not allow touch-based page switching at all
-          if (currentView === 'intro') return;
-
           if (dy > 0 && isAtBottom && currentIndex < NAV_ORDER.length - 1) {
               isSwiping = true;
-              const nextView = NAV_ORDER[currentIndex + 1];
-              if (currentView === 'home' && nextView === 'journal') {
-                  setPreviousView(currentView);
-                  setCurrentView(nextView);
-                  setIsJournalTransitioning(true);
-              } else {
-                  setPreviousView(currentView);
-                  setCurrentView(nextView);
-              }
+              setPreviousView(currentView);
+              setCurrentView(NAV_ORDER[currentIndex + 1]);
               lastScrollTime.current = now;
           } else if (dy < 0 && isAtTop && currentIndex > 0) {
-              const prevView = NAV_ORDER[currentIndex - 1];
-              // Prevent going back to intro from home
-              if (prevView === 'intro') return;
               isSwiping = true;
               setPreviousView(currentView);
-              setCurrentView(prevView);
+              setCurrentView(NAV_ORDER[currentIndex - 1]);
               lastScrollTime.current = now;
           }
       };
@@ -318,21 +287,12 @@ function AppContent() {
           setCurrentView('gallery');
           return;
       }
-      // Prevent navigating back to intro once left
-      if (v === 'intro') return;
       if (v !== currentView) {
           setPreviousView(currentView);
           setIsFullScreenModalOpen(false);
-          if (currentView === 'home' && v === 'journal') setShowJournalTransition(true);
       }
       setCurrentView(v);
   }, [currentView, user]);
-
-  const handleJournalTransitionComplete = useCallback(() => {
-    setIsJournalTransitioning(false);
-    const sc = document.querySelector('#page-journal .scroll-container') as HTMLElement;
-    if (sc) sc.scrollTop = 0;
-  }, []);
 
   const currentIndex = NAV_ORDER.indexOf(currentView);
   const prevIndexRef = useRef(currentIndex);
@@ -359,16 +319,15 @@ function AppContent() {
               onNavigate={handleNavigate}
               user={user}
               onLogout={() => { authService.logout(); handleNavigate('home'); }}
-              isHidden={currentView === 'about' || currentView === 'login' || currentView === 'intro' || (isImmersiveMode && currentView !== 'membership') || isFullScreenModalOpen}
+              isHidden={currentView === 'about' || currentView === 'login' || (isImmersiveMode && currentView !== 'membership') || isFullScreenModalOpen}
               onOpenShop={() => setShowShop(true)}
           />
           
       <main id="main-content" role="main" className={`flex-1 relative w-full h-full transition-all duration-1000 ${showAuthOverlay ? 'scale-[0.95] blur-sm opacity-50' : 'scale-100 opacity-100'}`}>
               {NAV_ORDER.map((viewKey, index) => (
                   <PageTransition key={viewKey} viewKey={viewKey} index={index} currentIndex={currentIndex} prevIndex={prevIndex}>
-                      {viewKey === 'intro' && <IntroShowcase onNavigate={handleNavigate} isActive={currentView === 'intro'} />}
                       {viewKey === 'home' && <Hero onNavigate={handleNavigate} isActive={currentView === 'home'} />}
-                      {viewKey === 'journal' && <ArtJournal onNavigate={handleNavigate} isActive={currentView === 'journal'} onArticleOpen={setIsFullScreenModalOpen} isTransitioning={isJournalTransitioning} onTransitionComplete={handleJournalTransitionComplete} />}
+                      {viewKey === 'journal' && <ArtJournal onNavigate={handleNavigate} isActive={currentView === 'journal'} onArticleOpen={setIsFullScreenModalOpen} />}
                       {viewKey === 'styles' && <ArtStyles onNavigate={handleNavigate} isActive={currentView === 'styles'} />}
                       {viewKey === 'gallery' && <ArtGenerator history={artHistory} onImageGenerated={(img) => { const next = [...artHistory, img]; setArtHistory(next); try { localStorage.setItem(STORAGE_KEY_ART_HISTORY, JSON.stringify(next)); } catch(e){} }} onClearHistory={() => { setArtHistory([]); try { localStorage.removeItem(STORAGE_KEY_ART_HISTORY); } catch(e){} }} prefilledPrompt={prefilledPrompt} setPrefilledPrompt={setPrefilledPrompt} userTier={user?.tier || 'guest'} onNavigateToMembership={() => handleNavigate('membership')} onAuthRequired={() => setShowAuthOverlay(true)} isLoggedIn={!!user} onImageSelect={(image) => { /* Don't hide nav on image select */ }} />}
                       {viewKey === 'market' && <ArtMarket onNavigate={handleNavigate} isActive={currentView === 'market'} onFullScreenToggle={setIsFullScreenModalOpen} generatedImages={artHistory} />}
@@ -406,11 +365,7 @@ function AppContent() {
                 </div>
               )}
           </main>
-
-          {showJournalTransition && (
-            <JournalTransition onComplete={() => setShowJournalTransition(false)} />
-          )}
-
+          
           {showAuthOverlay && (
             <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-stone-900/70 backdrop-blur-sm animate-fade-in" onClick={() => setShowAuthOverlay(false)}>
                 <div onClick={e => e.stopPropagation()} className="w-full max-w-4xl h-[85vh] bg-white rounded-[48px] overflow-hidden shadow-2xl relative">
