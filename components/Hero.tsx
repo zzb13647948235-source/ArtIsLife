@@ -113,8 +113,33 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
 
   return (
     <div className="relative h-full w-full bg-transparent text-stone-900 flex items-center overflow-hidden perspective-2000">
-      
-      {/* Background Layer */}
+
+      {/* 彩虹拱形装饰 - 左 */}
+      <svg className="absolute left-0 top-1/3 h-96 opacity-20 pointer-events-none z-0" viewBox="0 0 200 400" fill="none">
+        <path d="M10 380 Q100 50 190 380" stroke="url(#rainbow-left)" strokeWidth="28" strokeLinecap="round"/>
+        <defs>
+          <linearGradient id="rainbow-left" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#ff00aa"/>
+            <stop offset="25%" stopColor="#00ffdd"/>
+            <stop offset="50%" stopColor="#aaff00"/>
+            <stop offset="75%" stopColor="#00aaff"/>
+            <stop offset="100%" stopColor="#ff00aa"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      {/* 彩虹拱形装饰 - 右 */}
+      <svg className="absolute right-0 top-1/3 h-96 opacity-20 pointer-events-none z-0 rotate-180" viewBox="0 0 200 400" fill="none">
+        <path d="M10 380 Q100 50 190 380" stroke="url(#rainbow-right)" strokeWidth="28" strokeLinecap="round"/>
+        <defs>
+          <linearGradient id="rainbow-right" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#ff00aa"/>
+            <stop offset="25%" stopColor="#00ffdd"/>
+            <stop offset="50%" stopColor="#aaff00"/>
+            <stop offset="75%" stopColor="#00aaff"/>
+            <stop offset="100%" stopColor="#ff00aa"/>
+          </linearGradient>
+        </defs>
+      </svg>
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
           <div 
              className="absolute top-[20%] left-[-10%] text-[20vw] font-serif text-art-primary opacity-[0.02] leading-none select-none mix-blend-multiply whitespace-nowrap"
@@ -136,7 +161,7 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
               </div>
               
               {/* Refined H1 Structure for better wrapping */}
-              <h1 className="font-serif text-art-accent tracking-tighter select-none flex flex-col gap-1 md:gap-3 drop-shadow-sm relative z-30 mb-10 w-full">
+              <h1 className="holo-title font-serif tracking-tighter select-none flex flex-col gap-1 md:gap-3 drop-shadow-sm relative z-30 mb-10 w-full">
                 <span className="text-[12vw] lg:text-[7rem] leading-[0.9] block mix-blend-multiply transition-transform hover:scale-[1.02] origin-left duration-500">
                     <BrushText text={t('hero.title_1')} delay={0.2} />
                 </span>
@@ -155,16 +180,20 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
            </div>
 
            <div className="flex flex-wrap gap-6 mt-10 animate-fade-in-up delay-[1600ms]">
-              <button onClick={() => onNavigate('game')} className="group relative px-10 py-5 bg-art-accent text-white rounded-full overflow-hidden shadow-hard hover:-translate-y-1 transition-all duration-500 active:scale-95">
+              <button onClick={() => onNavigate('game')} className="holo-button group relative px-10 py-5 bg-art-accent text-white rounded-full shadow-hard hover:-translate-y-1 transition-all duration-500 active:scale-95">
                  <div className="absolute inset-0 w-full h-full bg-art-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.85,0,0.15,1)]"></div>
                  <div className="relative z-10 flex items-center gap-3">
-                    <PlayCircle size={18} className="group-hover:fill-white/20 transition-all" /> 
+                    <span className="w-0 h-2 bg-white/30 rounded-full group-hover:w-2 transition-all duration-200 ease-in" />
+                    <PlayCircle size={18} className="group-hover:fill-white/20 transition-all" />
                     <span className="font-bold uppercase tracking-[0.25em] text-xs">{t('hero.btn_start')}</span>
+                    <span className="w-2 h-2 bg-white/30 rounded-full group-hover:w-0 transition-all duration-200 ease-in" />
                  </div>
               </button>
-              <button onClick={() => onNavigate('gallery')} className="group flex items-center gap-3 px-8 py-5 rounded-full border border-stone-200 hover:border-art-accent bg-white/40 backdrop-blur-md transition-all duration-300 shadow-sm hover:shadow-lg active:scale-95">
+              <button onClick={() => onNavigate('gallery')} className="holo-button group flex items-center gap-3 px-8 py-5 rounded-full border border-stone-200 hover:border-art-accent bg-white/40 backdrop-blur-md transition-all duration-300 shadow-sm hover:shadow-lg active:scale-95">
+                 <span className="w-0 h-2 bg-art-primary/40 rounded-full group-hover:w-2 transition-all duration-200 ease-in" />
                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-stone-800 group-hover:text-art-accent">{t('hero.btn_create')}</span>
                  <ArrowRight size={16} className="text-art-primary group-hover:translate-x-1 transition-transform"/>
+                 <span className="w-2 h-2 bg-art-primary/40 rounded-full group-hover:w-0 transition-all duration-200 ease-in" />
               </button>
            </div>
         </div>
