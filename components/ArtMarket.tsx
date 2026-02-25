@@ -249,26 +249,40 @@ const AuctionModal: React.FC<{ item: any; user: User | null; onClose: () => void
 };
 
 // --- LIST ARTWORK MODAL (绘梦上架) ---
-const ListArtworkModal: React.FC<{ 
+const ListArtworkModal: React.FC<{
     generatedImages: GeneratedImage[];
     user: User;
     onClose: () => void;
     onListed: () => void;
 }> = ({ generatedImages, user, onClose, onListed }) => {
     const [selectedImg, setSelectedImg] = useState<GeneratedImage | null>(null);
+    const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+    const [sourceTab, setSourceTab] = useState<'ai' | 'upload'>('ai');
     const [title, setTitle] = useState('');
     const [price, setPrice] = useState('');
     const [rarity, setRarity] = useState<'Common' | 'Rare' | 'Legendary'>('Common');
     const [isListing, setIsListing] = useState(false);
     const [listSuccess, setListSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const fileRef = useRef<HTMLInputElement>(null);
+
+    const handleFileUpload = async (file: File) => {
+        if (!file.type.startsWith('image/')) { setError('请上传图片文件'); return; }
+        if (file.size > 5 * 1024 * 1024) { setError('图片不能超过 5MB'); return; }
+        setError(null);
+        const reader = new FileReader();
+        reader.onload = (e) => setUploadedUrl(e.target?.result as string);
+        reader.readAsDataURL(file);
+    };
+
+    const activeImageUrl = sourceTab === 'ai' ? selectedImg?.url : uploadedUrl;
 
     const handleList = async () => {
-        if (!selectedImg) { setError('请选择一幅作品'); return; }
+        if (!activeImageUrl) { setError('请选择或上传一幅作品'); return; }
         if (!title.trim()) { setError('请输入作品名称'); return; }
         const priceNum = parseFloat(price);
         if (isNaN(priceNum) || priceNum <= 0) { setError('请输入有效价格'); return; }
-        
+
         setIsListing(true);
         setError(null);
         try {
@@ -279,8 +293,8 @@ const ListArtworkModal: React.FC<{
                 year: new Date().getFullYear().toString(),
                 basePrice: priceNum,
                 priceHistory: generateMockPriceHistory(priceNum),
-                image: selectedImg.url,
-                type: 'ai-generated',
+                image: activeImageUrl,
+                type: sourceTab === 'ai' ? 'ai-generated' : 'user-upload',
                 rarity: rarity,
                 isSystem: false
             };
@@ -320,23 +334,55 @@ const ListArtworkModal: React.FC<{
                         </div>
                     </div>
 
-                    {/* Select artwork from generated images */}
+                    {/* Source tab switcher */}
                     <div>
-                        <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400 mb-3 block">选择作品</label>
-                        {generatedImages.length === 0 ? (
-                            <div className="p-8 border-2 border-dashed border-white/10 rounded-2xl text-center">
-                                <Palette size={32} className="text-stone-600 mx-auto mb-3" />
-                                <p className="text-stone-500 text-sm">还没有创作作品，前往「绘梦」创作吧</p>
-                            </div>
+                        <div className="flex gap-2 mb-4">
+                            <button onClick={() => setSourceTab('ai')}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${sourceTab === 'ai' ? 'bg-art-gold/20 text-art-gold border border-art-gold/40' : 'bg-white/5 text-stone-500 border border-white/10 hover:border-white/20'}`}>
+                                AI 绘梦作品
+                            </button>
+                            <button onClick={() => setSourceTab('upload')}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${sourceTab === 'upload' ? 'bg-art-gold/20 text-art-gold border border-art-gold/40' : 'bg-white/5 text-stone-500 border border-white/10 hover:border-white/20'}`}>
+                                上传本地图片
+                            </button>
+                        </div>
+
+                        {sourceTab === 'ai' ? (
+                            <>
+                                <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400 mb-3 block">选择 AI 作品</label>
+                                {generatedImages.length === 0 ? (
+                                    <div className="p-8 border-2 border-dashed border-white/10 rounded-2xl text-center">
+                                        <Palette size={32} className="text-stone-600 mx-auto mb-3" />
+                                        <p className="text-stone-500 text-sm">还没有创作作品，前往「绘梦」创作吧</p>
+                                    </div>
+                                ) : (
+                                    <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide">
+                                        {generatedImages.map((img, idx) => (
+                                            <button key={idx} onClick={() => { setSelectedImg(img); if (!title) setTitle(img.prompt.slice(0, 30)); }}
+                                                className={`flex-shrink-0 w-28 h-28 rounded-2xl overflow-hidden border-2 transition-all hover:scale-105 ${selectedImg?.timestamp === img.timestamp ? 'border-art-gold ring-2 ring-art-gold/30 scale-105' : 'border-white/10 opacity-60 hover:opacity-100'}`}>
+                                                <img src={img.url} className="w-full h-full object-cover" />
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </>
                         ) : (
-                            <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide">
-                                {generatedImages.map((img, idx) => (
-                                    <button key={idx} onClick={() => { setSelectedImg(img); if (!title) setTitle(img.prompt.slice(0, 30)); }}
-                                        className={`flex-shrink-0 w-28 h-28 rounded-2xl overflow-hidden border-2 transition-all hover:scale-105 ${selectedImg?.timestamp === img.timestamp ? 'border-art-gold ring-2 ring-art-gold/30 scale-105' : 'border-white/10 opacity-60 hover:opacity-100'}`}>
-                                        <img src={img.url} className="w-full h-full object-cover" />
-                                    </button>
-                                ))}
-                            </div>
+                            <>
+                                <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400 mb-3 block">上传本地图片</label>
+                                <input ref={fileRef} type="file" accept="image/*" className="hidden"
+                                    onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0])} />
+                                <div onClick={() => fileRef.current?.click()}
+                                    className="border-2 border-dashed border-white/10 rounded-2xl p-6 text-center cursor-pointer hover:border-art-gold/30 transition-colors">
+                                    {uploadedUrl
+                                        ? <img src={uploadedUrl} className="max-h-40 mx-auto rounded-xl object-contain" alt="预览" />
+                                        : <div className="flex flex-col items-center gap-2 text-stone-500">
+                                            <Upload size={28} className="text-stone-600" />
+                                            <p className="text-sm">点击上传图片</p>
+                                            <p className="text-xs">JPG / PNG / WebP，最大 5MB</p>
+                                          </div>
+                                    }
+                                </div>
+                            </>
                         )}
                     </div>
 
@@ -369,7 +415,7 @@ const ListArtworkModal: React.FC<{
 
                     {error && <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs font-bold flex items-center gap-2"><AlertCircle size={14} /> {error}</div>}
 
-                    <button onClick={handleList} disabled={isListing || !selectedImg}
+                    <button onClick={handleList} disabled={isListing || !activeImageUrl}
                         className="w-full py-5 bg-art-gold text-black rounded-2xl font-bold uppercase tracking-[0.2em] text-xs hover:bg-white transition-all shadow-xl disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3">
                         {isListing ? <span className="animate-spin"><Sparkles size={16} /></span> : <Upload size={16} />}
                         {isListing ? '上架中...' : '确认上架'}
@@ -519,8 +565,8 @@ const ArtMarket: React.FC<ArtMarketProps> = ({ onNavigate, isActive, onFullScree
                     <div className="h-8 w-px bg-white/10"></div>
                     <div className="text-right"><p className="text-[9px] font-bold uppercase tracking-widest text-stone-500">Owned</p><p className="font-mono text-xl text-white">{user?.inventoryIds?.length || 0}</p></div>
                 </div>
-                {/* List Artwork Button for Dreams tab */}
-                {activeTab === 'dreams' && user && (
+                {/* List Artwork Button - visible on market and dreams tabs */}
+                {(activeTab === 'dreams' || activeTab === 'market') && user && (
                     <button onClick={() => setShowListModal(true)}
                         className="flex items-center gap-3 px-6 py-3 bg-art-gold text-black rounded-xl font-bold text-xs uppercase tracking-[0.2em] hover:bg-white transition-all shadow-xl active:scale-[0.97]">
                         <Upload size={16} /> 上架我的作品

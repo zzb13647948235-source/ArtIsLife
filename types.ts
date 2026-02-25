@@ -2,12 +2,20 @@
 
 export type Language = 'zh' | 'en' | 'ja' | 'fr' | 'es';
 
+export interface Sticker {
+  id: string;
+  emoji: string;
+  label: string;
+  category: string;
+}
+
 export interface ChatMessage {
   id: string;
   role: 'user' | 'model';
   text: string;
   timestamp: number;
   groundingLinks?: GroundingLink[];
+  sticker?: Sticker;
 }
 
 export interface GroundingLink {
@@ -49,6 +57,7 @@ export interface UGCPost {
   comments: UGCComment[];
   timestamp: number;
   isAIGenerated: boolean;
+  viewCount?: number;
 }
 
 export type UserTier = 'guest' | 'artist' | 'patron';

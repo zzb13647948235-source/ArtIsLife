@@ -9,11 +9,35 @@ const STORAGE_KEY_UGC = 'artislife_ugc';
 
 // 订阅系统：确保全局组件能感知用户状态变化
 type AuthListener = (user: User | null) => void;
+type UGCListener = (posts: UGCPost[]) => void;
+type MarketListener = (items: MarketItem[]) => void;
+
 const listeners = new Set<AuthListener>();
+const ugcListeners = new Set<UGCListener>();
+const marketListeners = new Set<MarketListener>();
 
 const notify = (user: User | null) => {
   listeners.forEach(l => l(user));
 };
+
+const notifyUGC = (posts: UGCPost[]) => {
+  ugcListeners.forEach(l => l(posts));
+};
+
+const notifyMarket = (items: MarketItem[]) => {
+  marketListeners.forEach(l => l(items));
+};
+
+// BroadcastChannel for cross-tab real-time sync
+let bc: BroadcastChannel | null = null;
+try {
+  bc = new BroadcastChannel('artislife_realtime');
+  bc.onmessage = (e) => {
+    if (e.data?.type === 'ugc_update') notifyUGC(e.data.posts);
+    if (e.data?.type === 'market_update') notifyMarket(e.data.items);
+    if (e.data?.type === 'auth_update') notify(e.data.user);
+  };
+} catch { bc = null; }
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -62,6 +86,18 @@ export const authService = {
     listeners.add(listener);
     listener(authService.getCurrentUser());
     return () => listeners.delete(listener);
+  },
+
+  subscribeToUGC(listener: UGCListener) {
+    ugcListeners.add(listener);
+    listener(authService.getUGCPosts());
+    return () => ugcListeners.delete(listener);
+  },
+
+  subscribeToMarket(listener: MarketListener) {
+    marketListeners.add(listener);
+    listener(authService.getMarketItems());
+    return () => marketListeners.delete(listener);
   },
 
   async register(name: string, email: string, password: string): Promise<User> {
@@ -217,8 +253,10 @@ export const authService = {
   async listMarketItem(item: MarketItem): Promise<void> {
       await delay(500);
       const items = this.getMarketItems();
-      items.unshift(item); // Add to top
+      items.unshift(item);
       safeStorage.setItem(STORAGE_KEY_MARKET_ITEMS, JSON.stringify(items));
+      notifyMarket(items);
+      bc?.postMessage({ type: 'market_update', items });
   },
 
   async toggleLikeItem(userId: string, itemId: string): Promise<User> {
@@ -260,9 +298,12 @@ export const authService = {
           likedByIds: [],
           comments: [],
           timestamp: Date.now(),
+          viewCount: 0,
       };
       posts.unshift(newPost);
       safeStorage.setItem(STORAGE_KEY_UGC, JSON.stringify(posts));
+      notifyUGC(posts);
+      bc?.postMessage({ type: 'ugc_update', posts });
       return newPost;
   },
 
@@ -277,6 +318,8 @@ export const authService = {
           post.likedByIds.push(userId);
       }
       safeStorage.setItem(STORAGE_KEY_UGC, JSON.stringify(posts));
+      notifyUGC(posts);
+      bc?.postMessage({ type: 'ugc_update', posts });
       return posts;
   },
 
@@ -292,6 +335,8 @@ export const authService = {
       };
       posts[idx].comments.push(newComment);
       safeStorage.setItem(STORAGE_KEY_UGC, JSON.stringify(posts));
+      notifyUGC(posts);
+      bc?.postMessage({ type: 'ugc_update', posts });
       return posts[idx];
   },
 
@@ -302,5 +347,7 @@ export const authService = {
       if (post.userId !== userId) throw new Error('Unauthorized');
       const filtered = posts.filter(p => p.id !== postId);
       safeStorage.setItem(STORAGE_KEY_UGC, JSON.stringify(filtered));
+      notifyUGC(filtered);
+      bc?.postMessage({ type: 'ugc_update', posts: filtered });
   },
 };
