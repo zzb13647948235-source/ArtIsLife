@@ -3,6 +3,7 @@ import { ViewState } from '../types';
 import { ArrowRight, User, Bookmark, MessageCircle, Share2, Clock, Zap, Star, X, AlignLeft, Loader2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import AppleText from './AppleText';
+import Sparkle from './Sparkle';
 
 interface ArtJournalProps {
   onNavigate: (view: ViewState) => void;
@@ -252,11 +253,18 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
                 <div className="inline-block px-3 py-1 bg-art-primary/10 text-art-primary rounded-full text-[10px] font-bold uppercase tracking-[0.4em] mb-4">
                     {t('journal.tag_curated')}
                 </div>
-                <h2 className="font-serif text-7xl md:text-9xl text-stone-900 tracking-tighter leading-none select-none">
-                    {isActive && <AppleText text={t('journal.title')} delay={0.2} />}
-                    <span className="text-stone-300 italic">.</span>
-                </h2>
-                <p className="text-stone-500 font-serif italic text-2xl max-w-xl mx-auto leading-relaxed">
+                <div className="relative inline-block">
+                  <Sparkle size={36} opacity={0.85} className="absolute -top-6 -left-8 text-art-primary" />
+                  <Sparkle size={20} opacity={0.5} className="absolute -top-2 right-0 text-art-accent" />
+                  <Sparkle size={14} opacity={0.4} variant="circle" className="absolute top-8 -left-4 text-art-gold" />
+                  <Sparkle size={28} opacity={0.6} className="absolute -bottom-4 right-4 text-art-primary" />
+                  <Sparkle size={12} opacity={0.35} variant="circle" className="absolute bottom-0 -right-6 text-art-muted" />
+                  <h2 className="font-sans font-black text-7xl md:text-9xl text-stone-900 tracking-[-0.05em] leading-none select-none uppercase">
+                      {isActive && <AppleText text={t('journal.title')} delay={0.2} />}
+                      <span className="text-art-primary">.</span>
+                  </h2>
+                </div>
+                <p className="text-stone-500 font-sans text-lg max-w-xl mx-auto leading-relaxed uppercase tracking-[0.15em] text-sm">
                    {t('journal.subtitle')}
                 </p>
            </div>

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { ViewState } from '../types';
 import { PlayCircle, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import Sparkle from './Sparkle';
 
 interface HeroProps {
   onNavigate: (view: ViewState) => void;
@@ -130,41 +131,53 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
       <div className="w-full max-w-[1920px] mx-auto px-6 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10 h-full">
         
         <div className="lg:col-span-6 flex flex-col justify-center relative z-20 pt-24 lg:pt-0">
-              <div className="flex items-center gap-6 mb-8 animate-fade-in group cursor-default">
-                  <div className="w-16 h-[1px] bg-art-primary origin-left transition-all duration-700 group-hover:w-24 group-hover:h-[2px]"></div>
-                  <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-art-primary/80 group-hover:text-art-primary transition-colors">{t('hero.est')}</span>
+              <div className="flex items-center gap-4 mb-8 animate-fade-in">
+                  <div className="w-8 h-[1px] bg-art-primary"></div>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-art-primary/80">{t('hero.est')}</span>
               </div>
-              
-              {/* Refined H1 Structure for better wrapping */}
-              <h1 className="font-serif text-art-accent tracking-tighter select-none flex flex-col gap-1 md:gap-3 drop-shadow-sm relative z-30 mb-10 w-full">
-                <span className="text-[12vw] lg:text-[7rem] leading-[0.9] block mix-blend-multiply transition-transform hover:scale-[1.02] origin-left duration-500">
+
+              {/* Bold geometric display title */}
+              <h1 className="font-sans text-art-accent tracking-[-0.04em] select-none flex flex-col gap-0 relative z-30 mb-10 w-full uppercase">
+                {/* Sparkle decorations */}
+                <Sparkle size={32} opacity={0.9} className="absolute -top-4 left-[30%] text-art-primary" />
+                <Sparkle size={18} opacity={0.5} className="absolute top-8 left-[55%] text-art-accent" />
+                <Sparkle size={24} opacity={0.7} className="absolute top-2 right-8 text-art-gold" />
+                <Sparkle size={14} opacity={0.4} variant="circle" className="absolute top-16 left-[20%] text-art-primary" />
+                <Sparkle size={10} opacity={0.35} variant="circle" className="absolute -top-2 left-[70%] text-art-muted" />
+
+                <span className="text-[18vw] lg:text-[10rem] leading-[0.88] block font-black">
                     <BrushText text={t('hero.title_1')} delay={0.2} />
                 </span>
-                <span className="text-[8vw] lg:text-[5rem] leading-[1] block italic font-light text-stone-400 pl-2 lg:pl-16">
-                    <BrushText text={t('hero.title_2')} delay={0.6} />
+                <span className="text-[10vw] lg:text-[5.5rem] leading-[0.95] block font-light text-stone-400 tracking-[-0.02em]">
+                    <BrushText text={t('hero.title_2')} delay={0.5} />
                 </span>
-                <span className="text-[12vw] lg:text-[7.5rem] leading-[0.9] block text-art-primary pb-2">
-                    <BrushText text={t('hero.title_3')} delay={1.0} />
+                <span className="text-[18vw] lg:text-[10rem] leading-[0.88] block font-black text-art-primary pb-2">
+                    <BrushText text={t('hero.title_3')} delay={0.8} />
                 </span>
+
+                {/* Bottom sparkles */}
+                <Sparkle size={28} opacity={0.8} className="absolute bottom-4 left-[10%] text-art-primary" />
+                <Sparkle size={16} opacity={0.45} className="absolute bottom-8 left-[45%] text-art-accent" />
+                <Sparkle size={12} opacity={0.3} variant="circle" className="absolute bottom-2 right-12 text-art-gold" />
               </h1>
 
-           <div className="relative pl-8 border-l-2 border-art-primary/20 max-w-lg animate-fade-in-up delay-[1400ms]">
-              <p className="text-lg md:text-xl text-stone-500 font-light leading-relaxed">
+           <div className="relative pl-6 border-l-2 border-art-primary/30 max-w-md animate-fade-in-up delay-[1200ms]">
+              <p className="text-base md:text-lg text-stone-500 font-light leading-relaxed uppercase tracking-wide text-[0.8rem]">
                   {t('hero.subtitle')}
               </p>
            </div>
 
-           <div className="flex flex-wrap gap-6 mt-10 animate-fade-in-up delay-[1600ms]">
-              <button onClick={() => onNavigate('game')} className="group relative px-10 py-5 bg-art-accent text-white rounded-full overflow-hidden shadow-hard hover:-translate-y-1 transition-all duration-500 active:scale-95">
+           <div className="flex flex-wrap gap-4 mt-10 animate-fade-in-up delay-[1400ms]">
+              <button onClick={() => onNavigate('game')} className="group relative px-8 py-4 bg-art-accent text-white rounded-full overflow-hidden shadow-hard hover:-translate-y-1 transition-all duration-500 active:scale-95">
                  <div className="absolute inset-0 w-full h-full bg-art-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.85,0,0.15,1)]"></div>
                  <div className="relative z-10 flex items-center gap-3">
-                    <PlayCircle size={18} className="group-hover:fill-white/20 transition-all" /> 
-                    <span className="font-bold uppercase tracking-[0.25em] text-xs">{t('hero.btn_start')}</span>
+                    <PlayCircle size={16} className="group-hover:fill-white/20 transition-all" />
+                    <span className="font-black uppercase tracking-[0.3em] text-xs">{t('hero.btn_start')}</span>
                  </div>
               </button>
-              <button onClick={() => onNavigate('gallery')} className="group flex items-center gap-3 px-8 py-5 rounded-full border border-stone-200 hover:border-art-accent bg-white/40 backdrop-blur-md transition-all duration-300 shadow-sm hover:shadow-lg active:scale-95">
-                 <span className="text-xs font-bold uppercase tracking-[0.2em] text-stone-800 group-hover:text-art-accent">{t('hero.btn_create')}</span>
-                 <ArrowRight size={16} className="text-art-primary group-hover:translate-x-1 transition-transform"/>
+              <button onClick={() => onNavigate('gallery')} className="group flex items-center gap-3 px-7 py-4 rounded-full border-2 border-stone-300 hover:border-art-accent bg-transparent transition-all duration-300 active:scale-95">
+                 <span className="text-xs font-black uppercase tracking-[0.25em] text-stone-700 group-hover:text-art-accent">{t('hero.btn_create')}</span>
+                 <ArrowRight size={14} className="text-art-primary group-hover:translate-x-1 transition-transform"/>
               </button>
            </div>
         </div>
