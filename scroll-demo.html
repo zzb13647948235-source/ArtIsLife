@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scroll Animation Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Helvetica Neue', sans-serif; background: #f9f8f6; }
+
+    /* Home sticky wrapper — creates scroll space for animation */
+    .home-sticky-wrapper { height: 1600px; }
+
+    .home {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      background: #f9f8f6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 1;
+    }
+    .home h1 { font-size: 4rem; font-weight: 900; color: #1a1a1a; }
+    .home p  { font-size: 1rem; color: #aaa; letter-spacing: 0.1em; }
+
+    /* Journal section */
+    .journal { background: #fff; padding: 48px 48px 120px; min-height: 100vh; }
+    .journal-header {
+      font-size: 3rem; font-weight: 900; color: #1a1a1a;
+      margin-bottom: 32px; font-style: italic;
+    }
+
+    /* Invisible placeholder — card animates to this exact rect */
+    .card-placeholder {
+      width: 100%; height: 420px;
+      border-radius: 24px; margin-bottom: 24px;
+      background: transparent;
+    }
+
+    .article-card {
+      width: 100%; height: 100px;
+      background: #f0ede8; border-radius: 16px;
+      margin-bottom: 16px; display: flex;
+      align-items: center; padding: 0 28px;
+      font-size: 1rem; color: #666;
+    }
+
+    /* ── Overlay card (scroll-driven, position:fixed) ── */
+    #overlay-card {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #BC4B1A;
+      color: white;
+      display: flex;
+      border-radius: 0;
+      will-change: transform, border-radius;
+      transform-origin: center center;
+      overflow: hidden;
+      z-index: 100;
+      transform: translateY(100vh);
+    }
+
+    .card-image {
+      width: 58%; height: 100%;
+      background: #8B3510;
+      display: flex; align-items: center;
+      justify-content: center;
+      font-size: 6rem; flex-shrink: 0;
+    }
+
+    .card-text {
+      flex: 1; padding: 60px 48px;
+      display: flex; flex-direction: column;
+      justify-content: center; gap: 20px;
+    }
+    .card-tag {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.4em; text-transform: uppercase; opacity: 0.7;
+    }
+    .card-title { font-size: 2.6rem; font-weight: 900; line-height: 1.1; }
+    .card-desc  { font-size: 1rem; opacity: 0.75; line-height: 1.6; max-width: 360px; }
+
+    /* Debug HUD */
+    #hud {
+      position: fixed; top: 16px; right: 16px;
+      background: rgba(0,0,0,0.75); color: #fff;
+      padding: 10px 18px; border-radius: 20px;
+      font-size: 12px; font-weight: 700; z-index: 999;
+      pointer-events: none;
+    }
+    #progress-bar {
+      position: fixed; top: 0; left: 0; height: 3px;
+      background: #fff; z-index: 999;
+      pointer-events: none; transition: width 0.05s;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="hud">Phase A — 初始态</div>
+  <div id="progress-bar" style="width:0%"></div>
+
+  <!-- Home: sticky so it stays visible while card slides up -->
+  <div class="home-sticky-wrapper">
+    <div class="home">
+      <h1>ArtIsLife</h1>
+      <p>↓ 向下滚动，体验过渡动画</p>
+    </div>
+  </div>
+
+  <!-- Journal: starts right after scroll space -->
+  <div class="journal">
+    <div class="journal-header">创作日志</div>
+    <!-- Invisible placeholder — card will land here -->
+    <div class="card-placeholder" id="placeholder"></div>
+    <div class="article-card">卡拉瓦乔的光影革命</div>
+    <div class="article-card">克林姆特的金色密码</div>
+    <div class="article-card">莫奈的睡莲</div>
+  </div>
+
+  <!-- Scroll-driven overlay card -->
+  <div id="overlay-card">
+    <div class="card-image">🎨</div>
+    <div class="card-text">
+      <div class="card-tag">深度专栏</div>
+      <div class="card-title">数字工具如何重塑当代绘画技巧</div>
+      <div class="card-desc">从图层叠加到撤销操作，数字逻辑正在潜移默化地改变艺术家的思维方式。</div>
+    </div>
+  </div>
+
+  <script>
+    const card        = document.getElementById('overlay-card');
+    const placeholder = document.getElementById('placeholder');
+    const hud         = document.getElementById('hud');
+    const bar         = document.getElementById('progress-bar');
+
+    // ── Scroll zones (px) ─────────────────────────────────────────
+    const SLIDE_IN_START = 100;   // B: card starts rising
+    const SLIDE_IN_END   = 550;   // B→C: card fully covers screen
+    const PIN_END        = 900;   // C→D: pinned full-screen ends
+    const SHRINK_END     = 1500;  // D→E: card finishes shrinking
+
+    // ── Helpers ───────────────────────────────────────────────────
+    const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+    const lerp  = (a, b, t)   => a + (b - a) * clamp(t, 0, 1);
+    const prog  = (y, s, e)   => clamp((y - s) / (e - s), 0, 1);
+
+    function easeOutExpo(t)     { return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t); }
+    function easeInOutCubic(t)  { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
+
+    // ── Main update (called on every scroll tick) ─────────────────
+    function update() {
+      const sy = window.scrollY;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      // Placeholder rect changes as page scrolls — read it live
+      const rect = placeholder.getBoundingClientRect();
+
+      // Where the card's center needs to end up (viewport-relative)
+      const phCX = rect.left + rect.width  / 2;
+      const phCY = rect.top  + rect.height / 2;
+      const vpCX = vw / 2;
+      const vpCY = vh / 2;
+
+      const targetTX    = phCX - vpCX;
+      const targetTY    = phCY - vpCY;
+      const targetScale = Math.min(rect.width / vw, rect.height / vh);
+
+      // ── A: off screen ──────────────────────────────────────────
+      if (sy < SLIDE_IN_START) {
+        card.style.transform    = 'translate3d(0, 100vh, 0) scale(1)';
+        card.style.borderRadius = '0px';
+        hud.textContent = 'Phase A — 初始态';
+        bar.style.width = '0%';
+        return;
+      }
+
+      // ── B: slide in from bottom ────────────────────────────────
+      if (sy < SLIDE_IN_END) {
+        const p  = easeOutExpo(prog(sy, SLIDE_IN_START, SLIDE_IN_END));
+        const ty = lerp(100, 0, p);
+        card.style.transform    = `translate3d(0, ${ty}vh, 0) scale(1)`;
+        card.style.borderRadius = '0px';
+        hud.textContent = `Phase B — 滑入 ${Math.round(p*100)}%`;
+        bar.style.width = `${p * 33}%`;
+        return;
+      }
+
+      // ── C: pinned full screen ──────────────────────────────────
+      if (sy < PIN_END) {
+        card.style.transform    = 'translate3d(0, 0, 0) scale(1)';
+        card.style.borderRadius = '0px';
+        hud.textContent = 'Phase C — 全屏停留 📌';
+        bar.style.width = '33%';
+        return;
+      }
+
+      // ── D: shrink & translate to placeholder ───────────────────
+      if (sy < SHRINK_END) {
+        const p      = easeInOutCubic(prog(sy, PIN_END, SHRINK_END));
+        const scale  = lerp(1, targetScale, p);
+        const tx     = lerp(0, targetTX,    p);
+        const ty     = lerp(0, targetTY,    p);
+        const radius = lerp(0, 24,          p);
+        card.style.transform    = `translate3d(${tx}px, ${ty}px, 0) scale(${scale})`;
+        card.style.borderRadius = `${radius}px`;
+        hud.textContent = `Phase D — 收缩归位 ${Math.round(p*100)}%`;
+        bar.style.width = `${33 + p * 67}%`;
+        return;
+      }
+
+      // ── E: final resting position ──────────────────────────────
+      card.style.transform    = `translate3d(${targetTX}px, ${targetTY}px, 0) scale(${targetScale})`;
+      card.style.borderRadius = '24px';
+      hud.textContent = 'Phase E — 归位完成 ✓';
+      bar.style.width = '100%';
+    }
+
+    window.addEventListener('scroll', update, { passive: true });
+    update(); // run once on load
+  </script>
+</body>
+</html>

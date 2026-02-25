@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+gsap.registerPlugin(ScrollTrigger);
 import { ViewState } from '../types';
 import { ArrowRight, User, Bookmark, MessageCircle, Share2, Clock, Zap, Star, X, AlignLeft, Loader2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -8,6 +11,8 @@ interface ArtJournalProps {
   onNavigate: (view: ViewState) => void;
   isActive?: boolean;
   onArticleOpen?: (isOpen: boolean) => void;
+  isTransitioning?: boolean;
+  onTransitionComplete?: () => void;
 }
 
 const FadeInImage: React.FC<{ src: string; className?: string }> = ({ src, className = "" }) => {
@@ -111,10 +116,13 @@ const LEIGHTON_ACCOLADE_CONTENT = `
   <p>与同时代的印象派画家追求户外光影、捕捉瞬间感受不同，莱顿等学院派画家更注重构图的完美、技法的精湛和主题的崇高。他们的作品如同精雕细琢的宝石，散发着一种遥远时代的理想光辉。</p>
 `;
 
-const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticleOpen }) => {
+const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticleOpen, isTransitioning, onTransitionComplete }) => {
   const { t } = useLanguage();
   const [selectedArticle, setSelectedArticle] = useState<any | null>(null);
   const [readingProgress, setReadingProgress] = useState(0);
+  const heroCardRef    = useRef<HTMLDivElement>(null);
+  const spacerRef      = useRef<HTMLDivElement>(null);
+  const doneRef        = useRef(false);
 
   useEffect(() => {
       onArticleOpen?.(!!selectedArticle);
@@ -131,6 +139,104 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
       if (reader) reader.addEventListener('scroll', handleScroll);
       return () => reader?.removeEventListener('scroll', handleScroll);
   }, [selectedArticle]);
+
+  // ── GSAP timeline + scrub transition ─────────────────────────────
+  useEffect(() => {
+    if (!isTransitioning) return;
+
+    const sc     = document.querySelector('#page-journal .scroll-container') as HTMLElement;
+    const card   = heroCardRef.current;
+    const spacer = spacerRef.current;
+    if (!sc || !card || !spacer) return;
+
+    doneRef.current = false;
+
+    // Real card invisible — holds space & provides target rect
+    card.style.opacity       = '0';
+    card.style.pointerEvents = 'none';
+
+    // Clone as fixed overlay — this is what animates
+    const overlay = card.cloneNode(true) as HTMLDivElement;
+    overlay.addEventListener('click', () => card.click());
+    Object.assign(overlay.style, {
+      position: 'fixed', top: '0', left: '0',
+      width: '100%', height: '100%',
+      zIndex: '9999', borderRadius: '0px',
+      transformOrigin: 'center center',
+      overflow: 'hidden',
+      display: 'flex',
+    });
+    document.body.appendChild(overlay);
+    // DEBUG: start visible on screen so we can confirm element exists
+    gsap.set(overlay, { y: '0vh' });
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: spacer,
+        scroller: sc,
+        start: 'top top',
+        end: '+=2000',
+        scrub: 1,
+        markers: true,
+        // pin:true 不用 — JSX 里的 sticky 布局已经实现了相同的视觉效果：
+        // journal 内容钉在顶部，用户滚动 2000px 跑道来播放动画。
+        // 在自定义 scroller 里加 pin:true 会破坏 React 的 DOM 管理。
+        onLeave: () => {
+          if (!doneRef.current) {
+            doneRef.current          = true;
+            card.style.opacity       = '1';
+            card.style.pointerEvents = 'auto';
+            requestAnimationFrame(() => { overlay.remove(); onTransitionComplete?.(); });
+          }
+        },
+      },
+    });
+
+    // Phase A (0–20%): 从屏幕底部滑入全屏
+    tl.to(overlay, { y: '0vh', ease: 'power2.out', duration: 2 });
+
+    // Phase B (20–40%): 全屏停留，让用户看清内容
+    tl.to(overlay, { duration: 2 });
+
+    // Phase C (40–100%): 缩小并精准飞回卡片占位符
+    tl.to(overlay, {
+      duration: 6,
+      ease: 'power2.inOut',
+      borderRadius: '24px',
+      x: () => {
+        const r = card.getBoundingClientRect();
+        return (r.left + r.width / 2) - window.innerWidth / 2;
+      },
+      y: () => {
+        const r = card.getBoundingClientRect();
+        return (r.top + r.height / 2) - window.innerHeight / 2;
+      },
+      scale: () => {
+        const r = card.getBoundingClientRect();
+        return Math.min(r.width / window.innerWidth, r.height / window.innerHeight);
+      },
+      onComplete: () => {
+        if (!doneRef.current) {
+          doneRef.current          = true;
+          card.style.opacity       = '1';
+          card.style.pointerEvents = 'auto';
+          requestAnimationFrame(() => { overlay.remove(); onTransitionComplete?.(); });
+        }
+      },
+    });
+
+    requestAnimationFrame(() => {
+      sc.scrollTop = 0;
+      ScrollTrigger.refresh();
+    });
+
+    return () => {
+      tl.kill();
+      overlay.remove();
+      card.style.opacity       = '';
+      card.style.pointerEvents = '';
+    };
+  }, [isTransitioning, onTransitionComplete]);
 
   const featured = {
       title: '数字工具如何重塑当代绘画技巧',
@@ -246,7 +352,14 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
   ];
 
   return (
-    <div className="min-h-screen pt-32 pb-24 px-6 md:px-12 max-w-[1400px] mx-auto">
+    <>
+      <div
+        ref={isTransitioning ? spacerRef : undefined}
+        style={isTransitioning ? { position: 'relative', minHeight: 3200 } : {}}
+      >
+      <div className="min-h-screen pt-32 pb-24 px-6 md:px-12 max-w-[1400px] mx-auto"
+           style={isTransitioning ? { position: 'sticky', top: 0 } : {}}
+      >
        <div className="space-y-32">
            <div className="text-center space-y-4 animate-fade-in">
                 <div className="inline-block px-3 py-1 bg-art-primary/10 text-art-primary rounded-full text-[10px] font-bold uppercase tracking-[0.4em] mb-4">
@@ -261,7 +374,7 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
                 </p>
            </div>
 
-           <div onClick={() => setSelectedArticle(featured)} className="grid grid-cols-1 lg:grid-cols-12 gap-0 shadow-2xl rounded-[40px] overflow-hidden bg-white border border-stone-100 group cursor-pointer animate-fade-in-up transform transition-transform hover:scale-[1.01]">
+           <div ref={heroCardRef} onClick={() => !isTransitioning && setSelectedArticle(featured)} className={`grid grid-cols-1 lg:grid-cols-12 gap-0 shadow-2xl rounded-[40px] overflow-hidden bg-white border border-stone-100 group cursor-pointer${isTransitioning ? '' : ' animate-fade-in-up transform transition-transform hover:scale-[1.01]'}`}>
                 <div className="lg:col-span-7 relative h-[60vh] lg:h-auto overflow-hidden">
                     <FadeInImage src={featured.image} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent pointer-events-none"></div>
@@ -349,8 +462,7 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
            <div className="h-20"></div>
        </div>
 
-       {selectedArticle && (
-           <div className="fixed inset-0 z-[2000] bg-white animate-page-enter">
+       {selectedArticle && (           <div className="fixed inset-0 z-[2000] bg-white animate-page-enter">
                <div className="fixed top-0 left-0 w-full h-1 bg-stone-100 z-[2020]">
                    <div className="h-full bg-art-primary transition-all duration-100 ease-out" style={{ width: `${readingProgress * 100}%` }}></div>
                </div>
@@ -386,6 +498,8 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
            </div>
        )}
     </div>
+    </div>
+    </>
   );
 };
 
