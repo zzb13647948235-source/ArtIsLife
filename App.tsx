@@ -20,6 +20,7 @@ import ArtMarket from './components/ArtMarket';
 import ArtCoinShop from './components/ArtCoinShop';
 import UGCGallery from './components/UGCGallery';
 import IntroShowcase from './components/IntroShowcase';
+import PageTransitionBeam from './components/PageTransitionBeam';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { DarkModeProvider } from './contexts/DarkModeContext';
 import { ViewState, GeneratedImage, ChatMessage, UserTier, User } from './types';
@@ -326,6 +327,7 @@ function AppContent() {
           <LiquidBackground currentView={currentView} />
           <ParticleBackground />
           <CustomCursor />
+          <PageTransitionBeam currentView={currentView} previousView={previousView} />
 
           <Navigation
               currentView={currentView}
