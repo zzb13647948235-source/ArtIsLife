@@ -195,7 +195,7 @@ function AppContent() {
 
   useEffect(() => {
       const handleWheel = (e: WheelEvent) => {
-          if (showAuthOverlay || currentView === 'membership' || currentView === 'login' || currentView === 'about' || isImmersiveMode || isFullScreenModalOpen) return;
+          if (showAuthOverlay || currentView === 'membership' || currentView === 'login' || currentView === 'about' || currentView === 'market' || isImmersiveMode || isFullScreenModalOpen) return;
 
           const now = Date.now();
           if (now - lastScrollTime.current < 800) return;
@@ -242,7 +242,7 @@ function AppContent() {
       };
 
       const handleTouchMove = (e: TouchEvent) => {
-          if (showAuthOverlay || isImmersiveMode || isFullScreenModalOpen) return;
+          if (showAuthOverlay || isImmersiveMode || isFullScreenModalOpen || currentView === 'market') return;
           if (isSwiping) return;
 
           const dy = touchStartY - e.touches[0].clientY;
