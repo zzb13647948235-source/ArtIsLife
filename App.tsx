@@ -26,7 +26,7 @@ import { authService } from './services/authService';
 import { MessageSquare, AlertTriangle, RefreshCw, X } from 'lucide-react';
 
 const STORAGE_KEY_ART_HISTORY = 'artislife_history';
-const NAV_ORDER: ViewState[] = ['home', 'journal', 'styles', 'gallery', 'chat', 'game', 'map', 'market', 'community'];
+const NAV_ORDER: ViewState[] = ['home', 'journal', 'styles', 'gallery', 'chat', 'game', 'map', 'community', 'market'];
 
 interface ErrorBoundaryProps { children?: ReactNode; }
 interface ErrorBoundaryState { hasError: boolean; }
@@ -77,33 +77,41 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 }
 
-const PageTransition: React.FC<{ viewKey: string; children: React.ReactNode; index: number; currentIndex: number; }> = ({ children, viewKey, index, currentIndex }) => {
+const PageTransition: React.FC<{
+    viewKey: string;
+    children: React.ReactNode;
+    index: number;
+    currentIndex: number;
+    prevIndex: number;
+}> = ({ children, viewKey, index, currentIndex, prevIndex }) => {
     const isActive = index === currentIndex;
-    const isBehind = index < currentIndex;
-    const isUpcoming = index > currentIndex;
-    // Only render adjacent pages (current ±1) to save memory & GPU
     const isAdjacent = Math.abs(index - currentIndex) <= 1;
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     useLayoutEffect(() => {
         if (isActive && scrollContainerRef.current) {
-            const resetScroll = () => {
-                if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
-            };
-            resetScroll();
-            const timer = requestAnimationFrame(resetScroll);
-            return () => cancelAnimationFrame(timer);
+            const el = scrollContainerRef.current;
+            el.scrollTop = 0;
+            const raf = requestAnimationFrame(() => { el.scrollTop = 0; });
+            return () => cancelAnimationFrame(raf);
         }
     }, [isActive]);
+
+    // Direction: going forward (down) or backward (up)
+    const goingForward = currentIndex >= prevIndex;
 
     let transform = 'translate3d(0, 0, 0) scale(1)';
     let opacity = 1;
 
-    if (isBehind) {
-        transform = 'translate3d(0, -3vh, 0) scale(0.98)';
+    if (index < currentIndex) {
+        // Page is behind/above: slide up and fade
+        transform = goingForward
+            ? 'translate3d(0, -6vh, 0) scale(0.97)'
+            : 'translate3d(0, -2vh, 0) scale(0.99)';
         opacity = 0;
-    } else if (isUpcoming) {
-        transform = 'translate3d(0, 100vh, 0) scale(1)';
+    } else if (index > currentIndex) {
+        // Page is ahead/below: sit just below viewport
+        transform = 'translate3d(0, 100%, 0) scale(1)';
         opacity = 1;
     }
 
@@ -115,12 +123,14 @@ const PageTransition: React.FC<{ viewKey: string; children: React.ReactNode; ind
                 width: '100%',
                 height: '100%',
                 overflow: 'hidden',
-                zIndex: isActive ? 60 : isUpcoming ? 70 : 40,
+                zIndex: isActive ? 60 : index > currentIndex ? 70 : 40,
                 transform,
                 opacity,
-                visibility: isActive ? 'visible' : isAdjacent ? 'visible' : 'hidden',
+                visibility: isAdjacent ? 'visible' : 'hidden',
                 pointerEvents: isActive ? 'auto' : 'none',
-                transition: 'transform 380ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 380ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                transition: isActive
+                    ? 'transform 480ms cubic-bezier(0.22, 1, 0.36, 1), opacity 320ms ease-out'
+                    : 'transform 480ms cubic-bezier(0.22, 1, 0.36, 1), opacity 280ms ease-in',
                 willChange: isAdjacent ? 'transform, opacity' : 'auto',
                 WebkitBackfaceVisibility: 'hidden',
                 backfaceVisibility: 'hidden',
@@ -136,7 +146,7 @@ const PageTransition: React.FC<{ viewKey: string; children: React.ReactNode; ind
                     scrollBehavior: 'auto',
                 }}
             >
-                {isAdjacent || isActive ? children : null}
+                {isAdjacent ? children : null}
             </div>
         </div>
     );
@@ -285,6 +295,15 @@ function AppContent() {
   }, [currentView, user]);
 
   const currentIndex = NAV_ORDER.indexOf(currentView);
+  const prevIndexRef = useRef(currentIndex);
+  const [prevIndex, setPrevIndex] = useState(currentIndex);
+
+  useEffect(() => {
+    if (currentIndex !== prevIndexRef.current) {
+      setPrevIndex(prevIndexRef.current);
+      prevIndexRef.current = currentIndex;
+    }
+  }, [currentIndex]);
 
   return (
     <ErrorBoundary>
@@ -306,7 +325,7 @@ function AppContent() {
           
       <main id="main-content" role="main" className={`flex-1 relative w-full h-full transition-all duration-1000 ${showAuthOverlay ? 'scale-[0.95] blur-sm opacity-50' : 'scale-100 opacity-100'}`}>
               {NAV_ORDER.map((viewKey, index) => (
-                  <PageTransition key={viewKey} viewKey={viewKey} index={index} currentIndex={currentIndex}>
+                  <PageTransition key={viewKey} viewKey={viewKey} index={index} currentIndex={currentIndex} prevIndex={prevIndex}>
                       {viewKey === 'home' && <Hero onNavigate={handleNavigate} isActive={currentView === 'home'} />}
                       {viewKey === 'journal' && <ArtJournal onNavigate={handleNavigate} isActive={currentView === 'journal'} onArticleOpen={setIsFullScreenModalOpen} />}
                       {viewKey === 'styles' && <ArtStyles onNavigate={handleNavigate} isActive={currentView === 'styles'} />}
