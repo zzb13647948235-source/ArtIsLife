@@ -82,13 +82,19 @@ const UploadForm: React.FC<{ user: User; onSubmit: (post: UGCPost) => void; onCa
     <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" role="dialog" aria-modal="true">
       <div className="bg-white rounded-[28px] w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="p-6">
+          {/* Header */}
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-serif text-xl font-bold text-stone-900">分享你的创作</h2>
-            <button onClick={onCancel} className="p-2 rounded-full hover:bg-stone-100 text-stone-400"><X size={18} /></button>
+            <button onClick={onCancel} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-stone-100 text-stone-400 transition-colors">
+              <X size={18} />
+            </button>
           </div>
+
+          {/* Drop zone */}
           <div
-            className={`border-2 border-dashed rounded-2xl transition-all cursor-pointer mb-4 overflow-hidden ${dragging ? 'border-art-primary bg-art-primary/5' : 'border-stone-200 hover:border-art-primary/50'}`}
-            style={{ minHeight: preview ? 'auto' : '160px' }}
+            className={`border-2 border-dashed rounded-2xl transition-all cursor-pointer mb-4 overflow-hidden flex items-center justify-center
+              ${dragging ? 'border-art-primary bg-art-primary/5' : 'border-stone-200 hover:border-art-primary/50'}`}
+            style={{ minHeight: '160px' }}
             onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
             onDragLeave={() => setDragging(false)}
             onDrop={(e) => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}
@@ -96,45 +102,62 @@ const UploadForm: React.FC<{ user: User; onSubmit: (post: UGCPost) => void; onCa
           >
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
             {preview
-              ? <img src={preview} alt="预览" className="w-full max-h-56 object-contain rounded-2xl" />
-              : <div className="flex flex-col items-center justify-center py-10 text-stone-400">
-                  <Upload size={32} className="mb-2 text-stone-300" />
+              ? <img src={preview} alt="预览" className="w-full max-h-56 object-contain" />
+              : <div className="flex flex-col items-center gap-2 py-10 text-stone-400">
+                  <Upload size={32} className="text-stone-300" />
                   <p className="text-sm font-medium">点击或拖拽上传图片</p>
-                  <p className="text-xs mt-1">JPG / PNG / WebP，最大 5MB</p>
+                  <p className="text-xs text-stone-300">JPG / PNG / WebP，最大 5MB</p>
                 </div>
             }
           </div>
+
           <div className="space-y-3">
             <input value={title} onChange={e => setTitle(e.target.value)} placeholder="作品标题 *"
-              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-art-primary" maxLength={60} />
+              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-art-primary transition-colors" maxLength={60} />
             <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="描述你的创作灵感（可选）"
-              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm resize-none focus:outline-none focus:border-art-primary" rows={2} maxLength={300} />
-            <div className="flex gap-2 flex-wrap items-center">
+              className="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm resize-none focus:outline-none focus:border-art-primary transition-colors" rows={2} maxLength={300} />
+
+            {/* Tags */}
+            <div className="flex gap-2 flex-wrap items-center min-h-[32px]">
               {tags.map(t => (
                 <span key={t} className="flex items-center gap-1 px-2.5 py-1 bg-stone-100 rounded-full text-xs font-medium text-stone-600">
-                  #{t}<button onClick={() => setTags(tags.filter(x => x !== t))} className="ml-1 text-stone-400 hover:text-red-500"><X size={9} /></button>
+                  #{t}
+                  <button onClick={() => setTags(tags.filter(x => x !== t))} className="ml-0.5 text-stone-400 hover:text-red-500 transition-colors leading-none">
+                    <X size={9} />
+                  </button>
                 </span>
               ))}
               {tags.length < 5 && (
-                <div className="flex gap-1">
+                <div className="flex items-center gap-1">
                   <input value={tagInput} onChange={e => setTagInput(e.target.value)}
                     onKeyDown={e => (e.key === 'Enter' || e.key === ',') && (e.preventDefault(), addTag())}
-                    placeholder="添加标签" className="px-3 py-1 border border-stone-200 rounded-full text-xs focus:outline-none focus:border-art-primary w-20" />
-                  <button onClick={addTag} className="p-1 rounded-full bg-stone-100 hover:bg-stone-200"><Plus size={12} className="text-stone-500" /></button>
+                    placeholder="添加标签" className="px-3 py-1 border border-stone-200 rounded-full text-xs focus:outline-none focus:border-art-primary transition-colors w-24" />
+                  <button onClick={addTag} className="w-6 h-6 flex items-center justify-center rounded-full bg-stone-100 hover:bg-stone-200 transition-colors">
+                    <Plus size={12} className="text-stone-500" />
+                  </button>
                 </div>
               )}
             </div>
-            <label className="flex items-center gap-2 cursor-pointer select-none">
-              <div className={`relative w-9 h-5 rounded-full transition-colors ${isAI ? 'bg-art-primary' : 'bg-stone-200'}`} onClick={() => setIsAI(!isAI)}>
+
+            {/* AI toggle — use button to avoid double-trigger */}
+            <div className="flex items-center gap-2.5 cursor-pointer select-none" onClick={() => setIsAI(v => !v)}>
+              <div className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${isAI ? 'bg-art-primary' : 'bg-stone-200'}`}>
                 <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${isAI ? 'translate-x-4' : 'translate-x-0.5'}`} />
               </div>
-              <span className="text-xs text-stone-600 flex items-center gap-1"><Sparkles size={12} className="text-art-primary" /> AI 生成作品</span>
-            </label>
+              <span className="text-xs text-stone-600 flex items-center gap-1">
+                <Sparkles size={12} className="text-art-primary" /> AI 生成作品
+              </span>
+            </div>
+
             {error && <p className="text-red-500 text-xs font-medium">{error}</p>}
+
             <div className="flex gap-2 pt-1">
-              <button onClick={onCancel} className="flex-1 py-2.5 border border-stone-200 rounded-xl text-sm font-bold text-stone-500 hover:bg-stone-50">取消</button>
+              <button onClick={onCancel}
+                className="flex-1 py-2.5 border border-stone-200 rounded-xl text-sm font-bold text-stone-500 hover:bg-stone-50 transition-colors">
+                取消
+              </button>
               <button onClick={handleSubmit} disabled={submitting}
-                className="flex-1 py-2.5 bg-art-accent text-white rounded-xl text-sm font-bold hover:bg-art-primary disabled:opacity-50 flex items-center justify-center gap-2">
+                className="flex-1 py-2.5 bg-art-accent text-white rounded-xl text-sm font-bold hover:bg-art-primary disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">
                 {submitting ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
                 {submitting ? '发布中…' : '发布'}
               </button>
@@ -145,7 +168,7 @@ const UploadForm: React.FC<{ user: User; onSubmit: (post: UGCPost) => void; onCa
     </div>
   );
 };
-// ── Post Card (masonry item) ─────────────────────────────────────────────────
+// ── Post Card ────────────────────────────────────────────────────────────────
 const PostCard: React.FC<{
   post: UGCPost;
   user: User | null;
@@ -157,42 +180,50 @@ const PostCard: React.FC<{
   const isOwner = user?.id === post.userId;
 
   return (
-    <div className="break-inside-avoid mb-3 group cursor-pointer" onClick={() => onOpen(post)}>
-      <div className="relative rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">
-        <img src={post.imageUrl} alt={post.title} className="w-full object-cover" loading="lazy" />
+    <div className="mb-3 group cursor-pointer" onClick={() => onOpen(post)}>
+      {/* Image */}
+      <div className="relative rounded-2xl overflow-hidden bg-stone-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
+        <img src={post.imageUrl} alt={post.title} className="w-full object-cover block" loading="lazy" />
+
         {post.isAIGenerated && (
-          <span className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 bg-black/50 text-white text-[9px] font-bold rounded-full backdrop-blur-sm">
+          <span className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 bg-black/50 text-white text-[9px] font-bold rounded-full backdrop-blur-sm leading-none">
             <Sparkles size={8} /> AI
           </span>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
-          <p className="text-white text-xs font-bold line-clamp-1">{post.title}</p>
+
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-1 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
+          <p className="text-white text-xs font-semibold line-clamp-1 drop-shadow">{post.title}</p>
         </div>
+
+        {/* Delete button — only for owner */}
         {isOwner && (
           <button
             onClick={(e) => { e.stopPropagation(); onDelete(post.id); }}
-            className="absolute top-2 right-2 p-1.5 bg-black/40 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
+            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-black/40 rounded-full text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 active:scale-90"
           >
             <Trash2 size={11} />
           </button>
         )}
       </div>
-      <div className="px-1 pt-2 pb-1">
-        <p className="text-xs font-semibold text-stone-800 line-clamp-2 leading-snug">{post.title}</p>
-        <div className="flex items-center justify-between mt-1.5">
-          <div className="flex items-center gap-1.5">
-            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-art-primary to-art-accent flex items-center justify-center text-white text-[8px] font-bold">
+
+      {/* Card footer */}
+      <div className="px-2 pt-2 pb-1">
+        <p className="text-xs font-semibold text-stone-800 line-clamp-2 leading-snug mb-1.5">{post.title}</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-art-primary to-art-accent flex items-center justify-center text-white text-[8px] font-bold flex-shrink-0">
               {post.userName.charAt(0).toUpperCase()}
             </div>
-            <span className="text-[10px] text-stone-500 truncate max-w-[80px]">{post.userName}</span>
+            <span className="text-[10px] text-stone-500 truncate">{post.userName}</span>
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); onLike(post.id); }}
-            className={`flex items-center gap-1 text-[10px] font-semibold transition-colors ${isLiked ? 'text-red-500' : 'text-stone-400 hover:text-red-400'}`}
+            className={`flex items-center gap-1 text-[10px] font-semibold flex-shrink-0 ml-2 transition-colors active:scale-90 ${isLiked ? 'text-red-500' : 'text-stone-400 hover:text-red-400'}`}
           >
             <Heart size={11} fill={isLiked ? 'currentColor' : 'none'} />
-            {post.likedByIds.length}
+            <span>{post.likedByIds.length}</span>
           </button>
         </div>
       </div>
@@ -200,7 +231,7 @@ const PostCard: React.FC<{
   );
 };
 
-// ── Post Detail Modal ────────────────────────────────────────────────────────
+// ── Post Detail Modal ─────────────────────────────────────────────────────────
 const PostModal: React.FC<{
   post: UGCPost;
   user: User | null;
@@ -208,7 +239,8 @@ const PostModal: React.FC<{
   onLike: (id: string) => void;
   onComment: (postId: string, text: string) => Promise<void>;
   onDelete: (id: string) => void;
-}> = ({ post, user, onClose, onLike, onComment, onDelete }) => {
+  onAuthRequired: () => void;
+}> = ({ post, user, onClose, onLike, onComment, onDelete, onAuthRequired }) => {
   const [commentText, setCommentText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const isLiked = user ? post.likedByIds.includes(user.id) : false;
@@ -229,82 +261,117 @@ const PostModal: React.FC<{
   };
 
   return (
-    <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-      role="dialog" aria-modal="true" onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div
+      className="fixed inset-0 z-[600] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      role="dialog" aria-modal="true"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
       <div className="bg-white rounded-[28px] w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col md:flex-row">
-        <div className="md:w-1/2 bg-stone-100 flex items-center justify-center min-h-[240px]">
-          <img src={post.imageUrl} alt={post.title} className="w-full h-full object-contain max-h-[50vh] md:max-h-[90vh]" />
+
+        {/* Image side */}
+        <div className="md:w-[45%] bg-stone-100 flex items-center justify-center overflow-hidden" style={{ minHeight: '220px' }}>
+          <img src={post.imageUrl} alt={post.title} className="w-full h-full object-contain max-h-[40vh] md:max-h-[90vh]" />
         </div>
-        <div className="md:w-1/2 flex flex-col overflow-hidden">
-          <div className="flex items-center justify-between p-4 border-b border-stone-100">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-art-primary to-art-accent flex items-center justify-center text-white text-xs font-bold">
+
+        {/* Info side */}
+        <div className="md:w-[55%] flex flex-col min-h-0">
+
+          {/* Top bar */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-stone-100 flex-shrink-0">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-art-primary to-art-accent flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                 {post.userName.charAt(0).toUpperCase()}
               </div>
-              <div>
-                <p className="text-sm font-bold text-stone-800">{post.userName}</p>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-stone-800 truncate">{post.userName}</p>
                 <p className="text-[10px] text-stone-400">{new Date(post.timestamp).toLocaleDateString('zh-CN')}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 flex-shrink-0 ml-2">
               {isOwner && (
                 <button onClick={() => { onDelete(post.id); onClose(); }}
-                  className="p-1.5 rounded-full hover:bg-red-50 text-stone-400 hover:text-red-500 transition-colors">
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 text-stone-400 hover:text-red-500 transition-colors">
                   <Trash2 size={14} />
                 </button>
               )}
-              <button onClick={onClose} className="p-1.5 rounded-full hover:bg-stone-100 text-stone-400"><X size={16} /></button>
+              <button onClick={onClose}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-stone-100 text-stone-400 transition-colors">
+                <X size={16} />
+              </button>
             </div>
           </div>
-          <div className="p-4 border-b border-stone-100">
-            <h3 className="font-bold text-stone-900 text-base mb-1">{post.title}</h3>
-            {post.description && <p className="text-sm text-stone-600 leading-relaxed">{post.description}</p>}
+
+          {/* Post info */}
+          <div className="px-4 py-3 border-b border-stone-100 flex-shrink-0">
+            <h3 className="font-bold text-stone-900 text-sm leading-snug mb-1">{post.title}</h3>
+            {post.description && <p className="text-xs text-stone-500 leading-relaxed">{post.description}</p>}
             {post.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-2">
-                {post.tags.map(t => <span key={t} className="text-[10px] text-art-primary font-semibold">#{t}</span>)}
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {post.tags.map(t => (
+                  <span key={t} className="text-[10px] text-art-primary font-semibold bg-art-primary/5 px-2 py-0.5 rounded-full">#{t}</span>
+                ))}
               </div>
             )}
+            {/* Stats row */}
             <div className="flex items-center gap-4 mt-3">
               <button onClick={() => onLike(post.id)}
-                className={`flex items-center gap-1.5 text-sm font-semibold transition-colors ${isLiked ? 'text-red-500' : 'text-stone-400 hover:text-red-400'}`}>
-                <Heart size={16} fill={isLiked ? 'currentColor' : 'none'} /> {post.likedByIds.length}
+                className={`flex items-center gap-1.5 text-xs font-semibold transition-colors active:scale-90 ${isLiked ? 'text-red-500' : 'text-stone-400 hover:text-red-400'}`}>
+                <Heart size={14} fill={isLiked ? 'currentColor' : 'none'} />
+                <span>{post.likedByIds.length}</span>
               </button>
-              <span className="flex items-center gap-1.5 text-sm text-stone-400">
-                <MessageCircle size={16} /> {post.comments.length}
+              <span className="flex items-center gap-1.5 text-xs text-stone-400">
+                <MessageCircle size={14} />
+                <span>{post.comments.length}</span>
               </span>
-              <span className="flex items-center gap-1.5 text-sm text-stone-400">
-                <Eye size={16} /> {post.viewCount ?? 0}
+              <span className="flex items-center gap-1.5 text-xs text-stone-400">
+                <Eye size={14} />
+                <span>{post.viewCount ?? 0}</span>
               </span>
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+
+          {/* Comments list */}
+          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-0">
             {post.comments.length === 0
-              ? <p className="text-xs text-stone-400 text-center py-4">暂无评论，来说第一句话吧</p>
+              ? <p className="text-xs text-stone-400 text-center py-6">暂无评论，来说第一句话吧</p>
               : post.comments.map(c => (
-                <div key={c.id} className="flex gap-2">
-                  <div className="w-6 h-6 rounded-full bg-stone-200 flex items-center justify-center text-[9px] font-bold text-stone-600 flex-shrink-0">
+                <div key={c.id} className="flex gap-2 items-start">
+                  <div className="w-6 h-6 rounded-full bg-stone-200 flex items-center justify-center text-[9px] font-bold text-stone-600 flex-shrink-0 mt-0.5">
                     {c.userName.charAt(0).toUpperCase()}
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <span className="text-xs font-bold text-stone-700">{c.userName} </span>
-                    <span className="text-xs text-stone-600">{c.text}</span>
+                    <span className="text-xs text-stone-600 break-words">{c.text}</span>
                   </div>
                 </div>
               ))
             }
           </div>
-          <div className="p-3 border-t border-stone-100 flex gap-2">
+
+          {/* Comment input */}
+          <div className="px-3 py-3 border-t border-stone-100 flex-shrink-0">
             {user
-              ? <>
-                  <input value={commentText} onChange={e => setCommentText(e.target.value)}
+              ? <div className="flex items-center gap-2">
+                  <input
+                    value={commentText}
+                    onChange={e => setCommentText(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && submitComment()}
-                    placeholder="说点什么…" className="flex-1 px-3 py-2 bg-stone-50 rounded-full text-xs focus:outline-none focus:ring-1 focus:ring-art-primary/30" />
-                  <button onClick={submitComment} disabled={submitting || !commentText.trim()}
-                    className="p-2 bg-art-accent text-white rounded-full disabled:opacity-40 hover:bg-art-primary transition-colors">
-                    {submitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                    placeholder="说点什么…"
+                    className="flex-1 px-3 py-2 bg-stone-50 border border-stone-200 rounded-full text-xs focus:outline-none focus:border-art-primary/50 transition-colors"
+                  />
+                  <button
+                    onClick={submitComment}
+                    disabled={submitting || !commentText.trim()}
+                    className="w-8 h-8 flex items-center justify-center bg-art-accent text-white rounded-full disabled:opacity-40 hover:bg-art-primary transition-colors flex-shrink-0 active:scale-90"
+                  >
+                    {submitting ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
                   </button>
-                </>
-              : <button onClick={() => {}} className="w-full py-2 text-xs text-stone-400 bg-stone-50 rounded-full">登录后参与评论</button>
+                </div>
+              : <button
+                  onClick={onAuthRequired}
+                  className="w-full py-2 text-xs text-stone-400 bg-stone-50 border border-stone-200 rounded-full hover:bg-stone-100 transition-colors">
+                  登录后参与评论
+                </button>
             }
           </div>
         </div>
@@ -312,17 +379,15 @@ const PostModal: React.FC<{
     </div>
   );
 };
-// ── Main Component ───────────────────────────────────────────────────────────
+// ── Main Component ────────────────────────────────────────────────────────────
 const UGCGallery: React.FC<UGCGalleryProps> = ({ user, onAuthRequired, onNavigate, isActive }) => {
   const [posts, setPosts] = useState<UGCPost[]>([]);
   const [selectedPost, setSelectedPost] = useState<UGCPost | null>(null);
   const [showUpload, setShowUpload] = useState(false);
   const [newPostCount, setNewPostCount] = useState(0);
-  const [lastSeenCount, setLastSeenCount] = useState(0);
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Subscribe to real-time UGC updates
   useEffect(() => {
     const unsub = authService.subscribeToUGC((updated) => {
       setPosts(prev => {
@@ -334,22 +399,18 @@ const UGCGallery: React.FC<UGCGalleryProps> = ({ user, onAuthRequired, onNavigat
     return () => { unsub(); };
   }, []);
 
-  // Polling fallback every 4s for same-tab refresh
   useEffect(() => {
     if (!isActive) return;
     pollRef.current = setInterval(() => {
       const fresh = authService.getUGCPosts();
       setPosts(prev => {
-        if (JSON.stringify(fresh.map(p => p.id)) !== JSON.stringify(prev.map(p => p.id))) {
-          return fresh;
-        }
+        if (JSON.stringify(fresh.map(p => p.id)) !== JSON.stringify(prev.map(p => p.id))) return fresh;
         return prev;
       });
     }, 4000);
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, [isActive]);
 
-  // Sync selected post when posts update
   useEffect(() => {
     if (selectedPost) {
       const updated = posts.find(p => p.id === selectedPost.id);
@@ -374,12 +435,6 @@ const UGCGallery: React.FC<UGCGalleryProps> = ({ user, onAuthRequired, onNavigat
     if (selectedPost?.id === postId) setSelectedPost(null);
   }, [user, selectedPost]);
 
-  const handleNewPosts = () => {
-    setNewPostCount(0);
-    setLastSeenCount(posts.length);
-  };
-
-  // Collect trending tags
   const trendingTags = Array.from(
     posts.flatMap(p => p.tags).reduce((acc, tag) => {
       acc.set(tag, (acc.get(tag) || 0) + 1); return acc;
@@ -387,15 +442,14 @@ const UGCGallery: React.FC<UGCGalleryProps> = ({ user, onAuthRequired, onNavigat
   ).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([tag]) => tag);
 
   const filteredPosts = activeTag ? posts.filter(p => p.tags.includes(activeTag)) : posts;
-
-  // Split into 2 columns for masonry
   const col1 = filteredPosts.filter((_, i) => i % 2 === 0);
   const col2 = filteredPosts.filter((_, i) => i % 2 === 1);
 
   return (
-    <div className="pt-24 pb-16 px-4 md:px-8 max-w-[1400px] mx-auto animate-fade-in">
+    <div className="pt-28 pb-16 px-4 md:px-8 max-w-[1400px] mx-auto animate-fade-in">
+
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-5">
         <div>
           <h1 className="font-serif text-3xl font-bold text-stone-900 italic">创作广场</h1>
           <p className="text-xs text-stone-400 mt-1 flex items-center gap-1.5">
@@ -404,41 +458,49 @@ const UGCGallery: React.FC<UGCGalleryProps> = ({ user, onAuthRequired, onNavigat
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => { const f = authService.getUGCPosts(); setPosts(f); }}
-            className="p-2 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 transition-colors" title="刷新">
-            <RefreshCw size={16} />
+          <button
+            onClick={() => setPosts(authService.getUGCPosts())}
+            className="w-9 h-9 flex items-center justify-center rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 transition-colors"
+            title="刷新"
+          >
+            <RefreshCw size={15} />
           </button>
-          {user
-            ? <button onClick={() => setShowUpload(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-art-accent text-white rounded-full text-sm font-bold hover:bg-art-primary transition-colors shadow-md">
-                <Plus size={16} /> 发布作品
-              </button>
-            : <button onClick={onAuthRequired}
-                className="flex items-center gap-2 px-4 py-2 bg-art-accent text-white rounded-full text-sm font-bold hover:bg-art-primary transition-colors shadow-md">
-                <Plus size={16} /> 发布作品
-              </button>
-          }
+          <button
+            onClick={() => user ? setShowUpload(true) : onAuthRequired()}
+            className="flex items-center gap-1.5 px-4 py-2 bg-art-accent text-white rounded-full text-sm font-bold hover:bg-art-primary transition-colors shadow-md active:scale-95"
+          >
+            <Plus size={15} /> 发布作品
+          </button>
         </div>
       </div>
 
-      {/* New posts notification */}
+      {/* New posts banner */}
       {newPostCount > 0 && (
-        <button onClick={handleNewPosts}
-          className="w-full mb-4 py-2.5 bg-art-primary text-white rounded-2xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-art-accent transition-colors animate-fade-in">
+        <button
+          onClick={() => setNewPostCount(0)}
+          className="w-full mb-4 py-2.5 bg-art-primary text-white rounded-2xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-art-accent transition-colors"
+        >
           <Bell size={14} /> {newPostCount} 条新作品，点击查看
         </button>
       )}
 
-      {/* Trending tags */}
+      {/* Tag filter — horizontal scroll on mobile */}
       {trendingTags.length > 0 && (
-        <div className="flex gap-2 flex-wrap mb-5">
-          <button onClick={() => setActiveTag(null)}
-            className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${!activeTag ? 'bg-art-accent text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}>
+        <div className="flex gap-2 mb-5 overflow-x-auto pb-1 scrollbar-hide">
+          <button
+            onClick={() => setActiveTag(null)}
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0
+              ${!activeTag ? 'bg-art-accent text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
+          >
             全部
           </button>
           {trendingTags.map(tag => (
-            <button key={tag} onClick={() => setActiveTag(activeTag === tag ? null : tag)}
-              className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors ${activeTag === tag ? 'bg-art-accent text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}>
+            <button
+              key={tag}
+              onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors flex-shrink-0
+                ${activeTag === tag ? 'bg-art-accent text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
+            >
               #{tag}
             </button>
           ))}
@@ -448,16 +510,16 @@ const UGCGallery: React.FC<UGCGalleryProps> = ({ user, onAuthRequired, onNavigat
       {/* Masonry grid */}
       {filteredPosts.length === 0
         ? <div className="flex flex-col items-center justify-center py-24 text-stone-400">
-            <TrendingUp size={40} className="mb-3 text-stone-200" />
+            <TrendingUp size={40} className="mb-3 text-stone-300" />
             <p className="font-medium text-sm">还没有作品，来发布第一件吧</p>
           </div>
-        : <div className="flex gap-3">
-            <div className="flex-1 flex flex-col">
+        : <div className="flex gap-3 items-start">
+            <div className="flex-1 min-w-0">
               {col1.map(post => (
                 <PostCard key={post.id} post={post} user={user} onLike={handleLike} onOpen={setSelectedPost} onDelete={handleDelete} />
               ))}
             </div>
-            <div className="flex-1 flex flex-col mt-6">
+            <div className="flex-1 min-w-0 mt-5">
               {col2.map(post => (
                 <PostCard key={post.id} post={post} user={user} onLike={handleLike} onOpen={setSelectedPost} onDelete={handleDelete} />
               ))}
@@ -466,7 +528,11 @@ const UGCGallery: React.FC<UGCGalleryProps> = ({ user, onAuthRequired, onNavigat
       }
 
       {showUpload && user && (
-        <UploadForm user={user} onSubmit={(p) => { setPosts(prev => [p, ...prev]); setShowUpload(false); }} onCancel={() => setShowUpload(false)} />
+        <UploadForm
+          user={user}
+          onSubmit={(p) => { setPosts(prev => [p, ...prev]); setShowUpload(false); }}
+          onCancel={() => setShowUpload(false)}
+        />
       )}
 
       {selectedPost && (
@@ -477,8 +543,11 @@ const UGCGallery: React.FC<UGCGalleryProps> = ({ user, onAuthRequired, onNavigat
           onLike={handleLike}
           onComment={handleComment}
           onDelete={handleDelete}
+          onAuthRequired={onAuthRequired}
         />
       )}
+
+      <style>{`.scrollbar-hide::-webkit-scrollbar{display:none}`}</style>
     </div>
   );
 };
