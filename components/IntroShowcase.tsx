@@ -121,7 +121,7 @@ const IntroModel: React.FC<{
           mesh.geometry.computeVertexNormals();
         }
         mesh.material = new THREE.MeshStandardMaterial({
-          color: 0xede9e0, roughness: 0.55, metalness: 0,
+          color: 0x5a4a3a, roughness: 0.6, metalness: 0.05,
           side: THREE.DoubleSide,
         });
       }
@@ -183,15 +183,15 @@ const IntroScene: React.FC<{
   <>
     <CameraRig spRef={spRef} />
     {/* Rembrandt lighting rig */}
-    <ambientLight intensity={0.15} color="#1a1510" />
-    {/* Key: upper-left warm, ~45° — creates the signature triangle */}
-    <directionalLight position={[-2.5, 4, 1.5]} intensity={3.5} color="#ffe8c0" />
-    {/* Fill: right cool, very dim — 1:7 ratio keeps shadow dramatic */}
-    <directionalLight position={[3, 0.5, 1]} intensity={0.45} color="#a0b8e0" />
-    {/* Rim: behind-right warm — separates bust from black bg */}
-    <pointLight position={[1.5, 3, -3]} intensity={2.8} color="#ffc060" />
-    {/* Ground bounce: subtle warm from below */}
-    <pointLight position={[0, -2, 1]} intensity={0.25} color="#8b6040" />
+    <ambientLight intensity={0.6} color="#f5f0e8" />
+    {/* Key: upper-left warm */}
+    <directionalLight position={[-2.5, 4, 1.5]} intensity={2.0} color="#fff8f0" />
+    {/* Fill: right cool */}
+    <directionalLight position={[3, 0.5, 1]} intensity={0.8} color="#e0e8f0" />
+    {/* Rim: behind-right */}
+    <pointLight position={[1.5, 3, -3]} intensity={1.5} color="#ffd090" />
+    {/* Ground bounce */}
+    <pointLight position={[0, -2, 1]} intensity={0.4} color="#c8a878" />
     <ModelErrorBoundary spRef={spRef} mouseRef={mouseRef}>
       <Suspense fallback={<FallbackSphere spRef={spRef} />}>
         <IntroModel spRef={spRef} mouseRef={mouseRef} />
@@ -239,14 +239,14 @@ const IntroShowcase: React.FC<IntroShowcaseProps> = ({ onNavigate, isActive = tr
 
   return (
     <div ref={outerRef} style={{ height: '500vh' }} className="relative">
-      <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#080705]">
+      <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#F9F8F6]">
 
         {/* Canvas */}
         <div className="absolute inset-0 z-0">
           <Canvas
             camera={{ position: [0, 0, 5.5], fov: 42 }}
             gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
-            style={{ background: '#080705' }}
+            style={{ background: '#F9F8F6' }}
             dpr={[1, 1.5]}
           >
             <IntroScene spRef={spRef} mouseRef={mouseRef} />
@@ -255,7 +255,7 @@ const IntroShowcase: React.FC<IntroShowcaseProps> = ({ onNavigate, isActive = tr
 
         {/* Vignette */}
         <div className="absolute inset-0 z-10 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at center, transparent 30%, rgba(8,7,5,0.75) 100%)' }} />
+          style={{ background: 'radial-gradient(ellipse at center, transparent 30%, rgba(249,248,246,0.6) 100%)' }} />
 
         {/* Section 1 — center intro */}
         {(() => {
@@ -263,9 +263,9 @@ const IntroShowcase: React.FC<IntroShowcaseProps> = ({ onNavigate, isActive = tr
           return (
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none"
               style={{ opacity: op, transition: 'opacity 0.3s ease' }}>
-              <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-amber-400/70 mb-6">PLATFORM</span>
-              <h1 className="font-serif text-[12vw] md:text-[8rem] text-white leading-none tracking-tight drop-shadow-2xl">ArtIsLife</h1>
-              <p className="text-stone-400 text-xl md:text-2xl font-light tracking-[0.2em] mt-4">艺术，让生命更丰盛</p>
+              <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-art-primary mb-6">PLATFORM</span>
+              <h1 className="font-sans font-black text-[12vw] md:text-[8rem] text-stone-900 leading-none tracking-[-0.04em]">ArtIsLife</h1>
+              <p className="text-stone-500 text-xl md:text-2xl font-light tracking-[0.2em] mt-4">艺术，让生命更丰盛</p>
             </div>
           );
         })()}
@@ -277,14 +277,14 @@ const IntroShowcase: React.FC<IntroShowcaseProps> = ({ onNavigate, isActive = tr
             <div className="absolute inset-0 z-20 flex items-center pointer-events-none px-8 md:px-20"
               style={{ opacity: op, transition: 'opacity 0.3s ease' }}>
               <div className="max-w-sm">
-                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-amber-400/70 mb-4 block">我们是谁</span>
-                <h2 className="font-serif text-3xl md:text-4xl text-white leading-tight mb-4">创作者的数字家园</h2>
-                <p className="text-stone-400 text-sm md:text-base leading-relaxed font-light mb-6">
+                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-art-primary mb-4 block">我们是谁</span>
+                <h2 className="font-sans font-black text-3xl md:text-4xl text-stone-900 leading-tight mb-4 tracking-[-0.03em]">创作者的数字家园</h2>
+                <p className="text-stone-500 text-sm md:text-base leading-relaxed font-light mb-6">
                   ArtIsLife 是为艺术家、收藏家与爱好者打造的一体化创作平台。在这里，AI 赋能创作，区块链确权资产，社区连接灵魂。
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {['AI 艺术生成', '数字藏品市场', '创作者社区', '博物馆导览'].map(f => (
-                    <span key={f} className="text-[10px] px-3 py-1 border border-amber-400/30 text-amber-400/70 rounded-full uppercase tracking-wider">{f}</span>
+                    <span key={f} className="text-[10px] px-3 py-1 border border-art-primary/40 text-art-primary rounded-full uppercase tracking-wider">{f}</span>
                   ))}
                 </div>
               </div>
@@ -299,14 +299,14 @@ const IntroShowcase: React.FC<IntroShowcaseProps> = ({ onNavigate, isActive = tr
             <div className="absolute inset-0 z-20 flex items-center justify-end pointer-events-none px-8 md:px-20"
               style={{ opacity: op, transition: 'opacity 0.3s ease' }}>
               <div className="max-w-sm text-right">
-                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-amber-400/70 mb-4 block">发展前景</span>
-                <h2 className="font-serif text-3xl md:text-4xl text-white leading-tight mb-4">数字艺术新纪元</h2>
-                <p className="text-stone-400 text-sm md:text-base leading-relaxed font-light mb-6">
+                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-art-primary mb-4 block">发展前景</span>
+                <h2 className="font-sans font-black text-3xl md:text-4xl text-stone-900 leading-tight mb-4 tracking-[-0.03em]">数字艺术新纪元</h2>
+                <p className="text-stone-500 text-sm md:text-base leading-relaxed font-light mb-6">
                   全球数字艺术市场规模预计在 2028 年突破 $1,200 亿，年复合增长率达 34%。我们正处于这场变革的核心。
                 </p>
                 <div className="flex flex-col gap-2 items-end">
                   {['$1,200亿 市场规模', '34% 年增长率', '5亿+ 潜在用户'].map(s => (
-                    <span key={s} className="text-[11px] text-amber-300/80 font-mono tracking-wider">{s}</span>
+                    <span key={s} className="text-[11px] text-art-primary font-mono tracking-wider">{s}</span>
                   ))}
                 </div>
               </div>
@@ -320,8 +320,8 @@ const IntroShowcase: React.FC<IntroShowcaseProps> = ({ onNavigate, isActive = tr
           return (
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center"
               style={{ opacity: op, transition: 'opacity 0.3s ease', pointerEvents: op > 0.5 ? 'auto' : 'none' }}>
-              <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-amber-400/70 mb-6">路线图</span>
-              <h2 className="font-serif text-5xl md:text-7xl text-white leading-none tracking-tight mb-10">共创未来</h2>
+              <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-art-primary mb-6">路线图</span>
+              <h2 className="font-sans font-black text-5xl md:text-7xl text-stone-900 leading-none tracking-[-0.04em] mb-10">共创未来</h2>
               <div className="flex flex-col gap-4 mb-10 w-full max-w-xs">
                 {[
                   { phase: 'Phase 1', desc: '平台上线 · AI 创作工具 · 社区建设' },
@@ -329,14 +329,14 @@ const IntroShowcase: React.FC<IntroShowcaseProps> = ({ onNavigate, isActive = tr
                   { phase: 'Phase 3', desc: '元宇宙展览 · 全球艺术家网络' },
                 ].map(({ phase, desc }) => (
                   <div key={phase} className="flex items-start gap-4">
-                    <span className="text-[10px] font-bold text-amber-400/70 uppercase tracking-widest mt-0.5 w-16 shrink-0">{phase}</span>
-                    <span className="text-stone-400 text-xs leading-relaxed">{desc}</span>
+                    <span className="text-[10px] font-bold text-art-primary uppercase tracking-widest mt-0.5 w-16 shrink-0">{phase}</span>
+                    <span className="text-stone-500 text-xs leading-relaxed">{desc}</span>
                   </div>
                 ))}
               </div>
               <button
                 onClick={() => onNavigate('home')}
-                className="px-10 py-4 border border-white/30 text-white text-xs font-bold uppercase tracking-[0.3em] hover:bg-white hover:text-stone-900 transition-all duration-500 rounded-full backdrop-blur-sm"
+                className="px-10 py-4 border-2 border-stone-900 text-stone-900 text-xs font-black uppercase tracking-[0.3em] hover:bg-stone-900 hover:text-white transition-all duration-500 rounded-full"
               >
                 进入平台
               </button>
@@ -345,8 +345,8 @@ const IntroShowcase: React.FC<IntroShowcaseProps> = ({ onNavigate, isActive = tr
         })()}
 
         {/* Progress bar */}
-        <div className="absolute bottom-0 left-0 w-full h-[2px] bg-white/10 z-30 pointer-events-none">
-          <div className="h-full bg-amber-400/60 transition-all duration-100" style={{ width: `${scrollProgress * 100}%` }} />
+        <div className="absolute bottom-0 left-0 w-full h-[2px] bg-stone-200 z-30 pointer-events-none">
+          <div className="h-full bg-art-primary transition-all duration-100" style={{ width: `${scrollProgress * 100}%` }} />
         </div>
 
         {/* Scroll hint */}
@@ -354,8 +354,8 @@ const IntroShowcase: React.FC<IntroShowcaseProps> = ({ onNavigate, isActive = tr
           className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 pointer-events-none transition-opacity duration-700"
           style={{ opacity: hasScrolled ? 0 : 1 }}
         >
-          <span className="text-[9px] font-bold uppercase tracking-[0.4em] text-white/40">向下滚动</span>
-          <div className="w-[1px] h-8 bg-gradient-to-b from-white/40 to-transparent animate-bounce" />
+          <span className="text-[9px] font-bold uppercase tracking-[0.4em] text-stone-400">向下滚动</span>
+          <div className="w-[1px] h-8 bg-gradient-to-b from-stone-400/60 to-transparent animate-bounce" />
         </div>
 
       </div>
