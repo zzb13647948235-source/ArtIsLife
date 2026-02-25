@@ -6,115 +6,134 @@ interface PageTransitionBeamProps {
   previousView: ViewState;
 }
 
-// Colors — warm retro palette
 const PINK   = '#FF8BA7';
 const YELLOW = '#FFC65C';
 const ORANGE = '#FF7F50';
 
-// viewBox is 1440 x 900 (fixed viewport)
-// Paths are designed per-page, each set of 6 lines (3 left + 3 right)
-// Lines flow continuously — end of one page connects visually to start of next
-// All coordinates are in the 1440x900 viewBox space
+// ─── RELAY BATON PRINCIPLE ────────────────────────────────────────────────────
+// Each page's start X must match the previous page's end X.
+// Left group relay chain  (indices 0-2):
+//   intro → home  start: L=55/90/125   end: L=180/215/250
+//   home  → journal start: L=180/215/250 end: L=50/85/120
+//   journal→styles start: L=50/85/120  end: L=580/545/510  (crosses to right)
+//   styles→gallery start: L=580/545/510 end: L=130/163/196 (crosses back)
+//   gallery→chat   start: L=130/163/196 end: L=155/188/221
+//   chat  → game   start: L=155/188/221 end: exits left (-30)
+//   game  → map    start: L=(-30 top)   end: L=145/178/211
+//   map   → market start: L=145/178/211 end: L=130/160/190
+//   market→community start: L=130/160/190 end: L=165/198/231
+//
+// Right group relay chain (indices 3-5):
+//   home  end: R=1100/1065/1030
+//   journal start: R=1390/1355/1320  end: R=1390/1355/1320
+//   styles start: R=860/895/930      end: R=860/895/930
+//   gallery start: R=1060/1025/990   end: R=1060/1025/990
+//   chat   start: R=1250/1215/1180   end: R=1250/1215/1180
+//   game   exits right (1470)
+//   map    start: R=1070/1035/1000   end: R=1070/1035/1000
+//   market start: R=855/820/785      end: R=855/820/785
+//   community start: R=1275/1242/1209
 
 const PAGE_PATHS: Record<string, { d: string; color: string }[]> = {
   intro: [],
 
+  // home: left lines enter from top-left, end at ~180/215/250 bottom
+  //       right lines enter from top-right, end at ~1100/1065/1030 bottom
   home: [
-    // Left group — flows down from top-left, curves toward center
-    { d: 'M 55,-30 L 55,260 Q 55,460 155,530 Q 255,600 220,750 L 180,900', color: ORANGE },
-    { d: 'M 90,-30 L 90,260 Q 90,430 190,500 Q 290,570 255,720 L 215,870', color: YELLOW },
-    { d: 'M 125,-30 L 125,260 Q 125,400 225,470 Q 325,540 290,690 L 250,840', color: PINK },
-    // Right group — flows down from top-right, curves inward
-    { d: 'M 1385,-30 L 1385,500 Q 1385,720 1270,800 Q 1155,880 1100,900', color: ORANGE },
-    { d: 'M 1350,-30 L 1350,500 Q 1350,690 1235,770 Q 1120,850 1065,870', color: YELLOW },
-    { d: 'M 1315,-30 L 1315,500 Q 1315,660 1200,740 Q 1085,820 1030,840', color: PINK },
+    { d: 'M 55,-30 L 55,280 Q 55,480 160,560 Q 265,640 220,780 L 180,930', color: ORANGE },
+    { d: 'M 90,-30 L 90,280 Q 90,450 195,530 Q 300,610 255,750 L 215,900', color: YELLOW },
+    { d: 'M 125,-30 L 125,280 Q 125,420 230,500 Q 335,580 290,720 L 250,870', color: PINK },
+    { d: 'M 1385,-30 L 1385,480 Q 1385,700 1265,790 Q 1145,880 1100,930', color: ORANGE },
+    { d: 'M 1350,-30 L 1350,480 Q 1350,670 1230,760 Q 1110,850 1065,900', color: YELLOW },
+    { d: 'M 1315,-30 L 1315,480 Q 1315,640 1195,730 Q 1075,820 1030,870', color: PINK },
   ],
 
+  // journal: left enters at 180/215/250 (relay from home), hugs edge, ends at 50/85/120
+  //          right enters at 1100/1065/1030, mirrors, ends at 1390/1355/1320
   journal: [
-    // Left — hugs left edge, dips inward mid-page (editorial feel)
-    { d: 'M 40,-30 L 40,180 Q 40,380 110,460 Q 180,540 100,680 L 50,900', color: ORANGE },
-    { d: 'M 75,-30 L 75,180 Q 75,350 145,430 Q 215,510 135,650 L 85,870', color: YELLOW },
-    { d: 'M 110,-30 L 110,180 Q 110,320 180,400 Q 250,480 170,620 L 120,840', color: PINK },
-    // Right — mirrors left
-    { d: 'M 1400,-30 L 1400,180 Q 1400,380 1330,460 Q 1260,540 1340,680 L 1390,900', color: ORANGE },
-    { d: 'M 1365,-30 L 1365,180 Q 1365,350 1295,430 Q 1225,510 1305,650 L 1355,870', color: YELLOW },
-    { d: 'M 1330,-30 L 1330,180 Q 1330,320 1260,400 Q 1190,480 1270,620 L 1320,840', color: PINK },
+    { d: 'M 180,-30 Q 100,80 60,200 Q 40,380 100,480 Q 160,580 80,720 L 50,930', color: ORANGE },
+    { d: 'M 215,-30 Q 135,80 95,200 Q 75,350 135,450 Q 195,550 115,690 L 85,900', color: YELLOW },
+    { d: 'M 250,-30 Q 170,80 130,200 Q 110,320 170,420 Q 230,520 150,660 L 120,870', color: PINK },
+    { d: 'M 1100,-30 Q 1180,80 1340,200 Q 1400,380 1340,480 Q 1280,580 1360,720 L 1390,930', color: ORANGE },
+    { d: 'M 1065,-30 Q 1145,80 1305,200 Q 1365,350 1305,450 Q 1245,550 1325,690 L 1355,900', color: YELLOW },
+    { d: 'M 1030,-30 Q 1110,80 1270,200 Q 1330,320 1270,420 Q 1210,520 1290,660 L 1320,870', color: PINK },
   ],
 
+  // styles: left enters at 50/85/120 (relay), crosses to right, ends at 580/545/510
+  //         right enters at 1390/1355/1320, crosses to left, ends at 860/895/930
   styles: [
-    // Left starts high, crosses to right side mid-page (alternating layout)
-    { d: 'M 1390,-30 L 1390,160 Q 1390,320 1080,400 Q 770,480 660,620 L 580,900', color: ORANGE },
-    { d: 'M 1355,-30 L 1355,160 Q 1355,290 1045,370 Q 735,450 625,590 L 545,870', color: YELLOW },
-    { d: 'M 1320,-30 L 1320,160 Q 1320,260 1010,340 Q 700,420 590,560 L 510,840', color: PINK },
-    // Right starts low, crosses to left
-    { d: 'M 50,-30 L 50,160 Q 50,320 360,400 Q 670,480 780,620 L 860,900', color: ORANGE },
-    { d: 'M 85,-30 L 85,160 Q 85,290 395,370 Q 705,450 815,590 L 895,870', color: YELLOW },
-    { d: 'M 120,-30 L 120,160 Q 120,260 430,340 Q 740,420 850,560 L 930,840', color: PINK },
+    { d: 'M 50,-30 L 50,120 Q 50,300 360,400 Q 670,500 780,660 L 860,930', color: ORANGE },
+    { d: 'M 85,-30 L 85,120 Q 85,270 395,370 Q 705,470 815,630 L 895,900', color: YELLOW },
+    { d: 'M 120,-30 L 120,120 Q 120,240 430,340 Q 740,440 850,600 L 930,870', color: PINK },
+    { d: 'M 1390,-30 L 1390,120 Q 1390,300 1080,400 Q 770,500 660,660 L 580,930', color: ORANGE },
+    { d: 'M 1355,-30 L 1355,120 Q 1355,270 1045,370 Q 735,470 625,630 L 545,900', color: YELLOW },
+    { d: 'M 1320,-30 L 1320,120 Q 1320,240 1010,340 Q 700,440 590,600 L 510,870', color: PINK },
   ],
 
+  // gallery: left enters at 580/545/510 (relay from styles cross), ends at 130/163/196
+  //          right enters at 860/895/930, ends at 1060/1025/990
   gallery: [
-    // Left — short, hugs sidebar
-    { d: 'M 45,-30 L 45,140 Q 45,260 115,300 Q 185,340 160,480 L 130,620', color: ORANGE },
-    { d: 'M 78,-30 L 78,140 Q 78,235 148,275 Q 218,315 193,455 L 163,595', color: YELLOW },
-    { d: 'M 111,-30 L 111,140 Q 111,210 181,250 Q 251,290 226,430 L 196,570', color: PINK },
-    // Right — tall, sweeps the canvas area
-    { d: 'M 1395,-30 L 1395,600 Q 1395,800 1265,870 L 1060,900', color: ORANGE },
-    { d: 'M 1360,-30 L 1360,600 Q 1360,770 1230,840 L 1025,870', color: YELLOW },
-    { d: 'M 1325,-30 L 1325,600 Q 1325,740 1195,810 L 990,840', color: PINK },
+    { d: 'M 580,-30 Q 400,100 200,180 Q 100,220 130,400 L 130,930', color: ORANGE },
+    { d: 'M 545,-30 Q 365,100 165,180 Q 65,220 163,400 L 163,900', color: YELLOW },
+    { d: 'M 510,-30 Q 330,100 130,180 Q 30,220 196,400 L 196,870', color: PINK },
+    { d: 'M 860,-30 Q 1040,100 1240,180 Q 1340,220 1310,500 Q 1280,780 1060,930', color: ORANGE },
+    { d: 'M 895,-30 Q 1075,100 1275,180 Q 1375,220 1345,500 Q 1315,780 1025,900', color: YELLOW },
+    { d: 'M 930,-30 Q 1110,100 1310,180 Q 1410,220 1380,500 Q 1350,780 990,870', color: PINK },
   ],
 
+  // chat: left enters at 130/163/196 (relay), ends at 155/188/221
+  //       right enters at 1060/1025/990, ends at 1250/1215/1180
   chat: [
-    // Left — mid-height, sidebar width
-    { d: 'M 50,-30 L 50,190 Q 50,340 130,380 Q 210,420 185,560 L 155,700', color: ORANGE },
-    { d: 'M 83,-30 L 83,190 Q 83,310 163,350 Q 243,390 218,530 L 188,670', color: YELLOW },
-    { d: 'M 116,-30 L 116,190 Q 116,280 196,320 Q 276,360 251,500 L 221,640', color: PINK },
-    // Right — full height chat area
-    { d: 'M 1390,-30 L 1390,680 Q 1390,840 1250,900', color: ORANGE },
-    { d: 'M 1355,-30 L 1355,680 Q 1355,810 1215,870', color: YELLOW },
-    { d: 'M 1320,-30 L 1320,680 Q 1320,780 1180,840', color: PINK },
+    { d: 'M 130,-30 L 130,160 Q 130,320 155,420 Q 180,520 155,700 L 155,930', color: ORANGE },
+    { d: 'M 163,-30 L 163,160 Q 163,290 188,390 Q 213,490 188,670 L 188,900', color: YELLOW },
+    { d: 'M 196,-30 L 196,160 Q 196,260 221,360 Q 246,460 221,640 L 221,870', color: PINK },
+    { d: 'M 1060,-30 L 1060,160 Q 1060,360 1150,460 Q 1240,560 1250,730 L 1250,930', color: ORANGE },
+    { d: 'M 1025,-30 L 1025,160 Q 1025,330 1115,430 Q 1205,530 1215,700 L 1215,900', color: YELLOW },
+    { d: 'M 990,-30 L 990,160 Q 990,300 1080,400 Q 1170,500 1180,670 L 1180,870', color: PINK },
   ],
 
+  // game: left enters at 155/188/221 (relay), sweeps horizontally, exits right at 1470
+  //       right enters at 1250/1215/1180, sweeps horizontally, exits left at -30
   game: [
-    // Horizontal arcs across top — immersive feel
-    { d: 'M -30,70 Q 180,50 380,110 Q 580,170 720,150 Q 860,130 1060,170 Q 1260,210 1470,70', color: ORANGE },
-    { d: 'M -30,108 Q 180,88 380,148 Q 580,208 720,188 Q 860,168 1060,208 Q 1260,248 1470,108', color: YELLOW },
-    { d: 'M -30,146 Q 180,126 380,186 Q 580,246 720,226 Q 860,206 1060,246 Q 1260,286 1470,146', color: PINK },
-    // Bottom arcs
-    { d: 'M -30,830 Q 180,850 380,790 Q 580,730 720,750 Q 860,770 1060,730 Q 1260,690 1470,830', color: ORANGE },
-    { d: 'M -30,792 Q 180,812 380,752 Q 580,692 720,712 Q 860,732 1060,692 Q 1260,652 1470,792', color: YELLOW },
-    { d: 'M -30,754 Q 180,774 380,714 Q 580,654 720,674 Q 860,694 1060,654 Q 1260,614 1470,754', color: PINK },
+    { d: 'M 155,-30 L 155,60 Q 400,40 720,80 Q 1040,120 1470,60', color: ORANGE },
+    { d: 'M 188,-30 L 188,98 Q 400,78 720,118 Q 1040,158 1470,98', color: YELLOW },
+    { d: 'M 221,-30 L 221,136 Q 400,116 720,156 Q 1040,196 1470,136', color: PINK },
+    { d: 'M 1250,-30 L 1250,760 Q 1040,800 720,760 Q 400,720 -30,780', color: ORANGE },
+    { d: 'M 1215,-30 L 1215,798 Q 1040,838 720,798 Q 400,758 -30,818', color: YELLOW },
+    { d: 'M 1180,-30 L 1180,836 Q 1040,876 720,836 Q 400,796 -30,856', color: PINK },
   ],
 
+  // map: left enters at ~50/85/120 (from game left exit re-enters top), ends at 145/178/211
+  //      right enters at ~1390/1355/1320 (from game right exit re-enters), ends at 1070/1035/1000
   map: [
-    // Left — sidebar, flows down
-    { d: 'M 42,-30 L 42,320 Q 42,520 122,580 Q 202,640 175,780 L 145,900', color: ORANGE },
-    { d: 'M 75,-30 L 75,320 Q 75,490 155,550 Q 235,610 208,750 L 178,870', color: YELLOW },
-    { d: 'M 108,-30 L 108,320 Q 108,460 188,520 Q 268,580 241,720 L 211,840', color: PINK },
-    // Right — map area, wide sweep
-    { d: 'M 1398,-30 L 1398,380 Q 1398,580 1295,650 Q 1192,720 1110,820 L 1070,900', color: ORANGE },
-    { d: 'M 1363,-30 L 1363,380 Q 1363,550 1260,620 Q 1157,690 1075,790 L 1035,870', color: YELLOW },
-    { d: 'M 1328,-30 L 1328,380 Q 1328,520 1225,590 Q 1122,660 1040,760 L 1000,840', color: PINK },
+    { d: 'M 50,-30 L 50,300 Q 50,520 130,590 Q 210,660 175,800 L 145,930', color: ORANGE },
+    { d: 'M 85,-30 L 85,300 Q 85,490 165,560 Q 245,630 210,770 L 178,900', color: YELLOW },
+    { d: 'M 120,-30 L 120,300 Q 120,460 200,530 Q 280,600 245,740 L 211,870', color: PINK },
+    { d: 'M 1390,-30 L 1390,360 Q 1390,560 1285,640 Q 1180,720 1110,840 L 1070,930', color: ORANGE },
+    { d: 'M 1355,-30 L 1355,360 Q 1355,530 1250,610 Q 1145,690 1075,810 L 1035,900', color: YELLOW },
+    { d: 'M 1320,-30 L 1320,360 Q 1320,500 1215,580 Q 1110,660 1040,780 L 1000,870', color: PINK },
   ],
 
+  // market: left enters at 145/178/211 (relay), ends at 130/160/190
+  //         right enters at 1070/1035/1000, ends at 855/820/785
   market: [
-    // Left — filter sidebar, tight
-    { d: 'M 38,-30 L 38,460 Q 38,660 108,710 Q 178,760 150,880 L 130,900', color: ORANGE },
-    { d: 'M 68,-30 L 68,460 Q 68,630 138,680 Q 208,730 180,850 L 160,870', color: YELLOW },
-    { d: 'M 98,-30 L 98,460 Q 98,600 168,650 Q 238,700 210,820 L 190,840', color: PINK },
-    // Right — grid sweeps wide and curves down
-    { d: 'M 1402,-30 L 1402,280 Q 1402,480 1195,560 Q 988,640 890,780 L 855,900', color: ORANGE },
-    { d: 'M 1367,-30 L 1367,280 Q 1367,450 1160,530 Q 953,610 855,750 L 820,870', color: YELLOW },
-    { d: 'M 1332,-30 L 1332,280 Q 1332,420 1125,500 Q 918,580 820,720 L 785,840', color: PINK },
+    { d: 'M 145,-30 Q 100,100 60,260 L 60,500 Q 60,680 120,730 Q 180,780 130,930', color: ORANGE },
+    { d: 'M 178,-30 Q 133,100 93,260 L 93,500 Q 93,650 153,700 Q 213,750 160,900', color: YELLOW },
+    { d: 'M 211,-30 Q 166,100 126,260 L 126,500 Q 126,620 186,670 Q 246,720 190,870', color: PINK },
+    { d: 'M 1070,-30 Q 1200,100 1360,260 L 1360,400 Q 1360,580 1150,660 Q 940,740 855,930', color: ORANGE },
+    { d: 'M 1035,-30 Q 1165,100 1325,260 L 1325,400 Q 1325,550 1115,630 Q 905,710 820,900', color: YELLOW },
+    { d: 'M 1000,-30 Q 1130,100 1290,260 L 1290,400 Q 1290,520 1080,600 Q 870,680 785,870', color: PINK },
   ],
 
+  // community: left enters at 130/160/190 (relay), ends at 165/198/231
+  //            right enters at 855/820/785, ends at 1275/1242/1209
   community: [
-    // Both sides flow down symmetrically — masonry grid
-    { d: 'M 48,-30 L 48,360 Q 48,580 158,660 Q 268,740 195,880 L 165,900', color: ORANGE },
-    { d: 'M 81,-30 L 81,360 Q 81,550 191,630 Q 301,710 228,850 L 198,870', color: YELLOW },
-    { d: 'M 114,-30 L 114,360 Q 114,520 224,600 Q 334,680 261,820 L 231,840', color: PINK },
-    { d: 'M 1392,-30 L 1392,360 Q 1392,580 1282,660 Q 1172,740 1245,880 L 1275,900', color: ORANGE },
-    { d: 'M 1359,-30 L 1359,360 Q 1359,550 1249,630 Q 1139,710 1212,850 L 1242,870', color: YELLOW },
-    { d: 'M 1326,-30 L 1326,360 Q 1326,520 1216,600 Q 1106,680 1179,820 L 1209,840', color: PINK },
+    { d: 'M 130,-30 L 130,200 Q 130,440 200,560 Q 270,680 165,860 L 165,930', color: ORANGE },
+    { d: 'M 160,-30 L 160,200 Q 160,410 230,530 Q 300,650 198,830 L 198,900', color: YELLOW },
+    { d: 'M 190,-30 L 190,200 Q 190,380 260,500 Q 330,620 231,800 L 231,870', color: PINK },
+    { d: 'M 855,-30 L 855,200 Q 855,440 1060,560 Q 1265,680 1275,860 L 1275,930', color: ORANGE },
+    { d: 'M 820,-30 L 820,200 Q 820,410 1025,530 Q 1230,650 1242,830 L 1242,900', color: YELLOW },
+    { d: 'M 785,-30 L 785,200 Q 785,380 990,500 Q 1195,620 1209,800 L 1209,870', color: PINK },
   ],
 };
 
@@ -129,7 +148,6 @@ const PageTransitionBeam: React.FC<PageTransitionBeamProps> = ({ currentView, pr
 
   const paths = HIDDEN_VIEWS.has(displayView) ? [] : (PAGE_PATHS[displayView] ?? []);
 
-  // Compute lengths when paths change
   const computeLengths = useCallback(() => {
     lengthsRef.current.clear();
     pathRefs.current.forEach((el, key) => {
@@ -140,23 +158,20 @@ const PageTransitionBeam: React.FC<PageTransitionBeamProps> = ({ currentView, pr
     });
   }, []);
 
-  // Draw lines based on scroll progress 0..1
   const draw = useCallback((progress: number) => {
     const p = Math.min(progress * 1.2, 1);
     pathRefs.current.forEach((el, key) => {
       const len = lengthsRef.current.get(key) ?? 0;
       if (!len) return;
       const idx = parseInt(key.split('-')[1] ?? '0');
-      const stagger = idx * 0.05;
-      const local = Math.min(Math.max((p - stagger) / (1 - stagger * 5 + 0.01), 0), 1);
+      const stagger = idx * 0.04;
+      const local = Math.min(Math.max((p - stagger) / (1 - stagger * 4 + 0.01), 0), 1);
       el.style.strokeDashoffset = `${Math.max(len - len * local, 0)}`;
     });
   }, []);
 
-  // Listen to scroll on active page container
   useEffect(() => {
     let container: HTMLElement | null = null;
-
     const onScroll = () => {
       if (!container) return;
       const max = container.scrollHeight - container.clientHeight;
@@ -165,7 +180,6 @@ const PageTransitionBeam: React.FC<PageTransitionBeamProps> = ({ currentView, pr
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       rafRef.current = requestAnimationFrame(() => draw(p));
     };
-
     const timer = setTimeout(() => {
       container = document.getElementById(`page-${displayView}`)
         ?.querySelector('.scroll-container') as HTMLElement | null;
@@ -174,7 +188,6 @@ const PageTransitionBeam: React.FC<PageTransitionBeamProps> = ({ currentView, pr
         onScroll();
       }
     }, 150);
-
     return () => {
       clearTimeout(timer);
       if (container) container.removeEventListener('scroll', onScroll);
@@ -182,25 +195,19 @@ const PageTransitionBeam: React.FC<PageTransitionBeamProps> = ({ currentView, pr
     };
   }, [displayView, draw]);
 
-  // Page transition
   useEffect(() => {
     if (currentView === previousView) return;
     setOpacity(0);
-    const t = setTimeout(() => {
-      setDisplayView(currentView);
-      setOpacity(1);
-    }, 300);
+    const t = setTimeout(() => { setDisplayView(currentView); setOpacity(1); }, 280);
     return () => clearTimeout(t);
   }, [currentView, previousView]);
 
-  // Initial fade-in
   useEffect(() => {
     const t = setTimeout(() => setOpacity(1), 900);
     return () => clearTimeout(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Recompute lengths after paths render
   useEffect(() => {
     const t = setTimeout(computeLengths, 50);
     return () => clearTimeout(t);
@@ -211,7 +218,7 @@ const PageTransitionBeam: React.FC<PageTransitionBeamProps> = ({ currentView, pr
   return (
     <div
       className="fixed inset-0 pointer-events-none overflow-hidden"
-      style={{ zIndex: 55, opacity, transition: 'opacity 300ms ease' }}
+      style={{ zIndex: 55, opacity, transition: 'opacity 280ms ease' }}
       aria-hidden="true"
     >
       <svg
