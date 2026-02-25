@@ -249,7 +249,7 @@ function AppContent() {
 
       {/* Intro overlay — shown until user navigates away */}
       {currentView === 'intro' && (
-        <div className="absolute inset-0 z-[80]">
+        <div className="absolute inset-0 z-[80] overflow-y-auto scroll-container" style={{ overscrollBehavior: 'contain' }}>
           <IntroShowcase onNavigate={handleNavigate} isActive={true} />
         </div>
       )}
