@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ErrorInfo, ReactNode, useRef, useCallback } from 'react';
+import React, { useState, useEffect, ErrorInfo, ReactNode, useRef, useLayoutEffect, useCallback } from 'react';
 import Navigation from './components/Navigation';
 import Hero from './components/Hero';
 import ArtGenerator from './components/ArtGenerator';
@@ -79,30 +79,79 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 }
 
-const PageSection: React.FC<{
-  viewKey: string;
-  children: React.ReactNode;
-}> = ({ viewKey, children }) => {
-  return (
-    <div
-      id={`page-${viewKey}`}
-      style={{
-        height: '100vh',
-        scrollSnapAlign: 'start',
-        scrollSnapStop: 'always',
-        position: 'relative',
-        flexShrink: 0,
-        overflow: 'hidden',
-      }}
-    >
-      <div
-        className="w-full h-full scroll-container overflow-y-auto"
-        style={{ WebkitOverflowScrolling: 'touch' }}
-      >
-        {children}
-      </div>
-    </div>
-  );
+const PageTransition: React.FC<{
+    viewKey: string;
+    children: React.ReactNode;
+    index: number;
+    currentIndex: number;
+    prevIndex: number;
+}> = ({ children, viewKey, index, currentIndex, prevIndex }) => {
+    const isActive = index === currentIndex;
+    const isAdjacent = Math.abs(index - currentIndex) <= 1;
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    useLayoutEffect(() => {
+        if (isActive && scrollContainerRef.current) {
+            const el = scrollContainerRef.current;
+            el.scrollTop = 0;
+            const raf = requestAnimationFrame(() => { el.scrollTop = 0; });
+            return () => cancelAnimationFrame(raf);
+        }
+    }, [isActive]);
+
+    // Direction: going forward (down) or backward (up)
+    const goingForward = currentIndex >= prevIndex;
+
+    let transform = 'translate3d(0, 0, 0) scale(1)';
+    let opacity = 1;
+
+    if (index < currentIndex) {
+        // Page is behind/above: slide up and fade
+        transform = goingForward
+            ? 'translate3d(0, -6vh, 0) scale(0.97)'
+            : 'translate3d(0, -2vh, 0) scale(0.99)';
+        opacity = 0;
+    } else if (index > currentIndex) {
+        // Page is ahead/below: sit just below viewport
+        transform = 'translate3d(0, 100%, 0) scale(1)';
+        opacity = 1;
+    }
+
+    return (
+        <div
+            style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                overflow: 'hidden',
+                zIndex: isActive ? 60 : index > currentIndex ? 70 : 40,
+                transform,
+                opacity,
+                visibility: isAdjacent ? 'visible' : 'hidden',
+                pointerEvents: isActive ? 'auto' : 'none',
+                transition: isActive
+                    ? 'transform 480ms cubic-bezier(0.22, 1, 0.36, 1), opacity 320ms ease-out'
+                    : 'transform 480ms cubic-bezier(0.22, 1, 0.36, 1), opacity 280ms ease-in',
+                willChange: isAdjacent ? 'transform, opacity' : 'auto',
+                WebkitBackfaceVisibility: 'hidden',
+                backfaceVisibility: 'hidden',
+            } as React.CSSProperties}
+            id={`page-${viewKey}`}
+        >
+            <div
+                ref={scrollContainerRef}
+                className={`w-full h-full scroll-container ${isActive ? 'overflow-y-auto' : 'overflow-hidden'}`}
+                style={{
+                    WebkitOverflowScrolling: 'touch',
+                    overscrollBehavior: 'contain',
+                    scrollBehavior: 'auto',
+                }}
+            >
+                {isAdjacent ? children : null}
+            </div>
+        </div>
+    );
 };
 
 function AppContent() {
@@ -130,58 +179,145 @@ function AppContent() {
   const [prefilledPrompt, setPrefilledPrompt] = useState('');
   const [legalModalType, setLegalModalType] = useState<'privacy' | 'terms' | null>(null);
   
-  const mainScrollRef = useRef<HTMLDivElement>(null);
+  const lastScrollTime = useRef(0);
 
   useEffect(() => {
     try {
         const savedHistory = localStorage.getItem(STORAGE_KEY_ART_HISTORY);
         if (savedHistory) setArtHistory(JSON.parse(savedHistory));
-    } catch (e) {}
-    const unsubscribe = authService.subscribe(newUser => setUser(newUser));
+    } catch (e) {
+        // Silently fail for storage errors
+    }
+    
+    const unsubscribe = authService.subscribe(newUser => {
+        setUser(newUser);
+    });
     return () => { unsubscribe(); };
   }, []);
 
-  // IntersectionObserver: track which page is visible and update nav
   useEffect(() => {
-    const mainEl = mainScrollRef.current;
-    if (!mainEl) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-            const viewKey = entry.target.id.replace('page-', '') as ViewState;
-            setCurrentView(prev => (prev === 'intro' ? prev : viewKey));
+      const handleWheel = (e: WheelEvent) => {
+          if (showAuthOverlay || currentView === 'membership' || currentView === 'login' || currentView === 'about' || currentView === 'market' || isImmersiveMode || isFullScreenModalOpen) return;
+
+          const now = Date.now();
+          if (now - lastScrollTime.current < 800) return;
+
+          const currentContainer = document.getElementById(`page-${currentView}`)?.querySelector('.scroll-container');
+          if (!currentContainer) return;
+
+          const bottomTolerance = 40;
+          const topTolerance = 10;
+          const isAtBottom = Math.abs(currentContainer.scrollHeight - currentContainer.scrollTop - currentContainer.clientHeight) < bottomTolerance;
+          const isAtTop = currentContainer.scrollTop < topTolerance;
+
+          // Intro page: no wheel-based page switching
+          if (currentView === 'intro') return;
+
+          if (Math.abs(e.deltaY) > 30) {
+              const currentIndex = NAV_ORDER.indexOf(currentView);
+              if (e.deltaY > 0) {
+                  if (isAtBottom && currentIndex < NAV_ORDER.length - 1) {
+                      setPreviousView(currentView);
+                      setCurrentView(NAV_ORDER[currentIndex + 1]);
+                      lastScrollTime.current = now;
+                  }
+              } else if (e.deltaY < 0) {
+                  if (isAtTop && currentIndex > 0) {
+                      const prevView = NAV_ORDER[currentIndex - 1];
+                      if (prevView === 'intro') return;
+                      setPreviousView(currentView);
+                      setCurrentView(prevView);
+                      lastScrollTime.current = now;
+                  }
+              }
           }
-        });
-      },
-      { root: mainEl, threshold: 0.5 }
-    );
-    NAV_ORDER.filter(v => v !== 'intro').forEach(viewKey => {
-      const el = document.getElementById(`page-${viewKey}`);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
-  }, [loadingComplete]);
+      };
+
+      window.addEventListener('wheel', handleWheel, { passive: false });
+      return () => window.removeEventListener('wheel', handleWheel);
+  }, [currentView, showAuthOverlay, isImmersiveMode, isFullScreenModalOpen]);
+
+  useEffect(() => {
+      let touchStartY = 0;
+      let touchStartX = 0;
+      let isSwiping = false;
+
+      const handleTouchStart = (e: TouchEvent) => {
+          touchStartY = e.touches[0].clientY;
+          touchStartX = e.touches[0].clientX;
+          isSwiping = false;
+      };
+
+      const handleTouchMove = (e: TouchEvent) => {
+          if (showAuthOverlay || isImmersiveMode || isFullScreenModalOpen || currentView === 'market') return;
+          if (isSwiping) return;
+
+          const dy = touchStartY - e.touches[0].clientY;
+          const dx = Math.abs(touchStartX - e.touches[0].clientX);
+
+          // Must be more vertical than horizontal, and at least 60px
+          if (Math.abs(dy) < 60 || dx > Math.abs(dy) * 0.7) return;
+
+          const now = Date.now();
+          if (now - lastScrollTime.current < 600) return;
+
+          const currentContainer = document.getElementById(`page-${currentView}`)?.querySelector('.scroll-container');
+          if (!currentContainer) return;
+
+          const isAtBottom = Math.abs(currentContainer.scrollHeight - currentContainer.scrollTop - currentContainer.clientHeight) < 50;
+          const isAtTop = currentContainer.scrollTop < 10;
+          const currentIndex = NAV_ORDER.indexOf(currentView);
+
+          // Intro page: no touch-based page switching
+          if (currentView === 'intro') return;
+
+          if (dy > 0 && isAtBottom && currentIndex < NAV_ORDER.length - 1) {
+              isSwiping = true;
+              setPreviousView(currentView);
+              setCurrentView(NAV_ORDER[currentIndex + 1]);
+              lastScrollTime.current = now;
+          } else if (dy < 0 && isAtTop && currentIndex > 0) {
+              const prevView = NAV_ORDER[currentIndex - 1];
+              if (prevView === 'intro') return;
+              isSwiping = true;
+              setPreviousView(currentView);
+              setCurrentView(prevView);
+              lastScrollTime.current = now;
+          }
+      };
+
+      window.addEventListener('touchstart', handleTouchStart, { passive: true });
+      window.addEventListener('touchmove', handleTouchMove, { passive: true });
+      return () => {
+          window.removeEventListener('touchstart', handleTouchStart);
+          window.removeEventListener('touchmove', handleTouchMove);
+      };
+  }, [currentView, showAuthOverlay, isImmersiveMode, isFullScreenModalOpen]);
 
   const handleNavigate = useCallback((v: ViewState) => {
-      if (v === 'login' && user) { v = 'gallery' as ViewState; }
-      if (v === 'intro') return;
-      // Overlays: just set state, no scroll
-      if (v === 'membership' || v === 'about' || v === 'login') {
-          setPreviousView(currentView);
-          setCurrentView(v);
-          setIsFullScreenModalOpen(false);
+      if (v === 'login' && user) {
+          setCurrentView('gallery');
           return;
       }
-      setPreviousView(currentView);
+      // Prevent navigating back to intro once left
+      if (v === 'intro') return;
+      if (v !== currentView) {
+          setPreviousView(currentView);
+          setIsFullScreenModalOpen(false);
+      }
       setCurrentView(v);
-      setIsFullScreenModalOpen(false);
-      // Scroll to the target page
-      requestAnimationFrame(() => {
-          const el = document.getElementById(`page-${v}`);
-          if (el) el.scrollIntoView({ behavior: currentView === 'intro' ? 'auto' : 'smooth' });
-      });
   }, [currentView, user]);
+
+  const currentIndex = NAV_ORDER.indexOf(currentView);
+  const prevIndexRef = useRef(currentIndex);
+  const [prevIndex, setPrevIndex] = useState(currentIndex);
+
+  useEffect(() => {
+    if (currentIndex !== prevIndexRef.current) {
+      setPrevIndex(prevIndexRef.current);
+      prevIndexRef.current = currentIndex;
+    }
+  }, [currentIndex]);
 
   return (
     <ErrorBoundary>
@@ -191,6 +327,7 @@ function AppContent() {
           <LiquidBackground currentView={currentView} />
           <ParticleBackground />
           <CustomCursor />
+          <PageTransitionBeam currentView={currentView} previousView={previousView} />
 
           <Navigation
               currentView={currentView}
@@ -201,37 +338,35 @@ function AppContent() {
               onOpenShop={() => setShowShop(true)}
           />
           
-      <main
-          id="main-content"
-          ref={mainScrollRef}
-          role="main"
-          className={`flex-1 w-full scroll-container overflow-y-scroll transition-all duration-1000 ${showAuthOverlay ? 'scale-[0.95] blur-sm opacity-50' : 'scale-100 opacity-100'}`}
-          style={{ scrollSnapType: 'y mandatory', height: '100%' }}
-      >
-              {NAV_ORDER.filter(v => v !== 'intro').map((viewKey) => (
-                  <PageSection key={viewKey} viewKey={viewKey}>
+      <main id="main-content" role="main" className={`flex-1 relative w-full h-full transition-all duration-1000 ${showAuthOverlay ? 'scale-[0.95] blur-sm opacity-50' : 'scale-100 opacity-100'}`}>
+              {NAV_ORDER.map((viewKey, index) => (
+                  <PageTransition key={viewKey} viewKey={viewKey} index={index} currentIndex={currentIndex} prevIndex={prevIndex}>
+                      {viewKey === 'intro' && <IntroShowcase onNavigate={handleNavigate} isActive={currentView === 'intro'} />}
                       {viewKey === 'home' && <Hero onNavigate={handleNavigate} isActive={currentView === 'home'} />}
                       {viewKey === 'journal' && <ArtJournal onNavigate={handleNavigate} isActive={currentView === 'journal'} onArticleOpen={setIsFullScreenModalOpen} />}
                       {viewKey === 'styles' && <ArtStyles onNavigate={handleNavigate} isActive={currentView === 'styles'} />}
-                      {viewKey === 'gallery' && <ArtGenerator history={artHistory} onImageGenerated={(img) => { const next = [...artHistory, img]; setArtHistory(next); try { localStorage.setItem(STORAGE_KEY_ART_HISTORY, JSON.stringify(next)); } catch(e){} }} onClearHistory={() => { setArtHistory([]); try { localStorage.removeItem(STORAGE_KEY_ART_HISTORY); } catch(e){} }} prefilledPrompt={prefilledPrompt} setPrefilledPrompt={setPrefilledPrompt} userTier={user?.tier || 'guest'} onNavigateToMembership={() => handleNavigate('membership')} onAuthRequired={() => setShowAuthOverlay(true)} isLoggedIn={!!user} onImageSelect={(image) => {}} />}
+                      {viewKey === 'gallery' && <ArtGenerator history={artHistory} onImageGenerated={(img) => { const next = [...artHistory, img]; setArtHistory(next); try { localStorage.setItem(STORAGE_KEY_ART_HISTORY, JSON.stringify(next)); } catch(e){} }} onClearHistory={() => { setArtHistory([]); try { localStorage.removeItem(STORAGE_KEY_ART_HISTORY); } catch(e){} }} prefilledPrompt={prefilledPrompt} setPrefilledPrompt={setPrefilledPrompt} userTier={user?.tier || 'guest'} onNavigateToMembership={() => handleNavigate('membership')} onAuthRequired={() => setShowAuthOverlay(true)} isLoggedIn={!!user} onImageSelect={(image) => { /* Don't hide nav on image select */ }} />}
                       {viewKey === 'market' && <ArtMarket onNavigate={handleNavigate} isActive={currentView === 'market'} onFullScreenToggle={setIsFullScreenModalOpen} generatedImages={artHistory} />}
                       {viewKey === 'community' && <UGCGallery user={user} onAuthRequired={() => setShowAuthOverlay(true)} onNavigate={handleNavigate} isActive={currentView === 'community'} />}
                       {viewKey === 'chat' && <ArtChat messages={chatMessages} setMessages={setChatMessages} onAuthRequired={() => setShowAuthOverlay(true)} isLoggedIn={!!user} />}
                       {viewKey === 'game' && <ArtGame onImmersiveChange={setIsImmersiveMode} user={user} onAuthRequired={() => setShowAuthOverlay(true)} onNavigate={handleNavigate} />}
                       {viewKey === 'map' && <MuseumFinder onNavigate={handleNavigate} onOpenLegal={(type) => setLegalModalType(type)} />}
-                  </PageSection>
+                  </PageTransition>
               ))}
 
               {currentView === 'login' && <div className="absolute inset-0 z-[100] animate-fade-in"><Login onLoginSuccess={(u) => { setUser(u); handleNavigate('gallery'); }} onNavigate={handleNavigate} /></div>}
               {currentView === 'membership' && (
                 <div className="absolute inset-0 z-[110] animate-fade-in bg-white overflow-y-auto overscroll-contain">
-                  <Membership
-                    currentTier={user?.tier || 'guest'}
-                    onUpgrade={async (t) => {
-                      if (!user) { setShowAuthOverlay(true); throw new Error("AUTH_REQUIRED"); }
-                      await authService.upgradeTier(user.id, t);
-                    }}
-                    onClose={() => setCurrentView(previousView)}
+                  <Membership 
+                    currentTier={user?.tier || 'guest'} 
+                    onUpgrade={async (t) => { 
+                      if (!user) {
+                        setShowAuthOverlay(true);
+                        throw new Error("AUTH_REQUIRED");
+                      }
+                      await authService.upgradeTier(user.id, t); 
+                    }} 
+                    onClose={() => setCurrentView(previousView)} 
                   />
                 </div>
               )}
@@ -245,14 +380,7 @@ function AppContent() {
                   </div>
                 </div>
               )}
-      </main>
-
-      {/* Intro overlay — shown until user navigates away */}
-      {currentView === 'intro' && (
-        <div className="absolute inset-0 z-[80] overflow-y-auto scroll-container" style={{ overscrollBehavior: 'contain' }}>
-          <IntroShowcase onNavigate={handleNavigate} isActive={true} />
-        </div>
-      )}
+          </main>
           
           {showAuthOverlay && (
             <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-stone-900/70 backdrop-blur-sm animate-fade-in" onClick={() => setShowAuthOverlay(false)}>
