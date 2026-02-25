@@ -19,6 +19,7 @@ import ArtJournal from './components/ArtJournal';
 import ArtMarket from './components/ArtMarket';
 import ArtCoinShop from './components/ArtCoinShop';
 import UGCGallery from './components/UGCGallery';
+import IntroShowcase from './components/IntroShowcase';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { DarkModeProvider } from './contexts/DarkModeContext';
 import { ViewState, GeneratedImage, ChatMessage, UserTier, User } from './types';
@@ -26,7 +27,7 @@ import { authService } from './services/authService';
 import { MessageSquare, AlertTriangle, RefreshCw, X } from 'lucide-react';
 
 const STORAGE_KEY_ART_HISTORY = 'artislife_history';
-const NAV_ORDER: ViewState[] = ['home', 'journal', 'styles', 'gallery', 'chat', 'game', 'map', 'market', 'community'];
+const NAV_ORDER: ViewState[] = ['intro', 'home', 'journal', 'styles', 'gallery', 'chat', 'game', 'map', 'market', 'community'];
 
 interface ErrorBoundaryProps { children?: ReactNode; }
 interface ErrorBoundaryState { hasError: boolean; }
@@ -155,8 +156,8 @@ const PageTransition: React.FC<{
 function AppContent() {
   const [appReady, setAppReady] = useState(false);
   const [loadingComplete, setLoadingComplete] = useState(false); 
-  const [currentView, setCurrentView] = useState<ViewState>('home');
-  const [previousView, setPreviousView] = useState<ViewState>('home'); 
+  const [currentView, setCurrentView] = useState<ViewState>('intro');
+  const [previousView, setPreviousView] = useState<ViewState>('intro');
   
   // 优化：懒初始化状态，避免因 authService 报错导致白屏
   const [user, setUser] = useState<User | null>(() => {
@@ -208,6 +209,9 @@ function AppContent() {
           const isAtBottom = Math.abs(currentContainer.scrollHeight - currentContainer.scrollTop - currentContainer.clientHeight) < bottomTolerance;
           const isAtTop = currentContainer.scrollTop < topTolerance;
 
+          // Intro page: no wheel-based page switching
+          if (currentView === 'intro') return;
+
           if (Math.abs(e.deltaY) > 30) {
               const currentIndex = NAV_ORDER.indexOf(currentView);
               if (e.deltaY > 0) {
@@ -218,8 +222,10 @@ function AppContent() {
                   }
               } else if (e.deltaY < 0) {
                   if (isAtTop && currentIndex > 0) {
+                      const prevView = NAV_ORDER[currentIndex - 1];
+                      if (prevView === 'intro') return;
                       setPreviousView(currentView);
-                      setCurrentView(NAV_ORDER[currentIndex - 1]);
+                      setCurrentView(prevView);
                       lastScrollTime.current = now;
                   }
               }
@@ -261,15 +267,20 @@ function AppContent() {
           const isAtTop = currentContainer.scrollTop < 10;
           const currentIndex = NAV_ORDER.indexOf(currentView);
 
+          // Intro page: no touch-based page switching
+          if (currentView === 'intro') return;
+
           if (dy > 0 && isAtBottom && currentIndex < NAV_ORDER.length - 1) {
               isSwiping = true;
               setPreviousView(currentView);
               setCurrentView(NAV_ORDER[currentIndex + 1]);
               lastScrollTime.current = now;
           } else if (dy < 0 && isAtTop && currentIndex > 0) {
+              const prevView = NAV_ORDER[currentIndex - 1];
+              if (prevView === 'intro') return;
               isSwiping = true;
               setPreviousView(currentView);
-              setCurrentView(NAV_ORDER[currentIndex - 1]);
+              setCurrentView(prevView);
               lastScrollTime.current = now;
           }
       };
@@ -287,6 +298,8 @@ function AppContent() {
           setCurrentView('gallery');
           return;
       }
+      // Prevent navigating back to intro once left
+      if (v === 'intro') return;
       if (v !== currentView) {
           setPreviousView(currentView);
           setIsFullScreenModalOpen(false);
@@ -319,13 +332,14 @@ function AppContent() {
               onNavigate={handleNavigate}
               user={user}
               onLogout={() => { authService.logout(); handleNavigate('home'); }}
-              isHidden={currentView === 'about' || currentView === 'login' || (isImmersiveMode && currentView !== 'membership') || isFullScreenModalOpen}
+              isHidden={currentView === 'about' || currentView === 'login' || currentView === 'intro' || (isImmersiveMode && currentView !== 'membership') || isFullScreenModalOpen}
               onOpenShop={() => setShowShop(true)}
           />
           
       <main id="main-content" role="main" className={`flex-1 relative w-full h-full transition-all duration-1000 ${showAuthOverlay ? 'scale-[0.95] blur-sm opacity-50' : 'scale-100 opacity-100'}`}>
               {NAV_ORDER.map((viewKey, index) => (
                   <PageTransition key={viewKey} viewKey={viewKey} index={index} currentIndex={currentIndex} prevIndex={prevIndex}>
+                      {viewKey === 'intro' && <IntroShowcase onNavigate={handleNavigate} isActive={currentView === 'intro'} />}
                       {viewKey === 'home' && <Hero onNavigate={handleNavigate} isActive={currentView === 'home'} />}
                       {viewKey === 'journal' && <ArtJournal onNavigate={handleNavigate} isActive={currentView === 'journal'} onArticleOpen={setIsFullScreenModalOpen} />}
                       {viewKey === 'styles' && <ArtStyles onNavigate={handleNavigate} isActive={currentView === 'styles'} />}
