@@ -26,7 +26,30 @@ export interface GeneratedImage {
 }
 
 // Added 'journal' and 'market'
-export type ViewState = 'home' | 'journal' | 'styles' | 'gallery' | 'market' | 'chat' | 'game' | 'membership' | 'about' | 'login' | 'map';
+export type ViewState = 'home' | 'journal' | 'styles' | 'gallery' | 'market' | 'chat' | 'game' | 'membership' | 'about' | 'login' | 'map' | 'community';
+
+export interface UGCComment {
+  id: string;
+  userId: string;
+  userName: string;
+  text: string;
+  timestamp: number;
+}
+
+export interface UGCPost {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  imageUrl: string;
+  title: string;
+  description?: string;
+  tags: string[];
+  likedByIds: string[];
+  comments: UGCComment[];
+  timestamp: number;
+  isAIGenerated: boolean;
+}
 
 export type UserTier = 'guest' | 'artist' | 'patron';
 

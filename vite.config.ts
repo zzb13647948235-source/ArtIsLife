@@ -16,9 +16,23 @@ export default defineConfig({
   build: {
     sourcemap: false,
     minify: 'terser',
+    cssCodeSplit: true,
+    assetsInlineLimit: 4096,
     terserOptions: {
       compress: {
         drop_console: true,
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.warn', 'console.info'],
+      },
+      format: { comments: false },
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom'],
+          'three-vendor': ['three', '@react-three/fiber'],
+          'ui-vendor': ['lucide-react', 'react-markdown'],
+        },
       },
     },
   },

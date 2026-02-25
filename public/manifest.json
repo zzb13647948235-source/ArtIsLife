@@ -1,0 +1,50 @@
+{
+  "name": "ArtIsLife - 遇见艺术的灵魂",
+  "short_name": "ArtIsLife",
+  "description": "AI 驱动的艺术创作平台 — 生成画作、修复名画、探索博物馆、艺术社区。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F9F8F6",
+  "theme_color": "#BC4B1A",
+  "orientation": "portrait-primary",
+  "lang": "zh-CN",
+  "categories": ["art", "education", "entertainment"],
+  "icons": [
+    {
+      "src": "/artworks/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/artworks/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "AI 创作",
+      "short_name": "创作",
+      "description": "用 AI 生成艺术画作",
+      "url": "/?view=gallery",
+      "icons": [{ "src": "/artworks/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "艺术社区",
+      "short_name": "社区",
+      "description": "浏览和分享创作",
+      "url": "/?view=community",
+      "icons": [{ "src": "/artworks/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/artworks/paintings/Adele Bloch-Bauer I.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "label": "ArtIsLife 主页"
+    }
+  ]
+}

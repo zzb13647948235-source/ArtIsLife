@@ -18,6 +18,7 @@ import Preloader from './components/Preloader';
 import ArtJournal from './components/ArtJournal';
 import ArtMarket from './components/ArtMarket';
 import ArtCoinShop from './components/ArtCoinShop';
+import UGCGallery from './components/UGCGallery';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { DarkModeProvider } from './contexts/DarkModeContext';
 import { ViewState, GeneratedImage, ChatMessage, UserTier, User } from './types';
@@ -25,7 +26,7 @@ import { authService } from './services/authService';
 import { MessageSquare, AlertTriangle, RefreshCw, X } from 'lucide-react';
 
 const STORAGE_KEY_ART_HISTORY = 'artislife_history';
-const NAV_ORDER: ViewState[] = ['home', 'journal', 'styles', 'gallery', 'chat', 'game', 'map', 'market'];
+const NAV_ORDER: ViewState[] = ['home', 'journal', 'styles', 'gallery', 'chat', 'game', 'map', 'market', 'community'];
 
 interface ErrorBoundaryProps { children?: ReactNode; }
 interface ErrorBoundaryState { hasError: boolean; }
@@ -303,7 +304,7 @@ function AppContent() {
               onOpenShop={() => setShowShop(true)}
           />
           
-          <main className={`flex-1 relative w-full h-full transition-all duration-1000 ${showAuthOverlay ? 'scale-[0.95] blur-sm opacity-50' : 'scale-100 opacity-100'}`}>
+      <main id="main-content" role="main" className={`flex-1 relative w-full h-full transition-all duration-1000 ${showAuthOverlay ? 'scale-[0.95] blur-sm opacity-50' : 'scale-100 opacity-100'}`}>
               {NAV_ORDER.map((viewKey, index) => (
                   <PageTransition key={viewKey} viewKey={viewKey} index={index} currentIndex={currentIndex}>
                       {viewKey === 'home' && <Hero onNavigate={handleNavigate} isActive={currentView === 'home'} />}
@@ -311,6 +312,7 @@ function AppContent() {
                       {viewKey === 'styles' && <ArtStyles onNavigate={handleNavigate} isActive={currentView === 'styles'} />}
                       {viewKey === 'gallery' && <ArtGenerator history={artHistory} onImageGenerated={(img) => { const next = [...artHistory, img]; setArtHistory(next); try { localStorage.setItem(STORAGE_KEY_ART_HISTORY, JSON.stringify(next)); } catch(e){} }} onClearHistory={() => { setArtHistory([]); try { localStorage.removeItem(STORAGE_KEY_ART_HISTORY); } catch(e){} }} prefilledPrompt={prefilledPrompt} setPrefilledPrompt={setPrefilledPrompt} userTier={user?.tier || 'guest'} onNavigateToMembership={() => handleNavigate('membership')} onAuthRequired={() => setShowAuthOverlay(true)} isLoggedIn={!!user} onImageSelect={(image) => { /* Don't hide nav on image select */ }} />}
                       {viewKey === 'market' && <ArtMarket onNavigate={handleNavigate} isActive={currentView === 'market'} onFullScreenToggle={setIsFullScreenModalOpen} generatedImages={artHistory} />}
+                      {viewKey === 'community' && <UGCGallery user={user} onAuthRequired={() => setShowAuthOverlay(true)} onNavigate={handleNavigate} isActive={currentView === 'community'} />}
                       {viewKey === 'chat' && <ArtChat messages={chatMessages} setMessages={setChatMessages} onAuthRequired={() => setShowAuthOverlay(true)} isLoggedIn={!!user} />}
                       {viewKey === 'game' && <ArtGame onImmersiveChange={setIsImmersiveMode} user={user} onAuthRequired={() => setShowAuthOverlay(true)} onNavigate={handleNavigate} />}
                       {viewKey === 'map' && <MuseumFinder onNavigate={handleNavigate} onOpenLegal={(type) => setLegalModalType(type)} />}

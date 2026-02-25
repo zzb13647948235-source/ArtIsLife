@@ -1,10 +1,11 @@
 
-import { User, UserTier, MarketItem } from '../types';
+import { User, UserTier, MarketItem, UGCPost, UGCComment } from '../types';
 import { MASTERPIECE_COLLECTION } from '../constants';
 
 const STORAGE_KEY_USERS = 'artislife_users';
 const STORAGE_KEY_SESSION = 'artislife_session';
 const STORAGE_KEY_MARKET_ITEMS = 'artislife_market_items';
+const STORAGE_KEY_UGC = 'artislife_ugc';
 
 // 订阅系统：确保全局组件能感知用户状态变化
 type AuthListener = (user: User | null) => void;
@@ -227,7 +228,7 @@ export const authService = {
 
       const user = users[userIdx];
       if (!user.likedItemIds) user.likedItemIds = [];
-      
+
       if (user.likedItemIds.includes(itemId)) {
           user.likedItemIds = user.likedItemIds.filter((id: string) => id !== itemId);
       } else {
@@ -240,5 +241,66 @@ export const authService = {
       safeStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(sessionUser));
       notify(sessionUser);
       return sessionUser;
-  }
+  },
+
+  // ── UGC ──────────────────────────────────────────────────────────────────
+
+  getUGCPosts(): UGCPost[] {
+      try {
+          return JSON.parse(safeStorage.getItem(STORAGE_KEY_UGC) || '[]');
+      } catch { return []; }
+  },
+
+  async createUGCPost(post: Omit<UGCPost, 'id' | 'likedByIds' | 'comments' | 'timestamp'>): Promise<UGCPost> {
+      await delay(400);
+      const posts = this.getUGCPosts();
+      const newPost: UGCPost = {
+          ...post,
+          id: `ugc-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          likedByIds: [],
+          comments: [],
+          timestamp: Date.now(),
+      };
+      posts.unshift(newPost);
+      safeStorage.setItem(STORAGE_KEY_UGC, JSON.stringify(posts));
+      return newPost;
+  },
+
+  async toggleLikeUGCPost(userId: string, postId: string): Promise<UGCPost[]> {
+      const posts = this.getUGCPosts();
+      const idx = posts.findIndex(p => p.id === postId);
+      if (idx === -1) throw new Error('Post not found');
+      const post = posts[idx];
+      if (post.likedByIds.includes(userId)) {
+          post.likedByIds = post.likedByIds.filter(id => id !== userId);
+      } else {
+          post.likedByIds.push(userId);
+      }
+      safeStorage.setItem(STORAGE_KEY_UGC, JSON.stringify(posts));
+      return posts;
+  },
+
+  async addUGCComment(postId: string, comment: Omit<UGCComment, 'id' | 'timestamp'>): Promise<UGCPost> {
+      await delay(200);
+      const posts = this.getUGCPosts();
+      const idx = posts.findIndex(p => p.id === postId);
+      if (idx === -1) throw new Error('Post not found');
+      const newComment: UGCComment = {
+          ...comment,
+          id: `c-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          timestamp: Date.now(),
+      };
+      posts[idx].comments.push(newComment);
+      safeStorage.setItem(STORAGE_KEY_UGC, JSON.stringify(posts));
+      return posts[idx];
+  },
+
+  async deleteUGCPost(userId: string, postId: string): Promise<void> {
+      const posts = this.getUGCPosts();
+      const post = posts.find(p => p.id === postId);
+      if (!post) throw new Error('Post not found');
+      if (post.userId !== userId) throw new Error('Unauthorized');
+      const filtered = posts.filter(p => p.id !== postId);
+      safeStorage.setItem(STORAGE_KEY_UGC, JSON.stringify(filtered));
+  },
 };
