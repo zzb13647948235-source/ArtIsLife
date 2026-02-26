@@ -89,15 +89,17 @@ const useTilt = () => {
     return { ref, style, onMouseMove, onMouseLeave };
 };
 
+const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
 const TiltFrame: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { ref, style, onMouseMove, onMouseLeave } = useTilt();
     return (
-        <div 
-          ref={ref} 
-          onMouseMove={onMouseMove} 
+        <div
+          ref={ref}
+          onMouseMove={onMouseMove}
           onMouseLeave={onMouseLeave}
-          style={{ ...style, transition: 'transform 0.1s ease-out' }}
-          className="perspective-1000 will-change-transform"
+          style={isMobile ? undefined : { ...style, transition: 'transform 0.1s ease-out' }}
+          className={isMobile ? undefined : "perspective-1000"}
         >
             {children}
         </div>
@@ -177,7 +179,7 @@ const ArtStyleList: React.FC<ArtStyleListProps> = memo(({ styles, t, onTryStyle,
                                 </div>
                                 <h3 className="font-serif text-3xl md:text-5xl lg:text-7xl text-art-accent mb-3 tracking-tighter">{styleName}</h3>
                                 <p className="font-serif text-xl text-stone-400 italic mb-6 md:mb-10">{style.enName}</p>
-                                <div className="relative mb-8 md:mb-12 p-6 md:p-8 bg-white/40 backdrop-blur-md rounded-2xl border border-white/60 shadow-soft transition-all duration-500 hover:shadow-medium group-hover:bg-white/60">
+                                <div className="relative mb-8 md:mb-12 p-6 md:p-8 bg-white/40 md:backdrop-blur-md rounded-2xl border border-white/60 shadow-soft transition-all duration-500 hover:shadow-medium group-hover:bg-white/60">
                                     <p className="text-stone-800 leading-loose text-base md:text-lg font-light">{t(`styles.${style.id}_desc`)}</p>
                                 </div>
                                 <div className="flex flex-col gap-4">
@@ -201,17 +203,16 @@ const ArtStyleList: React.FC<ArtStyleListProps> = memo(({ styles, t, onTryStyle,
                                         <div key={idx} onMouseEnter={() => setHoveredIdx(workId)} onMouseLeave={() => setHoveredIdx(null)} className={`flex flex-col gap-8 md:gap-12 frame-reveal ${idx % 2 === 0 ? 'from-right' : 'from-left'} ${idx % 2 !== 0 ? 'md:mt-40' : ''}`} style={{ transitionDelay: `${idx * 0.15}s` }}>
                                             <TiltFrame>
                                                 <div className="relative group/work transition-all duration-700 ease-luxury hover:z-20">
-                                                    <div className="absolute top-20 left-10 w-full h-full bg-black/30 blur-[40px] opacity-40 z-0"></div>
-                                                    <div className="relative z-10 bg-[#2b2722] p-4 rounded-sm shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5),0_18px_36px_-18px_rgba(0,0,0,0.5)] border-t border-[#3d3831] border-b border-[#1a1815]">
-                                                        <div className="border-[3px] border-[#a68a53] p-[1px] shadow-sm">
-                                                            <div className="bg-[#f0f0e8] p-6 md:p-14 relative shadow-[inset_0_0_30px_rgba(0,0,0,0.1)] overflow-hidden">
-                                                                <div className="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] mix-blend-multiply pointer-events-none"></div>
+                                                    <div className="absolute top-20 left-10 w-full h-full bg-black/30 blur-[40px] opacity-40 z-0 hidden md:block"></div>
+                                                    <div className="relative z-10 bg-[#2b2722] p-4 rounded-sm md:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5),0_18px_36px_-18px_rgba(0,0,0,0.5)] shadow-lg border-t border-[#3d3831] border-b border-[#1a1815]">
+                                                        <div className="border-[3px] border-[#a68a53] p-[1px]">
+                                                            <div className="bg-[#f0f0e8] p-4 md:p-14 relative overflow-hidden">
+                                                                <div className="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] mix-blend-multiply pointer-events-none hidden md:block"></div>
                                                                 <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-black/5 pointer-events-none"></div>
-                                                                <div className="relative border-[5px] border-[#c5a059] shadow-inner bg-[#1a1a1a]">
+                                                                <div className="relative border-[5px] border-[#c5a059] bg-[#1a1a1a]">
                                                                     <div className="relative aspect-[3/4] overflow-hidden">
                                                                         <FadeInImage src={work.imageUrl} alt={workTitle} className="w-full h-full object-cover opacity-90 group-hover/work:opacity-100 group-hover/work:scale-105 transition-all duration-[3s] ease-out" />
-                                                                        <div className="absolute inset-0 opacity-15 bg-[url('https://www.transparenttextures.com/patterns/canvas-orange.png')] mix-blend-overlay pointer-events-none"></div>
-                                                                        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover/work:opacity-100 transition-opacity duration-1000"></div>
+                                                                        <div className="absolute inset-0 opacity-15 bg-[url('https://www.transparenttextures.com/patterns/canvas-orange.png')] mix-blend-overlay pointer-events-none hidden md:block"></div>
                                                                     </div>
                                                                 </div>
                                                                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#c5a059] border border-[#a68a53] shadow-sm hidden group-hover/work:block animate-fade-in">
@@ -229,7 +230,7 @@ const ArtStyleList: React.FC<ArtStyleListProps> = memo(({ styles, t, onTryStyle,
                                                 </div>
                                                 <div className="pl-12">
                                                     <p className="text-xs font-bold uppercase tracking-[0.3em] text-stone-500 mb-4">{work.artist}</p>
-                                                    <div className="max-w-xs relative p-4 bg-white/30 backdrop-blur-sm rounded-lg border-l-2 border-art-primary/30 shadow-sm">
+                                                    <div className="max-w-xs relative p-4 bg-white/30 md:backdrop-blur-sm rounded-lg border-l-2 border-art-primary/30 shadow-sm">
                                                         <p className="text-stone-600 text-sm leading-loose font-serif italic">{workDesc}</p>
                                                     </div>
                                                 </div>
@@ -384,7 +385,7 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
         <div className={`w-full md:max-w-md transition-all duration-1000 delay-700 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}>
            <div className="relative group">
                <div className="absolute inset-0 bg-white/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-               <div className="relative bg-white/60 backdrop-blur-xl border border-white/40 shadow-medium rounded-full flex items-center p-2 transition-all focus-within:shadow-lg focus-within:bg-white/80">
+               <div className="relative bg-white/60 md:backdrop-blur-xl border border-white/40 shadow-medium rounded-full flex items-center p-2 transition-all focus-within:shadow-lg focus-within:bg-white/80">
                    <div className="pl-4 text-stone-400"><Search size={20} /></div>
                    <input 
                        type="text"
@@ -469,7 +470,7 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
       </div>
 
       {selectedStyle && (
-          <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center md:p-4 bg-stone-900/80 backdrop-blur-sm animate-fade-in" onClick={() => setSelectedStyle(null)}>
+          <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center md:p-4 bg-stone-900/80 md:backdrop-blur-sm animate-fade-in" onClick={() => setSelectedStyle(null)}>
               <div className="bg-white w-full max-w-4xl max-h-[92vh] md:max-h-[90vh] rounded-t-[28px] md:rounded-[40px] overflow-hidden shadow-2xl relative flex flex-col md:flex-row" onClick={e => e.stopPropagation()}>
                   <button onClick={() => setSelectedStyle(null)} className="absolute top-4 right-4 md:top-6 md:right-6 p-2.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 transition-colors z-50 active:scale-90">
                       <X size={18} />
