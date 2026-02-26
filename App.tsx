@@ -80,6 +80,8 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 }
 
+const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth < 768;
+
 const PageTransition: React.FC<{
     viewKey: string;
     children: React.ReactNode;
@@ -89,7 +91,8 @@ const PageTransition: React.FC<{
     prevIndex: number;
 }> = ({ children, overlay, viewKey, index, currentIndex, prevIndex }) => {
     const isActive = index === currentIndex;
-    const isAdjacent = Math.abs(index - currentIndex) <= 2;
+    const adjacentThreshold = isMobileDevice() ? 1 : 2;
+    const isAdjacent = Math.abs(index - currentIndex) <= adjacentThreshold;
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     useLayoutEffect(() => {
@@ -119,6 +122,10 @@ const PageTransition: React.FC<{
         opacity = 1;
     }
 
+    const mobile = isMobileDevice();
+    const duration = mobile ? 300 : 480;
+    const opDuration = mobile ? 200 : 320;
+
     return (
         <div
             style={{
@@ -133,9 +140,9 @@ const PageTransition: React.FC<{
                 visibility: isAdjacent ? 'visible' : 'hidden',
                 pointerEvents: isActive ? 'auto' : 'none',
                 transition: isActive
-                    ? 'transform 480ms cubic-bezier(0.22, 1, 0.36, 1), opacity 320ms ease-out'
-                    : 'transform 480ms cubic-bezier(0.22, 1, 0.36, 1), opacity 280ms ease-in',
-                willChange: isAdjacent ? 'transform, opacity' : 'auto',
+                    ? `transform ${duration}ms cubic-bezier(0.22, 1, 0.36, 1), opacity ${opDuration}ms ease-out`
+                    : `transform ${duration}ms cubic-bezier(0.22, 1, 0.36, 1), opacity ${opDuration - 40}ms ease-in`,
+                willChange: isActive ? 'transform, opacity' : 'auto',
                 WebkitBackfaceVisibility: 'hidden',
                 backfaceVisibility: 'hidden',
             } as React.CSSProperties}
@@ -327,7 +334,7 @@ function AppContent() {
     <ErrorBoundary>
       <Preloader onComplete={() => { setLoadingComplete(true); setTimeout(() => setAppReady(true), 600); }} />
 
-      <div className={`h-screen w-screen text-stone-800 dark:text-stone-100 font-sans selection:bg-art-primary/20 flex flex-col overflow-hidden relative z-10 bg-art-bg dark:bg-stone-950 transition-all duration-[2s] ${loadingComplete ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-[1.1] blur-2xl'}`}>
+      <div className={`h-[100dvh] w-screen text-stone-800 dark:text-stone-100 font-sans selection:bg-art-primary/20 flex flex-col overflow-hidden relative z-10 bg-art-bg dark:bg-stone-950 transition-all duration-[2s] ${loadingComplete ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-[1.1] blur-2xl'}`}>
           <LiquidBackground currentView={currentView} />
           <ParticleBackground />
           <CustomCursor />

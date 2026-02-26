@@ -228,19 +228,21 @@ const LiquidBackground: React.FC<LiquidBackgroundProps> = ({ currentView }) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // Skip canvas entirely on mobile — CSS blobs are sufficient
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) return;
+
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
-    const isMobile = window.innerWidth < 768;
     let animationFrameId: number;
     let time = 0;
     let lastFrameTime = 0;
-    // On mobile throttle to ~30fps to reduce GPU load
-    const targetFPS = isMobile ? 30 : 60;
+    const targetFPS = 60;
     const frameInterval = 1000 / targetFPS;
 
     const handleResize = () => {
-        const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1 : 2);
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
         canvas.width = window.innerWidth * dpr;
         canvas.height = window.innerHeight * dpr;
         ctx.scale(dpr, dpr);
@@ -283,8 +285,8 @@ const LiquidBackground: React.FC<LiquidBackgroundProps> = ({ currentView }) => {
         });
         ripplesRef.current = ripplesRef.current.filter(r => r.strength > 0.01 && r.radius < r.maxRadius);
 
-        // Larger gap on mobile = fewer dots = better perf
-        const gap = isMobile ? 24 : 12;
+        // Larger gap on desktop only
+        const gap = 12;
         const rows = Math.ceil(height / gap);
         const cols = Math.ceil(width / gap);
 
@@ -378,9 +380,9 @@ const LiquidBackground: React.FC<LiquidBackgroundProps> = ({ currentView }) => {
         ></div>
       </div>
 
-      {/* 2. Frosted Texture - REDUCED OPACITY to let colors shine through */}
-      <div 
-        className="absolute inset-0 backdrop-blur-[80px] z-10 transition-all duration-1000"
+      {/* 2. Frosted Texture - no blur on mobile */}
+      <div
+        className="absolute inset-0 z-10 transition-all duration-1000 hidden md:block backdrop-blur-[80px]"
         style={{ 
             backgroundColor: activeTheme.base === '#111111' || activeTheme.base === '#000000' || activeTheme.base === '#0F0505'
                 ? 'rgba(0,0,0,0.5)' 
