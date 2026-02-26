@@ -1,4 +1,4 @@
-import { db, auth, storage } from '../lib/firebase';
+import { db, auth } from '../lib/firebase';
 import {
   collection, doc, addDoc, updateDoc, deleteDoc,
   onSnapshot, query, orderBy, arrayUnion, arrayRemove,
@@ -11,8 +11,26 @@ import {
   onAuthStateChanged,
   updateProfile
 } from 'firebase/auth';
-import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { User, UGCPost, UGCComment } from '../types';
+
+// 压缩图片为小尺寸 base64
+const compressImage = (dataUrl: string, maxSize: number): Promise<string> => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      if (w > maxSize || h > maxSize) {
+        if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+        else { w = Math.round(w * maxSize / h); h = maxSize; }
+      }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', 0.7));
+    };
+    img.src = dataUrl;
+  });
+};
 
 // ---- Auth listeners ----
 type AuthListener = (user: User | null) => void;
@@ -161,11 +179,9 @@ export const firebaseService = {
   // ---- 发帖 ----
   async createUGCPost(post: Omit<UGCPost, 'id' | 'likedByIds' | 'comments' | 'timestamp'>): Promise<UGCPost> {
     let imageUrl = post.imageUrl;
-    // 如果是 base64 图片，上传到 Firebase Storage
+    // 如果是 base64，压缩后直接存 Firestore（不需要 Storage）
     if (imageUrl.startsWith('data:')) {
-      const storageRef = ref(storage, `ugc/${Date.now()}.jpg`);
-      await uploadString(storageRef, imageUrl, 'data_url');
-      imageUrl = await getDownloadURL(storageRef);
+      imageUrl = await compressImage(imageUrl, 800);
     }
     const docRef = await addDoc(collection(db, 'ugc'), {
       ...post,
