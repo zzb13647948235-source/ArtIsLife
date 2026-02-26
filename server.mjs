@@ -9,12 +9,42 @@ import { getAuth } from 'firebase-admin/auth';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Init Firebase Admin
+const FIREBASE_PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----
+MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDRCuKPKAAKrP2g
+B3vTFh0dxqxgBIa2VOOr/QDcPD+as/JH1qhNNYeTVcDKJq6hnxcFKm0Gm+f8pAgn
+wOY6vrldSWbtB/2sHK81i7NMPGNWl5hSdUPEY97tm7R1pnJkb/a7CoKE0Xx4x6Ab
+kpuqbEPfGMrvogojywG2/6XRXcQfX1klaIba04sNKGOWUjSDWssM83HZlPuMGmHP
+qS4QXX8N/H5iPrl/BVdsT9rwg4gJH9BFbrfPOrk5J5btgQLpXmKb3JELGLmbIZyj
+gj8s2sPliQl8bJ9RiPfWPgD8oGNCZV5nEvSwuhA2/LUUjLGIXj6fnUbWUFZ3R/LZ
+LA9MN7RlAgMBAAECggEAA4xJah/wrZMKvvjsNhn4UTVlCZV/aoAoWRad5B8K/qeH
+44ZA1wajOsdIKBDeApTpAXJwj/MneIHu4tXYUoOYMSgkx2h3pWswjMUb5vMDcJ3O
+vQo2ez0tXx+3Frlw1EQ+ONB7L0vq7pXczCWsigj1DJ1RcchwnvORdOID63jJnQqr
+u0o9PhQ7eb3paPRuuSSXL4mjlcJIEhskXCeMN9ORkfz1qcm1ucTXDmZHS37B2cNV
+uoGyDdntYdcCCHJqBE1yY/ann94eHVh3pk7LwLsBg8o6mpW40O+z89SML9Zhchi0
+SEOLNo8EXZCNxV9HMWzO03kHA8Fq8c/8HCWXIao8xQKBgQDpXo+2PBtijrBoatA1
+EXce8pAoJzCOPHGdgq+9VbGkj8HSuc1f9bZ+DNauzk/NYCkfzfyY/UbAXaqCXwrP
+Bat+7Y5xsvjo5jHR9EpQTScaVH7VuPJ+SwE9l9WMbo4ei393bVk9WfkG7alRYQwe
+BbgJQ/vUaNgaXXl353BmQ0CgAwKBgQDlUGedEhEskN41Rj234+SrsKMp6/WwWR99
+9gAHY6XuiokALhJ83miqcc7bexp8oXrB1z4hr6pZHMKwzFhUjw0tdq0JqrrI7bnI
++MNPuKHidbYbpBokZyYrvKS/9Fso6QkasGzkCl55YzKN/Q+sloSz38THBKdA9Sca
+yhA2q4RxdwKBgC2APHEBoy1COO8C9HmEYD9ud+D8UyFIc7aMRouZ67r0NIxLodl1
+5REKm8kVfMXEXABRf1CtAWB8YsRsl4TpzBhBZSaSCKoQR+JxyRODF36wvtIY717k
+bOd/dSmeXKNj+4Rjk6S8qCtLp1mwnFY2Mz3LPYyarJfnZcmVHHsz3aPVAoGAFhpq
+8lPkfeQ01vO/TTNVPktXXtoUo3vjsjN9CzlKrDSEQhUuyQRzGELCCpvSEMNL3tVN
+ctfI1rAUABCiTvw+6+vtf+oJ+QYZC0sXIF8Ok5J/DCkEMBAVONAFHU+DXe0gaIcq
+58wsEQ1DuTX0RdF4VxIxmHFVYch/jXB+oZZkvL8CgYA/NHteYjxu/rAnIexhJisK
+EIzw/wHMnOz3tRiMQemFaa/JQ7/axSrEzbbmXvr7+JfmdgV0yr3HkIQJEC8+pzAn
+LZtJJuKGuQzid/Fb3HunLSaAzU01ipJuaAnJswdWe+xu5X3hDlru00AEBHkkrvZz
+t7nOj4NcQcBbwapZM+trpw==
+-----END PRIVATE KEY-----
+`;
+
 if (!getApps().length) {
   initializeApp({
     credential: cert({
       projectId: 'artislife-7384f',
       clientEmail: 'firebase-adminsdk-fbsvc@artislife-7384f.iam.gserviceaccount.com',
-      privateKey: process.env.FIREBASE_PRIVATE_KEY,
+      privateKey: FIREBASE_PRIVATE_KEY,
     }),
   });
 }
