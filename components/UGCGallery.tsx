@@ -57,6 +57,16 @@ const UploadForm: React.FC<{ user: User; onSubmit: (post: UGCPost) => void; onCa
   const [dragging, setDragging] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    const vv = (window as any).visualViewport;
+    if (!vv) return;
+    const update = () => setKeyboardHeight(Math.max(0, window.innerHeight - vv.height - vv.offsetTop));
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
+    return () => { vv.removeEventListener('resize', update); vv.removeEventListener('scroll', update); };
+  }, []);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File) => {
@@ -88,8 +98,11 @@ const UploadForm: React.FC<{ user: User; onSubmit: (post: UGCPost) => void; onCa
   };
 
   return (
-    <div className="fixed inset-0 z-[500] flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm" role="dialog" aria-modal="true">
-      <div className="bg-[#FEFCF8] border-2 border-black rounded-t-[28px] md:rounded-[28px] w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+    <div className="fixed inset-0 z-[500] bg-black/60 backdrop-blur-sm" role="dialog" aria-modal="true">
+      <div
+        className="absolute left-0 right-0 bg-[#FEFCF8] border-2 border-black rounded-t-[28px] md:rounded-[28px] w-full max-w-lg mx-auto overflow-y-auto shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
+        style={{ bottom: `${keyboardHeight}px`, maxHeight: `calc(90vh - ${keyboardHeight}px)`, transition: 'bottom 0.2s ease, max-height 0.2s ease' }}
+      >
         <div className="p-6">
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-bold text-xl text-black">✏️ 分享你的创作</h2>
@@ -217,8 +230,10 @@ const PostCard: React.FC<{
         {/* Card header */}
         <div className="px-3 pt-3 pb-2 flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
-            <div className={`w-8 h-8 rounded-full ${avatarColor} border-2 border-black flex items-center justify-center text-white text-xs font-black flex-shrink-0`}>
-              {post.userName.charAt(0).toUpperCase()}
+            <div className={`w-8 h-8 rounded-full ${avatarColor} border-2 border-black flex items-center justify-center text-white text-xs font-black flex-shrink-0 overflow-hidden`}>
+              {post.userAvatar
+                ? <img src={post.userAvatar} alt={post.userName} className="w-full h-full object-cover" />
+                : post.userName.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
               <p className="text-xs font-black text-black truncate leading-tight">{post.userName}</p>
@@ -289,6 +304,9 @@ const PostModal: React.FC<{
 }> = ({ post, user, onClose, onLike, onComment, onDelete, onAuthRequired }) => {
   const [commentText, setCommentText] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [showEmoji, setShowEmoji] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const isLiked = user ? post.likedByIds.includes(user.id) : false;
   const isOwner = user?.id === post.userId;
   const commentsEndRef = useRef<HTMLDivElement>(null);
@@ -300,35 +318,58 @@ const PostModal: React.FC<{
     return () => window.removeEventListener('keydown', handleKey);
   }, [onClose]);
 
+  // 监听虚拟键盘高度，手机端输入框跟随键盘
+  useEffect(() => {
+    const vv = (window as any).visualViewport;
+    if (!vv) return;
+    const update = () => {
+      const kbHeight = window.innerHeight - vv.height - vv.offsetTop;
+      setKeyboardHeight(Math.max(0, kbHeight));
+    };
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
+    return () => { vv.removeEventListener('resize', update); vv.removeEventListener('scroll', update); };
+  }, []);
+
   const submitComment = async () => {
     if (!commentText.trim() || !user) return;
     setSubmitting(true);
-    await onComment(post.id, commentText.trim());
-    setCommentText('');
-    setSubmitting(false);
-    setTimeout(() => commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    try {
+      await onComment(post.id, commentText.trim());
+      setCommentText('');
+      setTimeout(() => commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div
-      className="fixed inset-0 z-[600] flex items-end md:items-center justify-center md:p-4 bg-black/70 md:backdrop-blur-sm"
+      className="fixed inset-0 z-[600] bg-black/70 md:backdrop-blur-sm"
       role="dialog" aria-modal="true"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-[#FEFCF8] border-2 border-black rounded-t-[28px] md:rounded-[28px] w-full max-w-3xl max-h-[92vh] md:max-h-[90vh] overflow-hidden shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row">
+      <div
+        className="absolute left-0 right-0 bg-white rounded-t-[28px] md:rounded-[28px] w-full max-w-3xl mx-auto overflow-hidden shadow-xl flex flex-col md:flex-row"
+        style={{ bottom: `${keyboardHeight}px`, maxHeight: `calc(92vh - ${keyboardHeight}px)`, transition: 'bottom 0.2s ease, max-height 0.2s ease' }}
+      >
 
         {/* Image */}
-        <div className="md:w-[45%] max-h-[38vh] md:max-h-none bg-stone-950 flex items-center justify-center overflow-hidden flex-shrink-0 border-b-2 md:border-b-0 md:border-r-2 border-black">
+        <div className="md:w-[45%] max-h-[38vh] md:max-h-none bg-stone-950 flex items-center justify-center overflow-hidden flex-shrink-0 border-b md:border-b-0 md:border-r border-stone-100">
           <img src={post.imageUrl} alt={post.title} className="w-full h-full object-contain" />
         </div>
 
         {/* Info */}
         <div className="flex-1 flex flex-col min-h-0">
           {/* Top bar */}
-          <div className="flex items-center justify-between px-4 py-3 border-b-2 border-black flex-shrink-0 bg-white">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-stone-100 flex-shrink-0 bg-white">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className={`w-9 h-9 rounded-full ${avatarColor} border-2 border-black flex items-center justify-center text-white text-xs font-black flex-shrink-0`}>
-                {post.userName.charAt(0).toUpperCase()}
+              <div className={`w-9 h-9 rounded-full ${avatarColor} flex items-center justify-center text-white text-xs font-bold flex-shrink-0 overflow-hidden`}>
+                {post.userAvatar
+                  ? <img src={post.userAvatar} alt={post.userName} className="w-full h-full object-cover" />
+                  : post.userName.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-black text-black truncate">{post.userName}</p>
@@ -338,26 +379,26 @@ const PostModal: React.FC<{
             <div className="flex items-center gap-1 flex-shrink-0 ml-2">
               {isOwner && (
                 <button onClick={() => { onDelete(post.id); onClose(); }}
-                  className="w-9 h-9 flex items-center justify-center rounded-full border-2 border-black hover:bg-red-50 text-stone-400 hover:text-red-500 transition-colors active:scale-90">
+                  className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-red-50 text-stone-300 hover:text-red-500 transition-colors active:scale-90">
                   <Trash2 size={14} />
                 </button>
               )}
               <button onClick={onClose}
-                className="w-9 h-9 flex items-center justify-center rounded-full border-2 border-black hover:bg-stone-100 text-black transition-colors active:scale-90">
+                className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-stone-100 text-stone-400 hover:text-stone-700 transition-colors active:scale-90">
                 <X size={16} />
               </button>
             </div>
           </div>
 
           {/* Post info */}
-          <div className="px-4 py-3 border-b-2 border-black flex-shrink-0 bg-[#FEFCF8]">
+          <div className="px-4 py-3 border-b border-stone-100 flex-shrink-0 bg-[#FEFCF8]">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <h3 className="font-black text-black text-sm leading-snug mb-1">{post.title}</h3>
                 {post.description && <p className="text-xs text-stone-500 leading-relaxed">{post.description}</p>}
               </div>
               {post.isAIGenerated && (
-                <span className="flex items-center gap-1 px-2 py-0.5 bg-yellow-300 border border-black text-[9px] font-black rounded-full flex-shrink-0">
+                <span className="flex items-center gap-1 px-2 py-0.5 bg-yellow-100 text-[9px] font-semibold text-yellow-700 rounded-full flex-shrink-0">
                   <Sparkles size={8} /> AI
                 </span>
               )}
@@ -365,39 +406,41 @@ const PostModal: React.FC<{
             {post.tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-2">
                 {post.tags.map(t => (
-                  <span key={t} className="text-[10px] font-bold text-black bg-yellow-200 border border-black px-2 py-0.5 rounded-full">#{t}</span>
+                  <span key={t} className="text-[10px] font-medium text-stone-500 bg-stone-100 px-2 py-0.5 rounded-full">#{t}</span>
                 ))}
               </div>
             )}
             <div className="flex items-center gap-4 mt-3">
               <button onClick={() => onLike(post.id)}
-                className={`flex items-center gap-1.5 text-xs font-black transition-colors active:scale-90 ${isLiked ? 'text-red-500' : 'text-stone-400 hover:text-red-400'}`}>
+                className={`flex items-center gap-1.5 text-xs font-semibold transition-colors active:scale-90 ${isLiked ? 'text-red-500' : 'text-stone-400 hover:text-red-400'}`}>
                 <Heart size={14} fill={isLiked ? 'currentColor' : 'none'} />
                 <span>{post.likedByIds.length}</span>
               </button>
-              <span className="flex items-center gap-1.5 text-xs font-bold text-stone-400">
+              <span className="flex items-center gap-1.5 text-xs font-medium text-stone-400">
                 <MessageCircle size={14} /><span>{post.comments.length}</span>
               </span>
-              <span className="flex items-center gap-1.5 text-xs text-stone-400">
+              <span className="flex items-center gap-1.5 text-xs text-stone-300">
                 <Eye size={14} /><span>{post.viewCount ?? 0}</span>
               </span>
             </div>
           </div>
 
           {/* Comments */}
-          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-0 bg-[#FEFCF8]">
+          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4 min-h-0 bg-white">
             {post.comments.length === 0
-              ? <p className="text-xs text-stone-400 text-center py-6 font-bold">暂无评论，来说第一句话吧 💬</p>
+              ? <p className="text-xs text-stone-400 text-center py-6">暂无评论，来说第一句话吧 💬</p>
               : post.comments.map(c => {
                   const cColor = getAvatarColor(c.userName);
                   return (
-                    <div key={c.id} className="flex gap-2 items-start">
-                      <div className={`w-6 h-6 rounded-full ${cColor} border-2 border-black flex items-center justify-center text-[9px] font-black text-white flex-shrink-0 mt-0.5`}>
-                        {c.userName.charAt(0).toUpperCase()}
+                    <div key={c.id} className="flex gap-2.5 items-start">
+                      <div className={`w-7 h-7 rounded-full ${cColor} flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0 mt-0.5 overflow-hidden`}>
+                        {c.userAvatar
+                          ? <img src={c.userAvatar} alt={c.userName} className="w-full h-full object-cover" />
+                          : c.userName.charAt(0).toUpperCase()}
                       </div>
-                      <div className="min-w-0 bg-white border-2 border-black rounded-2xl px-3 py-2 flex-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                        <span className="text-xs font-black text-black">{c.userName} </span>
-                        <span className="text-xs text-stone-600 break-words">{c.text}</span>
+                      <div className="min-w-0 flex-1">
+                        <span className="text-xs font-semibold text-stone-500 mr-1.5">{c.userName}</span>
+                        <span className="text-xs text-stone-700 break-words leading-relaxed">{c.text}</span>
                       </div>
                     </div>
                   );
@@ -407,29 +450,50 @@ const PostModal: React.FC<{
           </div>
 
           {/* Comment input */}
-          <div className="px-4 py-3 border-t-2 border-black flex-shrink-0 bg-white">
+          <div className="px-4 py-3 border-t border-stone-100 flex-shrink-0 bg-white relative">
+            {showEmoji && (
+              <div className="absolute bottom-full left-0 right-0 bg-white border-t border-stone-100 rounded-t-2xl p-3 z-10 shadow-md">
+                <div className="grid grid-cols-8 gap-1.5">
+                  {['😀','😂','🥰','😍','🤩','😎','🥳','😭','😅','🤣','❤️','🔥','✨','👍','👏','🎨','🖌️','🎭','🌟','💫','🎉','🎊','💯','🙌','😊','🥺','😏','🤔','😴','🤯','💪','🫶'].map(e => (
+                    <button key={e} onClick={() => { setCommentText(t => t + e); setShowEmoji(false); inputRef.current?.focus(); }}
+                      className="text-xl hover:scale-125 transition-transform active:scale-95 leading-none p-0.5">
+                      {e}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             {user
               ? <div className="flex items-center gap-2">
-                  <div className={`w-7 h-7 rounded-full ${getAvatarColor(user.name)} border-2 border-black flex items-center justify-center text-white text-[9px] font-black flex-shrink-0`}>
-                    {user.name.charAt(0).toUpperCase()}
+                  <div className={`w-8 h-8 rounded-full ${getAvatarColor(user.name)} flex items-center justify-center text-white text-xs font-bold flex-shrink-0 overflow-hidden`}>
+                    {user.avatar
+                      ? <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                      : user.name.charAt(0).toUpperCase()}
                   </div>
+                  <button
+                    onClick={() => setShowEmoji(v => !v)}
+                    className="w-8 h-8 flex items-center justify-center text-stone-400 hover:text-stone-600 transition-colors flex-shrink-0 active:scale-90 text-base"
+                  >😊</button>
                   <input
+                    ref={inputRef}
                     value={commentText}
                     onChange={e => setCommentText(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && submitComment()}
+                    onFocus={() => { setShowEmoji(false); setTimeout(() => commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 300); }}
                     placeholder="说点什么…"
-                    className="flex-1 px-3 py-2 bg-stone-50 border-2 border-black rounded-full text-xs focus:outline-none font-medium"
+                    inputMode="text"
+                    className="flex-1 px-3 py-2 bg-stone-100 rounded-full text-xs focus:outline-none font-medium min-w-0 focus:bg-stone-50 transition-colors"
                   />
                   <button
                     onClick={submitComment}
                     disabled={submitting || !commentText.trim()}
-                    className="w-9 h-9 flex items-center justify-center bg-black text-white rounded-full disabled:opacity-40 hover:bg-stone-800 transition-colors flex-shrink-0 active:scale-90 border-2 border-black"
+                    className="w-8 h-8 flex items-center justify-center bg-red-500 text-white rounded-full disabled:opacity-30 hover:bg-red-600 transition-colors flex-shrink-0 active:scale-90"
                   >
                     {submitting ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
                   </button>
                 </div>
               : <button onClick={onAuthRequired}
-                  className="w-full py-2 text-xs font-bold text-black bg-yellow-200 border-2 border-black rounded-full hover:bg-yellow-300 transition-colors">
+                  className="w-full py-2 text-xs font-medium text-stone-500 hover:text-stone-700 transition-colors">
                   登录后参与评论 ✍️
                 </button>
             }
@@ -475,7 +539,7 @@ const UGCGallery: React.FC<UGCGalleryProps> = ({ user, onAuthRequired, isActive 
 
   const handleComment = useCallback(async (postId: string, text: string) => {
     if (!user) { onAuthRequired(); return; }
-    await authService.addUGCComment(postId, { userId: user.id, userName: user.name, text });
+    await authService.addUGCComment(postId, { userId: user.id, userName: user.name, userAvatar: user.avatar ?? null, text });
   }, [user, onAuthRequired]);
 
   const handleDelete = useCallback(async (postId: string) => {
