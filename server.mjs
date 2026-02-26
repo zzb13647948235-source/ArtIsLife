@@ -14,7 +14,7 @@ if (!getApps().length) {
     credential: cert({
       projectId: 'artislife-7384f',
       clientEmail: 'firebase-adminsdk-fbsvc@artislife-7384f.iam.gserviceaccount.com',
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.split(String.fromCharCode(92, 110)).join('\n'),
+      privateKey: process.env.FIREBASE_PRIVATE_KEY,
     }),
   });
 }
