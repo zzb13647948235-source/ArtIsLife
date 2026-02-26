@@ -311,11 +311,11 @@ const PostModal: React.FC<{
 
   return (
     <div
-      className="fixed inset-0 z-[600] flex items-end md:items-center justify-center md:p-4 bg-black/70 md:backdrop-blur-sm"
+      className="fixed inset-0 z-[600] flex items-end md:items-center justify-center bg-black/60"
       role="dialog" aria-modal="true"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-[#FEFCF8] border-2 border-black rounded-t-[28px] md:rounded-[28px] w-full max-w-3xl max-h-[92vh] md:max-h-[90vh] overflow-hidden shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row">
+      <div className="bg-[#FEFCF8] border-2 border-black rounded-t-[28px] md:rounded-[28px] w-full max-w-5xl max-h-[95vh] md:max-h-[92vh] overflow-hidden shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row">
 
         {/* Image */}
         <div className="md:w-[45%] max-h-[38vh] md:max-h-none bg-stone-950 flex items-center justify-center overflow-hidden flex-shrink-0 border-b-2 md:border-b-0 md:border-r-2 border-black">
