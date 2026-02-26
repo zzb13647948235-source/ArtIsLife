@@ -55,9 +55,9 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
 
   return (
     <>
-      <nav 
-        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-[800ms] cubic-bezier(0.34, 1.56, 0.64, 1) will-change-transform
-        ${isHidden ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'} 
+      <nav
+        className={`fixed z-[100] transition-all duration-[800ms] cubic-bezier(0.34, 1.56, 0.64, 1) will-change-transform
+        ${isHidden ? 'bottom-0 right-0 top-auto left-auto opacity-0 pointer-events-none' : 'top-0 left-0 right-0 opacity-100'}
         ${scrolled 
             ? 'py-4 bg-white/95 backdrop-blur-md shadow-sm border-b border-stone-200' 
             : 'py-8 bg-transparent translate-y-2' // Slight offset when at top for "settling in" feel

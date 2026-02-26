@@ -74,7 +74,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 }
 
-const PageTransition: React.FC<{ viewKey: string; children: React.ReactNode; index: number; currentIndex: number; }> = ({ children, viewKey, index, currentIndex }) => {
+const PageTransition: React.FC<{ viewKey: string; children: React.ReactNode; index: number; currentIndex: number; isImmersive?: boolean; }> = ({ children, viewKey, index, currentIndex, isImmersive }) => {
     const isActive = index === currentIndex;
     const isBehind = index < currentIndex;
     const isUpcoming = index > currentIndex;
@@ -109,9 +109,9 @@ const PageTransition: React.FC<{ viewKey: string; children: React.ReactNode; ind
 
     return (
         <div 
-            className="absolute inset-0 w-full h-full overflow-hidden transition-all duration-[1200ms] cubic-bezier(0.645, 0.045, 0.355, 1.000)"
+            className="absolute inset-0 w-full h-full transition-all duration-[1200ms] cubic-bezier(0.645, 0.045, 0.355, 1.000)"
             style={{ 
-                zIndex: isActive ? 60 : isUpcoming ? 70 : 40, 
+                zIndex: isActive ? 60 : isUpcoming ? 50 : 40,
                 transform, 
                 opacity, 
                 filter,
@@ -120,10 +120,10 @@ const PageTransition: React.FC<{ viewKey: string; children: React.ReactNode; ind
             }}
             id={`page-${viewKey}`} 
         >
-            <div 
-                ref={scrollContainerRef} 
+            <div
+                ref={scrollContainerRef}
                 className={`w-full h-full scroll-container ${isActive ? 'overflow-y-auto' : 'overflow-hidden'}`}
-                style={{ 
+                style={{
                     WebkitOverflowScrolling: 'touch',
                     overscrollBehavior: 'contain',
                     scrollBehavior: 'auto'
@@ -233,24 +233,26 @@ function AppContent() {
           <ParticleBackground />
           <CustomCursor />
 
-          <Navigation 
-              currentView={currentView} 
-              onNavigate={handleNavigate} 
-              user={user} 
-              onLogout={() => { authService.logout(); handleNavigate('home'); }} 
-              isHidden={isImmersiveMode && currentView !== 'membership' || isFullScreenModalOpen} 
-          />
+          {currentView !== 'game' && (
+            <Navigation
+                currentView={currentView}
+                onNavigate={handleNavigate}
+                user={user}
+                onLogout={() => { authService.logout(); handleNavigate('home'); }}
+                isHidden={isImmersiveMode && currentView !== 'membership' || isFullScreenModalOpen}
+            />
+          )}
           
           <main className={`flex-1 relative w-full h-full transition-all duration-1000 ${showAuthOverlay ? 'scale-[0.95] blur-sm opacity-50' : 'scale-100 opacity-100'}`}>
               {NAV_ORDER.map((viewKey, index) => (
-                  <PageTransition key={viewKey} viewKey={viewKey} index={index} currentIndex={currentIndex}>
+                  <PageTransition key={viewKey} viewKey={viewKey} index={index} currentIndex={currentIndex} isImmersive={viewKey === 'game' && isImmersiveMode}>
                       {viewKey === 'home' && <Hero onNavigate={handleNavigate} isActive={currentView === 'home'} />}
                       {viewKey === 'journal' && <ArtJournal onNavigate={handleNavigate} isActive={currentView === 'journal'} onArticleOpen={setIsFullScreenModalOpen} />}
                       {viewKey === 'styles' && <ArtStyles onNavigate={handleNavigate} isActive={currentView === 'styles'} />}
                       {viewKey === 'gallery' && <ArtGenerator history={artHistory} onImageGenerated={(img) => { const next = [...artHistory, img]; setArtHistory(next); try { localStorage.setItem(STORAGE_KEY_ART_HISTORY, JSON.stringify(next)); } catch(e){} }} onClearHistory={() => { setArtHistory([]); try { localStorage.removeItem(STORAGE_KEY_ART_HISTORY); } catch(e){} }} prefilledPrompt={""} setPrefilledPrompt={()=>{}} userTier={user?.tier || 'guest'} onNavigateToMembership={() => handleNavigate('membership')} onAuthRequired={() => setShowAuthOverlay(true)} isLoggedIn={!!user} />}
                       {viewKey === 'market' && <ArtMarket onNavigate={handleNavigate} isActive={currentView === 'market'} />}
                       {viewKey === 'chat' && <ArtChat messages={chatMessages} setMessages={setChatMessages} onAuthRequired={() => setShowAuthOverlay(true)} isLoggedIn={!!user} />}
-                      {viewKey === 'game' && <ArtGame onImmersiveChange={setIsImmersiveMode} user={user} onAuthRequired={() => setShowAuthOverlay(true)} onNavigate={handleNavigate} />}
+                      {viewKey === 'game' && <div className="w-full h-full" />}
                       {viewKey === 'map' && <MuseumFinder onNavigate={handleNavigate} onOpenLegal={()=>{}} />}
                   </PageTransition>
               ))}
@@ -273,6 +275,8 @@ function AppContent() {
               )}
           </main>
           
+          {currentView === 'game' && <ArtGame onImmersiveChange={setIsImmersiveMode} user={user} onAuthRequired={() => setShowAuthOverlay(true)} onNavigate={handleNavigate} />}
+
           {showAuthOverlay && (
             <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-stone-900/70 backdrop-blur-sm animate-fade-in" onClick={() => setShowAuthOverlay(false)}>
                 <div onClick={e => e.stopPropagation()} className="w-full max-w-4xl h-[85vh] bg-white rounded-[48px] overflow-hidden shadow-2xl relative">

@@ -193,42 +193,47 @@ const AuctionModal: React.FC<{ item: any; user: User | null; onClose: () => void
     };
 
     return (
-        <div className="fixed inset-0 z-[2100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-6 animate-fade-in">
-            <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-12 bg-[#111] rounded-[48px] overflow-hidden shadow-2xl border border-art-gold/20 relative">
-                <button onClick={onClose} className="absolute top-6 right-6 z-[150] p-2 bg-white/10 rounded-full hover:bg-white/20 text-white"><X size={20}/></button>
-                <div className="relative p-12 bg-[#050505] flex items-center justify-center">
+        <div className="fixed inset-0 z-[2100] bg-black/95 flex items-end md:items-center justify-center md:p-6 animate-fade-in">
+            <div className="w-full max-w-5xl bg-[#111] rounded-t-[32px] md:rounded-[48px] overflow-hidden shadow-2xl border border-art-gold/20 relative flex flex-col md:grid md:grid-cols-2 max-h-[92vh] md:max-h-[90vh]">
+                <button onClick={onClose} className="hidden md:flex absolute top-6 right-6 z-[150] p-2 bg-white/10 rounded-full hover:bg-white/20 text-white"><X size={20}/></button>
+                {/* Image — hidden on mobile to save space */}
+                <div className="hidden md:flex relative p-12 bg-[#050505] items-center justify-center">
                     <img src={item.image} className="max-w-full max-h-[60vh] object-contain shadow-[0_0_100px_rgba(197,160,89,0.15)] rounded-lg" />
                     {isHammerDown && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
-                            <div className="text-center transform scale-150">
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/60 animate-fade-in">
+                            <div className="text-center">
                                 <Gavel size={64} className="text-art-gold mx-auto mb-4" />
                                 <h2 className="text-4xl font-serif text-white uppercase tracking-widest">{auctionStatus === 'won' ? 'SOLD to You!' : 'SOLD'}</h2>
                             </div>
                         </div>
                     )}
                 </div>
-                <div className="p-12 flex flex-col relative">
-                    <div className="flex justify-between items-start mb-8">
+                <div className="p-6 md:p-12 flex flex-col overflow-y-auto">
+                    {/* Mobile close button */}
+                    <button onClick={onClose} className="md:hidden flex items-center gap-2 mb-4 text-white/50 hover:text-white active:scale-95 self-start">
+                        <X size={18} /><span className="text-xs font-bold uppercase tracking-widest">关闭</span>
+                    </button>
+                    <div className="flex justify-between items-start mb-5 md:mb-8 pr-8">
                         <div>
                             <div className="flex items-center gap-2 text-red-500 mb-2 animate-pulse"><span className="w-2 h-2 bg-red-500 rounded-full"></span><span className="text-[10px] font-bold uppercase tracking-widest">Live Auction</span></div>
-                            <h2 className="font-serif text-4xl text-white mb-2 line-clamp-1">{item.title}</h2>
+                            <h2 className="font-serif text-2xl md:text-4xl text-white mb-1 line-clamp-1">{item.title}</h2>
                             <p className="text-stone-500 text-sm font-mono">{item.artist}</p>
                         </div>
-                        <div className="text-right"><p className="text-[10px] text-stone-500 uppercase tracking-widest mb-1">Current Bid</p><p className="font-mono text-4xl text-art-gold">Ξ {currentBid}</p></div>
+                        <div className="text-right shrink-0 ml-4"><p className="text-[10px] text-stone-500 uppercase tracking-widest mb-1">Current Bid</p><p className="font-mono text-2xl md:text-4xl text-art-gold">Ξ {currentBid}</p></div>
                     </div>
-                    <div className="mb-8">
+                    <div className="mb-5 md:mb-8">
                         <div className="flex justify-between text-xs text-stone-400 mb-2"><span>Time Remaining</span><span className="font-mono text-white">{timeLeft}s</span></div>
                         <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden"><div className={`h-full transition-all duration-1000 linear ${timeLeft < 10 ? 'bg-red-500' : 'bg-art-gold'}`} style={{ width: `${(timeLeft / 60) * 100}%` }}></div></div>
                     </div>
-                    <div className="flex-1 overflow-y-auto mb-8 pr-2 space-y-3 max-h-[150px]">
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-stone-500 mb-4 sticky top-0 bg-[#111] pb-2">Recent Activity</p>
+                    <div className="overflow-y-auto mb-5 md:mb-8 pr-2 space-y-3 max-h-[120px] md:max-h-[150px]">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-stone-500 mb-3 sticky top-0 bg-[#111] pb-2">Recent Activity</p>
                         {bids.map((bid, i) => (
                             <div key={i} className={`flex justify-between items-center p-3 rounded-xl border ${bid.bidder === 'You' ? 'bg-art-gold/10 border-art-gold/30' : 'bg-white/5 border-white/5'}`}>
                                 <div className="flex items-center gap-3">
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${bid.bidder === 'You' ? 'bg-art-gold text-black' : 'bg-stone-700 text-stone-300'}`}>{bid.bidder[0]}</div>
+                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${bid.bidder === 'You' ? 'bg-art-gold text-black' : 'bg-stone-700 text-stone-300'}`}>{bid.bidder[0]}</div>
                                     <span className={`text-sm ${bid.bidder === 'You' ? 'text-art-gold' : 'text-stone-300'}`}>{bid.bidder}</span>
                                 </div>
-                                <div className="text-right"><span className="block font-mono text-white">Ξ {bid.amount}</span><span className="text-[9px] text-stone-500">{bid.time}</span></div>
+                                <div className="text-right"><span className="block font-mono text-white text-sm">Ξ {bid.amount}</span><span className="text-[9px] text-stone-500">{bid.time}</span></div>
                             </div>
                         ))}
                         {bids.length === 0 && <p className="text-stone-600 text-sm italic text-center py-4">Waiting for first bid...</p>}
@@ -238,7 +243,7 @@ const AuctionModal: React.FC<{ item: any; user: User | null; onClose: () => void
                             <button onClick={placeBid} className="w-full py-4 bg-art-gold text-black font-bold uppercase tracking-[0.2em] rounded-xl hover:bg-white transition-all shadow-lg active:scale-[0.98]">Bid Ξ {currentBid + 50}</button>
                         ) : (
                             <div className={`p-4 rounded-xl text-center border ${auctionStatus === 'won' ? 'bg-green-500/20 border-green-500/50 text-green-400' : 'bg-red-500/20 border-red-500/50 text-red-400'}`}>
-                                <p className="font-bold text-lg">{auctionStatus === 'won' ? 'Congratulations! You won the auction.' : 'Auction Ended. Better luck next time.'}</p>
+                                <p className="font-bold text-base md:text-lg">{auctionStatus === 'won' ? 'Congratulations! You won the auction.' : 'Auction Ended. Better luck next time.'}</p>
                             </div>
                         )}
                     </div>
@@ -669,27 +674,41 @@ const ArtMarket: React.FC<ArtMarketProps> = ({ onNavigate, isActive, onFullScree
 
         {/* Purchase Modal */}
         {selectedItem && (
-            <div className="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-xl flex items-center justify-center p-6 md:p-12 animate-fade-in" onClick={() => setSelectedItem(null)}>
-                <div className="bg-[#111] w-full max-w-6xl rounded-[40px] overflow-hidden shadow-2xl border border-white/10 flex flex-col lg:flex-row relative max-h-[90vh] z-[2010]" onClick={e => e.stopPropagation()}>
-                    <button className="absolute top-8 right-8 z-[2020] p-3 bg-white/5 hover:bg-white/10 rounded-full text-white transition-all hover:rotate-90" onClick={() => setSelectedItem(null)}><X size={24} /></button>
-                    <div className="w-full lg:w-1/2 bg-stone-950 relative p-8 flex items-center justify-center"><img src={selectedItem.image} className="w-auto h-auto max-h-full max-w-full object-contain shadow-2xl rounded-sm ring-1 ring-white/10" /><div className="absolute bottom-8 left-8 flex items-center gap-2 px-4 py-2 bg-black/60 backdrop-blur text-[10px] font-bold text-white rounded-full border border-white/10 whitespace-nowrap"><ShieldCheck size={14} className="text-art-gold" /> {t('market.shield_text')}</div></div>
-                    <div className="w-full lg:w-1/2 p-10 lg:p-16 flex flex-col overflow-y-auto">
-                        <div className="space-y-8 flex-1">
+            <div className="fixed inset-0 z-[2000] bg-black/90 flex items-end md:items-center justify-center md:p-12 animate-fade-in" onClick={() => setSelectedItem(null)}>
+                <div className="bg-[#111] w-full max-w-6xl rounded-t-[32px] md:rounded-[40px] overflow-hidden shadow-2xl border border-white/10 flex flex-col lg:flex-row relative max-h-[92vh] md:max-h-[90vh] z-[2010]" onClick={e => e.stopPropagation()}>
+                    <button className="hidden md:flex absolute top-8 right-8 z-[2020] p-2.5 bg-white/5 hover:bg-white/10 rounded-full text-white transition-all" onClick={() => setSelectedItem(null)}><X size={20} /></button>
+                    {/* Image — hidden on mobile */}
+                    <div className="hidden lg:flex w-full lg:w-1/2 bg-stone-950 relative p-8 items-center justify-center">
+                        <img src={selectedItem.image} className="w-auto h-auto max-h-full max-w-full object-contain shadow-2xl rounded-sm ring-1 ring-white/10" />
+                        <div className="absolute bottom-8 left-8 flex items-center gap-2 px-4 py-2 bg-black/60 text-[10px] font-bold text-white rounded-full border border-white/10 whitespace-nowrap"><ShieldCheck size={14} className="text-art-gold" /> {t('market.shield_text')}</div>
+                    </div>
+                    <div className="w-full lg:w-1/2 p-6 md:p-10 lg:p-16 flex flex-col overflow-y-auto">
+                        {/* Mobile close button — inline at top */}
+                        <button className="md:hidden flex items-center gap-2 mb-4 text-white/50 hover:text-white active:scale-95 self-start" onClick={() => setSelectedItem(null)}>
+                            <X size={18} /><span className="text-xs font-bold uppercase tracking-widest">关闭</span>
+                        </button>
+                        <div className="space-y-5 md:space-y-8">
                             <div className="flex items-center gap-3">
                                 <span className={`px-3 py-1 text-[9px] font-bold uppercase tracking-widest rounded-full border ${selectedItem.rarity === 'Legendary' ? 'bg-art-gold/10 text-art-gold border-art-gold/20' : 'bg-white/10 text-white border-white/20'}`}>{selectedItem.rarity}</span>
                                 {selectedItem.type === 'ai-generated' && <span className="px-3 py-1 text-[9px] font-bold uppercase tracking-widest rounded-full border bg-blue-500/10 text-blue-300 border-blue-500/20">AI Created</span>}
                             </div>
-                            <div><h3 className="font-serif text-5xl text-white leading-none mb-2">{selectedItem.title}</h3><p className="text-stone-400 text-lg italic">{selectedItem.artist}, {selectedItem.year}</p></div>
-                            <div className="p-6 bg-white/5 rounded-3xl border border-white/5 space-y-4"><div className="flex items-center justify-between mb-2"><span className="text-[10px] font-bold uppercase tracking-widest text-stone-500 flex items-center gap-2"><BarChart3 size={14}/> Price History (30d)</span><LivePrice basePrice={selectedItem.basePrice} /></div><PriceGraph data={selectedItem.priceHistory} color={selectedItem.rarity === 'Legendary' ? '#C5A059' : '#ffffff'} /></div>
+                            <div>
+                                <h3 className="font-serif text-3xl md:text-5xl text-white leading-none mb-2 pr-8">{selectedItem.title}</h3>
+                                <p className="text-stone-400 text-base md:text-lg italic">{selectedItem.artist}, {selectedItem.year}</p>
+                            </div>
+                            <div className="p-4 md:p-6 bg-white/5 rounded-2xl md:rounded-3xl border border-white/5 space-y-4">
+                                <div className="flex items-center justify-between mb-2"><span className="text-[10px] font-bold uppercase tracking-widest text-stone-500 flex items-center gap-2"><BarChart3 size={14}/> Price History (30d)</span><LivePrice basePrice={selectedItem.basePrice} /></div>
+                                <PriceGraph data={selectedItem.priceHistory} color={selectedItem.rarity === 'Legendary' ? '#C5A059' : '#ffffff'} />
+                            </div>
                             {purchaseError && <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs font-bold flex items-center gap-3 animate-shake"><AlertCircle size={16} /> {purchaseError}</div>}
                         </div>
-                        <div className="mt-12 sticky bottom-0 bg-[#111] pt-4 border-t border-white/5 flex gap-4">
+                        <div className="mt-6 md:mt-12 sticky bottom-0 bg-[#111] pt-4 border-t border-white/5 flex gap-3 md:gap-4">
                             {isOwned(selectedItem.id) ? (
-                                <button className="w-full py-5 bg-green-600/20 text-green-400 border border-green-600/30 rounded-2xl font-bold uppercase tracking-[0.2em] text-xs cursor-default flex items-center justify-center gap-3"><ShieldCheck size={16} /> 已收藏</button>
+                                <button className="w-full py-4 md:py-5 bg-green-600/20 text-green-400 border border-green-600/30 rounded-2xl font-bold uppercase tracking-[0.2em] text-xs cursor-default flex items-center justify-center gap-3"><ShieldCheck size={16} /> 已收藏</button>
                             ) : (
                                 <>
-                                    <button onClick={() => { setAuctionItem(selectedItem); setSelectedItem(null); }} className="flex-1 py-5 bg-art-gold/20 text-art-gold border border-art-gold/30 rounded-2xl font-bold uppercase tracking-[0.2em] text-xs hover:bg-art-gold hover:text-black transition-all shadow-xl flex items-center justify-center gap-3"><Gavel size={16} /> 竞拍</button>
-                                    <button onClick={() => handlePurchase(selectedItem)} disabled={isPurchasing} className="flex-[2] py-5 bg-white text-black rounded-2xl font-bold uppercase tracking-[0.2em] text-xs hover:bg-art-gold transition-all shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3">{isPurchasing ? '交易确认中...' : `购买 (Ξ ${selectedItem.basePrice.toFixed(2)})`}</button>
+                                    <button onClick={() => { setAuctionItem(selectedItem); setSelectedItem(null); }} className="flex-1 py-4 md:py-5 bg-art-gold/20 text-art-gold border border-art-gold/30 rounded-2xl font-bold uppercase tracking-[0.2em] text-xs hover:bg-art-gold hover:text-black transition-all shadow-xl flex items-center justify-center gap-2"><Gavel size={14} /> 竞拍</button>
+                                    <button onClick={() => handlePurchase(selectedItem)} disabled={isPurchasing} className="flex-[2] py-4 md:py-5 bg-white text-black rounded-2xl font-bold uppercase tracking-[0.2em] text-xs hover:bg-art-gold transition-all shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">{isPurchasing ? '交易确认中...' : `购买 (Ξ ${selectedItem.basePrice.toFixed(2)})`}</button>
                                 </>
                             )}
                         </div>

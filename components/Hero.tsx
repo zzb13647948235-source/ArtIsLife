@@ -20,36 +20,36 @@ interface HeroProps {
 const HERO_IMAGES = [
   {
     id: 'mona-lisa',
-    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/600px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg',
-    hoverUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Mona_Lisa.jpg/402px-Mona_Lisa.jpg',
+    url: '/artworks/paintings/The Isleworth Mona Lisa.jpg',
+    hoverUrl: '/artworks/paintings/The Isleworth Mona Lisa.jpg',
     rotation: -12, zIndex: 10, scale: 0.8,
     targetX: -350, targetY: -150, isMain: false
   },
   {
     id: 'starry-night',
-    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/600px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg',
-    hoverUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/300px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg',
+    url: '/artworks/paintings/Van Gogh - The Starry Night.jpg',
+    hoverUrl: '/artworks/paintings/Van Gogh - The Starry Night.jpg',
     rotation: 8, zIndex: 20, scale: 0.85,
     targetX: 300, targetY: -220, isMain: false
   },
   {
     id: 'pearl',
-    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/1665_Girl_with_a_Pearl_Earring.jpg/600px-1665_Girl_with_a_Pearl_Earring.jpg',
-    hoverUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/1665_Girl_with_a_Pearl_Earring.jpg/800px-1665_Girl_with_a_Pearl_Earring.jpg',
+    url: '/artworks/paintings/Vermeer - Girl with a Pearl Earring.jpg',
+    hoverUrl: '/artworks/paintings/Vermeer - Girl with a Pearl Earring.jpg',
     rotation: 0, zIndex: 60, scale: 1, isMain: true,
     targetX: 0, targetY: 0
   },
   {
     id: 'night-watch',
-    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/The_Night_Watch_-_HD.jpg/800px-The_Night_Watch_-_HD.jpg',
-    hoverUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/The_Night_Watch_-_HD.jpg/400px-The_Night_Watch_-_HD.jpg',
+    url: '/artworks/paintings/Rembrandt - The Night Watch.jpg',
+    hoverUrl: '/artworks/paintings/Rembrandt - The Night Watch.jpg',
     rotation: 15, zIndex: 15, scale: 0.75,
     targetX: -280, targetY: 220, isMain: false
   },
   {
     id: 'great-wave',
-    url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Great_Wave_off_Kanagawa2.jpg/800px-Great_Wave_off_Kanagawa2.jpg',
-    hoverUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Great_Wave_off_Kanagawa2.jpg/400px-Great_Wave_off_Kanagawa2.jpg',
+    url: '/artworks/paintings/Aivazovsky - The Ninth Wave.jpg',
+    hoverUrl: '/artworks/paintings/Aivazovsky - The Ninth Wave.jpg',
     rotation: 5, zIndex: 5, scale: 0.65,
     targetX: 420, targetY: 20, isMain: false
   },
@@ -74,7 +74,7 @@ const BrushText: React.FC<{ text: string; delay?: number; className?: string; co
   text, delay = 0, className = '',
 }) => {
   return (
-    <span className={`inline-block whitespace-nowrap ${className}`} aria-label={text}>
+    <span className={`inline-block ${className}`} aria-label={text}>
       {text.split('').map((char, i) => (
         <span
           key={i}
@@ -187,27 +187,27 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
 
       <div className="w-full max-w-[1920px] mx-auto px-6 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10 h-full">
         
-        <div className="lg:col-span-6 flex flex-col justify-center relative z-20 pt-20 md:pt-24 lg:pt-0">
+        <div className="lg:col-span-6 flex flex-col justify-center relative z-20 pt-20 md:pt-24 lg:pt-0 min-w-0">
               <div className="flex items-center gap-4 mb-8 animate-fade-in">
                   <div className="w-8 h-[1px] bg-art-primary"></div>
                   <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-art-primary/80">{t('hero.est')}</span>
               </div>
 
               {/* Original serif title */}
-              <h1 className="font-serif text-art-accent tracking-tighter select-none flex flex-col gap-1 md:gap-3 drop-shadow-sm relative z-30 mb-6 w-full">
+              <h1 className="font-serif text-art-accent tracking-tighter select-none flex flex-col gap-1 md:gap-3 drop-shadow-sm relative z-30 mb-6 w-full overflow-hidden">
                 <Sparkle size={32} opacity={0.9} className="absolute -top-4 left-[30%] text-art-primary" style={{ animationDelay: '0s' }} />
                 <Sparkle size={18} opacity={0.5} className="absolute top-8 left-[55%] text-art-accent" style={{ animationDelay: '0.6s' }} />
                 <Sparkle size={24} opacity={0.7} className="absolute top-2 right-8 text-art-gold" style={{ animationDelay: '1.2s' }} />
                 <Sparkle size={14} opacity={0.4} variant="circle" className="absolute top-16 left-[20%] text-art-primary" style={{ animationDelay: '1.8s' }} />
                 <Sparkle size={10} opacity={0.35} variant="circle" className="absolute -top-2 left-[70%] text-art-muted" style={{ animationDelay: '0.9s' }} />
 
-                <span className="text-[18vw] lg:text-[13rem] leading-[0.9] block mix-blend-multiply transition-transform hover:scale-[1.02] origin-left duration-500">
+                <span className="leading-[0.9] block mix-blend-multiply transition-transform hover:scale-[1.02] origin-left duration-500" style={{ fontSize: 'clamp(2rem, 10vw, 13rem)' }}>
                     <BrushText text={t('hero.title_1')} delay={0.2} />
                 </span>
-                <span className="text-[12vw] lg:text-[8.5rem] leading-[1] block italic font-light text-stone-400 pl-2 lg:pl-16">
+                <span className="leading-[1] block italic font-light text-stone-400 pl-2 lg:pl-16" style={{ fontSize: 'clamp(1.5rem, 7vw, 8.5rem)' }}>
                     <BrushText text={t('hero.title_2')} delay={0.5} />
                 </span>
-                <span className="text-[18vw] lg:text-[13.5rem] leading-[0.9] block text-art-primary pb-2">
+                <span className="leading-[0.9] block text-art-primary pb-2" style={{ fontSize: 'clamp(2rem, 10vw, 13.5rem)' }}>
                     <BrushText text={t('hero.title_3')} delay={0.8} />
                 </span>
 

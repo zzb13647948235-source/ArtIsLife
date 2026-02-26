@@ -102,8 +102,6 @@ export const authService = {
 
   async register(name: string, email: string, password: string): Promise<User> {
     await delay(1200);
-    // NOTE: In a real application, passwords should always be hashed (e.g., using bcrypt) before storage.
-    // This mock service stores them in plain text for demonstration purposes only.
     try {
         const users = JSON.parse(safeStorage.getItem(STORAGE_KEY_USERS) || '[]');
         if (users.find((u: any) => u.email === email)) {
@@ -117,14 +115,14 @@ export const authService = {
           password,
           tier: 'guest',
           joinedAt: Date.now(),
-          balance: 1000, 
+          balance: 1000,
           inventoryIds: [],
           likedItemIds: []
         };
 
         users.push(newUser);
         safeStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
-        
+
         const sessionUser = { ...newUser };
         // @ts-ignore
         delete sessionUser.password;
@@ -138,8 +136,6 @@ export const authService = {
 
   async login(email: string, password: string): Promise<User> {
     await delay(1000);
-    // NOTE: In a real application, the provided password should be hashed and compared with the stored hash.
-    // This mock service compares plain text passwords for demonstration purposes only.
     try {
         const users = JSON.parse(safeStorage.getItem(STORAGE_KEY_USERS) || '[]');
         const user = users.find((u: any) => u.email === email && u.password === password);
@@ -174,10 +170,10 @@ export const authService = {
   },
 
   async upgradeTier(userId: string, tier: UserTier): Promise<User> {
-    await delay(1500); 
+    await delay(1500);
     const users = JSON.parse(safeStorage.getItem(STORAGE_KEY_USERS) || '[]');
     const userIdx = users.findIndex((u: any) => u.id === userId);
-    
+
     if (userIdx === -1) throw new Error('无法连接至艺术家数据库');
 
     users[userIdx].tier = tier;
@@ -209,7 +205,7 @@ export const authService = {
   },
 
   async purchaseItem(userId: string, price: number, itemId: string): Promise<User> {
-    await delay(800); 
+    await delay(800);
     const users = JSON.parse(safeStorage.getItem(STORAGE_KEY_USERS) || '[]');
     const userIdx = users.findIndex((u: any) => u.id === userId);
     if (userIdx === -1) throw new Error('用户不存在');
@@ -280,8 +276,6 @@ export const authService = {
       notify(sessionUser);
       return sessionUser;
   },
-
-  // ── UGC ──────────────────────────────────────────────────────────────────
 
   getUGCPosts(): UGCPost[] {
       try {

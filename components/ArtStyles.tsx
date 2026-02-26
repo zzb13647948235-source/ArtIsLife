@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo, memo, useCallback } from 'react';
 import { ART_STYLES } from '../constants';
-import { ArrowUpRight, X, Info, Search, Loader2 } from 'lucide-react';
+import { ArrowUpRight, X, Info, Search, Loader2, ChevronLeft } from 'lucide-react';
 import { ViewState } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
 import { gsap } from 'gsap';
@@ -472,10 +472,15 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
       {selectedStyle && (
           <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center md:p-4 bg-stone-900/80 md:backdrop-blur-sm animate-fade-in" onClick={() => setSelectedStyle(null)}>
               <div className="bg-white w-full max-w-4xl max-h-[92vh] md:max-h-[90vh] rounded-t-[28px] md:rounded-[40px] overflow-hidden shadow-2xl relative flex flex-col md:flex-row" onClick={e => e.stopPropagation()}>
-                  <button onClick={() => setSelectedStyle(null)} className="absolute top-4 right-4 md:top-6 md:right-6 p-2.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 transition-colors z-50 active:scale-90">
+                  <button onClick={() => setSelectedStyle(null)} className="hidden md:flex absolute top-6 right-6 p-2.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 transition-colors z-50 active:scale-90">
                       <X size={18} />
                   </button>
                   <div className="w-full md:w-1/3 bg-stone-50 p-5 md:p-8 flex flex-col justify-center border-b md:border-b-0 md:border-r border-stone-100 relative overflow-hidden shrink-0">
+                      {/* Mobile back button */}
+                      <button onClick={() => setSelectedStyle(null)} className="md:hidden flex items-center gap-2 mb-4 text-stone-500 active:scale-95">
+                          <ChevronLeft size={20} />
+                          <span className="text-sm font-bold uppercase tracking-widest">返回</span>
+                      </button>
                       <div className={`absolute inset-0 opacity-10 ${selectedStyle.color}`}></div>
                       <div className="relative z-10 space-y-3 md:space-y-8">
                           <h3 className="font-serif text-2xl md:text-5xl text-art-accent tracking-tighter">{t(`styles.${selectedStyle.id}_name`)}</h3>
