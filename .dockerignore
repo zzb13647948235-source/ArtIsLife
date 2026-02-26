@@ -5,3 +5,5 @@ node_modules
 dist
 .git
 .gitignore
+public/artworks/
+public/david.glb
