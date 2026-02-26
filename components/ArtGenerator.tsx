@@ -157,7 +157,7 @@ const ArtGenerator: React.FC<ArtGeneratorProps> = ({
       onImageGenerated(newImage);
       setSelectedImage(newImage);
       onImageSelect(newImage);
-      setTimeout(() => setIsRevealing(true), 100);
+      // isRevealing is triggered by onLoad on the img element
     } catch (err: any) {
       setError(err.message || t('generator.modal.fail_desc'));
     } finally {
@@ -201,16 +201,16 @@ const ArtGenerator: React.FC<ArtGeneratorProps> = ({
   ];
 
   return (
-    <div className="pt-28 pb-20 px-6 md:px-16 max-w-[1800px] mx-auto min-h-screen grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 scroll-container">
+    <div className="pt-20 md:pt-28 pb-20 px-4 md:px-16 max-w-[1800px] mx-auto min-h-screen grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-24 scroll-container">
       <div className="lg:col-span-4 flex flex-col h-full space-y-8">
         <div className="space-y-4">
-          <h2 className="font-serif text-6xl md:text-7xl text-art-accent italic tracking-tight">
+          <h2 className="font-serif text-4xl md:text-6xl lg:text-7xl text-art-accent italic tracking-tight">
              <AppleText text={t('generator.title')} delay={0.2} />
           </h2>
           <div className="h-1 w-12 bg-art-primary"></div>
         </div>
 
-        <div className="bg-white p-8 md:p-10 shadow-hard rounded-[40px] border border-stone-50 transition-all hover:shadow-2xl relative overflow-hidden group flex flex-col h-full max-h-[800px]">
+        <div className="bg-white dark:bg-stone-900 p-5 md:p-10 shadow-hard rounded-[40px] border border-stone-50 dark:border-white/10 transition-all hover:shadow-2xl relative overflow-hidden group flex flex-col h-full max-h-[800px]">
           <div className="flex justify-between items-center mb-6">
               <label className="flex items-center gap-2 text-art-secondary font-bold text-xs uppercase tracking-[0.2em]">
                  <PenTool size={16} className="text-art-primary" /> {t('generator.inspiration_label')}
@@ -321,7 +321,7 @@ const ArtGenerator: React.FC<ArtGeneratorProps> = ({
         )}
       </div>
 
-      <div className="lg:col-span-8 relative flex items-center justify-center min-h-[650px] bg-[#E0DDD7] rounded-[48px] overflow-hidden shadow-inner border-[1px] border-stone-200/20 group/canvas">
+      <div className="lg:col-span-8 relative flex items-center justify-center min-h-[300px] md:min-h-[650px] bg-[#E0DDD7] dark:bg-stone-800 rounded-[32px] md:rounded-[48px] overflow-hidden shadow-inner border-[1px] border-stone-200/20 dark:border-white/10 group/canvas">
          {loading ? (
              <div className="text-center animate-fade-in flex flex-col items-center max-w-md w-full px-8">
                  <div className="w-64 h-80 bg-white shadow-2xl flex items-center justify-center mb-12 rotate-3 rounded-sm border border-stone-100 overflow-hidden relative">
@@ -356,9 +356,9 @@ const ArtGenerator: React.FC<ArtGeneratorProps> = ({
                         <div className={`absolute inset-0 bg-stone-200 transition-transform duration-[1.8s] ease-[cubic-bezier(0.85,0,0.15,1)] origin-left ${isRevealing ? 'scale-x-0' : 'scale-x-100'}`}></div>
                     </div>
                 </div>
-                <div className="mt-12 text-center space-y-6">
-                    <p className="font-serif italic text-3xl text-art-accent leading-relaxed tracking-tight px-10">"{selectedImage.prompt}"</p>
-                    <div className="pt-8 flex justify-center gap-3 flex-wrap">
+                <div className="mt-6 md:mt-12 text-center space-y-4 md:space-y-6">
+                    <p className="font-serif italic text-xl md:text-3xl text-art-accent leading-relaxed tracking-tight px-4 md:px-10">"{selectedImage.prompt}"</p>
+                    <div className="pt-4 md:pt-8 flex justify-center gap-2 md:gap-3 flex-wrap">
                         <a href={selectedImage.url} download className="inline-flex items-center gap-3 px-6 py-3.5 bg-white/80 backdrop-blur-xl border border-white/50 rounded-full text-[10px] font-bold uppercase tracking-[0.4em] text-art-accent hover:bg-art-primary hover:text-white transition-all shadow-hard active:scale-95">
                             <Download size={16} /> {t('generator.modal.download')}
                         </a>

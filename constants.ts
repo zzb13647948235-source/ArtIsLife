@@ -102,7 +102,7 @@ export const ART_STYLES = [
       { 
         title: '游船上的午餐', 
         artist: '雷诺阿', 
-        desc: '阳光透过树叶的缝隙洒落在喧闹的人群身上，形成斑驳的光斑。雷诺阿用甜美明丽的色彩，描绘了巴黎蒙马特高地露天舞会的欢愉时刻，每一张笑脸都洋溢着生活的喜悦。',
+        desc: '阳光洒落在塞纳河畔夏图小镇的餐厅露台上，雷诺阿的朋友们围坐在午餐桌旁，觥筹交错、谈笑风生。画面中十四位人物各具神态，甜美明丽的色彩与轻松愉快的氛围，将印象派对现代都市生活的热情赞颂展现得淋漓尽致。',
         imageUrl: '/artworks/paintings/Luncheon of the Boating Party.jpg'
       }
     ]
@@ -561,7 +561,7 @@ export const MASTERPIECE_COLLECTION = [
     { title: "Gimblette", artist: "Unknown Artist", url: "/artworks/paintings/Gimblette.jpg", type: "unknown", year: "unknown" },
     { title: "Girl with a dog", artist: "Unknown Artist", url: "/artworks/paintings/Girl with a dog.jpg", type: "unknown", year: "unknown" },
     { title: "Head of a Dog", artist: "Édouard Manet", url: "/artworks/paintings/Head of a Dog.jpg", type: "portrait", year: "1876" },
-    { title: "Infanta Margaraita", artist: "Diego Velázquez", url: "/artworks/paintings/Infanta Margaraita.jpg", type: "portrait", year: "1659" },
+    { title: "Infanta Margarita", artist: "Diego Velázquez", url: "/artworks/paintings/Infanta Margaraita.jpg", type: "portrait", year: "1659" },
     { title: "Jeanne Samary (also known as La Reverie)", artist: "Pierre-Auguste Renoir", url: "/artworks/paintings/Jeanne Samary (also known as La Reverie).jpg", type: "portrait", year: "1877" },
     { title: "Leda and the Swan (Francesco Melzi)", artist: "Francesco Melzi", url: "/artworks/paintings/Leda and the Swan (Francesco Melzi).jpg", type: "portrait", year: "1515" },
     { title: "Mars and Venus surprised by Vulcan", artist: "Unknown Artist", url: "/artworks/paintings/Mars and Venus surprised by Vulcan.jpg", type: "unknown", year: "unknown" },
@@ -603,9 +603,9 @@ export const MASTERPIECE_COLLECTION = [
     { title: "Bacchus", artist: "Caravaggio", url: "/artworks/paintings/Caravaggio - Bacchus.jpg", type: "portrait", year: "1595" },
     { title: "Narcissus", artist: "Caravaggio", url: "/artworks/paintings/Caravaggio - Narcissus.jpg", type: "portrait", year: "1599" },
     { title: "The Cardsharps", artist: "Caravaggio", url: "/artworks/paintings/Caravaggio - The Cardsharps.jpg", type: "portrait", year: "1594" },
-    { title: "Liberty Leading the People", artist: "Eugène Delacroix", url: "/artworks/paintings/Delacroix - Liberty Leading the People.jpg", type: "realism", year: "1830" },
+    { title: "Liberty Leading the People", artist: "Eugène Delacroix", url: "/artworks/paintings/Delacroix - Liberty Leading the People.jpg", type: "portrait", year: "1830" },
     { title: "The Death of Sardanapalus", artist: "Eugène Delacroix", url: "/artworks/paintings/Delacroix - The Death of Sardanapalus.jpg", type: "portrait", year: "1827" },
-    { title: "The Massacre at Chios", artist: "Eugène Delacroix", url: "/artworks/paintings/Delacroix - The Massacre at Chios.jpg", type: "realism", year: "1824" },
+    { title: "The Massacre at Chios", artist: "Eugène Delacroix", url: "/artworks/paintings/Delacroix - The Massacre at Chios.jpg", type: "portrait", year: "1824" },
     { title: "The Women of Algiers", artist: "Eugène Delacroix", url: "/artworks/paintings/Delacroix - The Women of Algiers.jpg", type: "portrait", year: "1834" },
     { title: "The Ninth Wave", artist: "Ivan Aivazovsky", url: "/artworks/paintings/Aivazovsky - The Ninth Wave.jpg", type: "landscape", year: "1850" },
     { title: "Rainbow", artist: "Ivan Aivazovsky", url: "/artworks/paintings/Aivazovsky - Rainbow.jpg", type: "landscape", year: "1873" },
@@ -613,7 +613,7 @@ export const MASTERPIECE_COLLECTION = [
     { title: "Marriage of the Virgin", artist: "Raphael", url: "/artworks/paintings/Raphael - Marriage of the Virgin.jpg", type: "portrait", year: "1504" },
     { title: "Three Graces", artist: "Raphael", url: "/artworks/paintings/Raphael - Three Graces.jpg", type: "portrait", year: "1504" },
     { title: "Transfiguration of Christ", artist: "Raphael", url: "/artworks/paintings/Raphael - Transfiguration of Christ.jpg", type: "portrait", year: "1520" },
-    { title: "The Last Day of Pompeii", artist: "Karl Bryullov", url: "/artworks/paintings/Brullov - The Last Day of Pompeii.jpg", type: "realism", year: "1833" },
+    { title: "The Last Day of Pompeii", artist: "Karl Bryullov", url: "/artworks/paintings/Brullov - The Last Day of Pompeii.jpg", type: "portrait", year: "1833" },
     { title: "Italian Afternoon", artist: "Karl Bryullov", url: "/artworks/paintings/Brullov - Italian Afternoon.jpg", type: "portrait", year: "1827" },
     { title: "Rider", artist: "Karl Bryullov", url: "/artworks/paintings/Brullov - Rider.jpg", type: "portrait", year: "1832" },
     { title: "Bathsheba", artist: "Karl Bryullov", url: "/artworks/paintings/Brullov - Bathsheba.jpg", type: "portrait", year: "1832" },
@@ -662,10 +662,10 @@ export const MASTERPIECE_COLLECTION = [
     // Velázquez
     { title: "Las Meninas", artist: "Diego Velázquez", url: "/artworks/paintings/Velazquez - Las Meninas.jpg", type: "portrait", year: "1656" },
     { title: "Portrait of Pope Innocent X", artist: "Diego Velázquez", url: "/artworks/paintings/Velazquez - Portrait of Pope Innocent X.jpg", type: "portrait", year: "1650" },
-    { title: "The Surrender of Breda", artist: "Diego Velázquez", url: "/artworks/paintings/Velazquez - The Surrender of Breda.jpg", type: "realism", year: "1635" },
+    { title: "The Surrender of Breda", artist: "Diego Velázquez", url: "/artworks/paintings/Velazquez - The Surrender of Breda.jpg", type: "portrait", year: "1635" },
     // Goya
-    { title: "Saturn Devouring His Son", artist: "Francisco Goya", url: "/artworks/paintings/Goya - Saturn Devouring His Son.jpg", type: "abstract", year: "1823" },
-    { title: "The Third of May 1808", artist: "Francisco Goya", url: "/artworks/paintings/Goya - The Third of May 1808.jpg", type: "realism", year: "1814" },
+    { title: "Saturn Devouring His Son", artist: "Francisco Goya", url: "/artworks/paintings/Goya - Saturn Devouring His Son.jpg", type: "portrait", year: "1823" },
+    { title: "The Third of May 1808", artist: "Francisco Goya", url: "/artworks/paintings/Goya - The Third of May 1808.jpg", type: "portrait", year: "1814" },
     { title: "The Naked Maja", artist: "Francisco Goya", url: "/artworks/paintings/Goya - The Naked Maja.jpg", type: "portrait", year: "1800" },
     { title: "The Clothed Maja", artist: "Francisco Goya", url: "/artworks/paintings/Goya - The Clothed Maja.jpg", type: "portrait", year: "1803" },
     // El Greco
@@ -675,8 +675,8 @@ export const MASTERPIECE_COLLECTION = [
     // Neoclassicism
     { title: "Et in Arcadia Ego", artist: "Nicolas Poussin", url: "/artworks/paintings/Poussin - Et in Arcadia Ego.jpg", type: "portrait", year: "1637" },
     { title: "Pilgrimage to Cythera", artist: "Antoine Watteau", url: "/artworks/paintings/Watteau - Pilgrimage to Cythera.jpg", type: "landscape", year: "1717" },
-    { title: "Oath of the Horatii", artist: "Jacques-Louis David", url: "/artworks/paintings/David - Oath of the Horatii.jpg", type: "realism", year: "1784" },
-    { title: "The Death of Marat", artist: "Jacques-Louis David", url: "/artworks/paintings/David - The Death of Marat.jpg", type: "realism", year: "1793" },
+    { title: "Oath of the Horatii", artist: "Jacques-Louis David", url: "/artworks/paintings/David - Oath of the Horatii.jpg", type: "portrait", year: "1784" },
+    { title: "The Death of Marat", artist: "Jacques-Louis David", url: "/artworks/paintings/David - The Death of Marat.jpg", type: "portrait", year: "1793" },
     { title: "Napoleon Crossing the Alps", artist: "Jacques-Louis David", url: "/artworks/paintings/David - Napoleon Crossing the Alps.jpg", type: "portrait", year: "1801" },
     { title: "La Grande Odalisque", artist: "Jean-Auguste-Dominique Ingres", url: "/artworks/paintings/Ingres - La Grande Odalisque.jpg", type: "portrait", year: "1814" },
     { title: "The Turkish Bath", artist: "Jean-Auguste-Dominique Ingres", url: "/artworks/paintings/Ingres - The Turkish Bath.jpg", type: "portrait", year: "1862" },
@@ -696,11 +696,11 @@ export const MASTERPIECE_COLLECTION = [
     { title: "Boulevard Montmartre", artist: "Camille Pissarro", url: "/artworks/paintings/Pissarro - Boulevard Montmartre.jpg", type: "landscape", year: "1897" },
     { title: "Flood at Port-Marly", artist: "Alfred Sisley", url: "/artworks/paintings/Sisley - Flood at Port-Marly.jpg", type: "landscape", year: "1876" },
     // Post-Impressionism (new works)
-    { title: "The Card Players", artist: "Paul Cézanne", url: "/artworks/paintings/Cezanne - The Card Players.jpg", type: "realism", year: "1895" },
+    { title: "The Card Players", artist: "Paul Cézanne", url: "/artworks/paintings/Cezanne - The Card Players.jpg", type: "portrait", year: "1895" },
     { title: "Mont Sainte-Victoire", artist: "Paul Cézanne", url: "/artworks/paintings/Cezanne - Mont Sainte-Victoire.jpg", type: "landscape", year: "1904" },
     { title: "The Large Bathers", artist: "Paul Cézanne", url: "/artworks/paintings/Cezanne - The Large Bathers.jpg", type: "portrait", year: "1906" },
-    { title: "Where Do We Come From? What Are We? Where Are We Going?", artist: "Paul Gauguin", url: "/artworks/paintings/Gauguin - Where Do We Come From.jpg", type: "abstract", year: "1898" },
-    { title: "The Vision After the Sermon", artist: "Paul Gauguin", url: "/artworks/paintings/Gauguin - The Vision After the Sermon.jpg", type: "abstract", year: "1888" },
+    { title: "Where Do We Come From? What Are We? Where Are We Going?", artist: "Paul Gauguin", url: "/artworks/paintings/Gauguin - Where Do We Come From.jpg", type: "portrait", year: "1898" },
+    { title: "The Vision After the Sermon", artist: "Paul Gauguin", url: "/artworks/paintings/Gauguin - The Vision After the Sermon.jpg", type: "portrait", year: "1888" },
     { title: "Spirit of the Dead Watching", artist: "Paul Gauguin", url: "/artworks/paintings/Gauguin - Spirit of the Dead Watching.jpg", type: "portrait", year: "1892" },
     { title: "The Starry Night", artist: "Vincent van Gogh", url: "/artworks/paintings/Van Gogh - The Starry Night.jpg", type: "landscape", year: "1889" },
     { title: "Sunflowers", artist: "Vincent van Gogh", url: "/artworks/paintings/Van Gogh - Sunflowers.jpg", type: "landscape", year: "1888" },
@@ -710,11 +710,11 @@ export const MASTERPIECE_COLLECTION = [
     { title: "At the Moulin Rouge", artist: "Henri de Toulouse-Lautrec", url: "/artworks/paintings/Toulouse-Lautrec - At the Moulin Rouge.jpg", type: "portrait", year: "1895" },
     { title: "Jane Avril Dancing", artist: "Henri de Toulouse-Lautrec", url: "/artworks/paintings/Toulouse-Lautrec - Jane Avril Dancing.jpg", type: "portrait", year: "1892" },
     // Vienna Secession / Expressionism
-    { title: "The Kiss", artist: "Gustav Klimt", url: "/artworks/paintings/Klimt - The Kiss.jpg", type: "abstract", year: "1908" },
+    { title: "The Kiss", artist: "Gustav Klimt", url: "/artworks/paintings/Klimt - The Kiss.jpg", type: "portrait", year: "1908" },
     { title: "Judith I", artist: "Gustav Klimt", url: "/artworks/paintings/Klimt - Judith I.jpg", type: "portrait", year: "1901" },
     { title: "Hope II", artist: "Gustav Klimt", url: "/artworks/paintings/Klimt - Hope II.jpg", type: "portrait", year: "1908" },
     { title: "Self-Portrait with Physalis", artist: "Egon Schiele", url: "/artworks/paintings/Schiele - Self-Portrait with Physalis.jpg", type: "portrait", year: "1912" },
-    { title: "The Scream", artist: "Edvard Munch", url: "/artworks/paintings/Munch - The Scream.jpg", type: "abstract", year: "1893" },
+    { title: "The Scream", artist: "Edvard Munch", url: "/artworks/paintings/Munch - The Scream.jpg", type: "portrait", year: "1893" },
     { title: "Madonna", artist: "Edvard Munch", url: "/artworks/paintings/Munch - Madonna.jpg", type: "portrait", year: "1894" },
     // Abstract / Modernism
     { title: "Composition VII", artist: "Wassily Kandinsky", url: "/artworks/paintings/Kandinsky - Composition VII.jpg", type: "abstract", year: "1913" },

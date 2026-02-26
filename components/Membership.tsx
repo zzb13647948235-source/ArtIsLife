@@ -146,13 +146,13 @@ const MembershipCard: React.FC<{
 const FAQItem: React.FC<{ q: string; a: string }> = ({ q, a }) => {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border-b border-stone-100 last:border-0">
+    <div className="border-b border-stone-100 dark:border-white/10 last:border-0">
       <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between py-5 text-left gap-4 group">
-        <span className="font-medium text-stone-800 group-hover:text-art-primary transition-colors">{q}</span>
+        <span className="font-medium text-stone-800 dark:text-stone-200 group-hover:text-art-primary transition-colors">{q}</span>
         <ChevronDown size={16} className={`shrink-0 text-stone-400 transition-transform duration-300 ${open ? 'rotate-180' : ''}`} />
       </button>
       <div className={`overflow-hidden transition-all duration-300 ${open ? 'max-h-40 pb-5' : 'max-h-0'}`}>
-        <p className="text-sm text-stone-500 font-light leading-relaxed">{a}</p>
+        <p className="text-sm text-stone-500 dark:text-stone-400 font-light leading-relaxed">{a}</p>
       </div>
     </div>
   );
@@ -183,7 +183,7 @@ const Membership: React.FC<MembershipProps> = ({ currentTier, onUpgrade, onClose
   const pad = (n: number) => String(n).padStart(2, '0');
 
   return (
-    <div className={`min-h-screen bg-[#fafaf9] text-stone-900 relative overflow-x-hidden transition-opacity duration-500 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
+    <div className={`min-h-screen bg-[#fafaf9] dark:bg-stone-950 text-stone-900 dark:text-white relative overflow-x-hidden transition-opacity duration-500 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
       {onClose && (
         <button onClick={handleClose} className="fixed top-6 right-6 z-[150] p-3 rounded-full bg-white shadow-lg hover:bg-stone-50 text-stone-400 hover:text-stone-900 transition-all border border-stone-100 group">
           <X size={20} className="group-hover:rotate-90 transition-transform duration-300" />
@@ -206,31 +206,31 @@ const Membership: React.FC<MembershipProps> = ({ currentTier, onUpgrade, onClose
         <span className="text-art-gold">仅剩 47 个创作者席位</span>
       </div>
 
-      <div className="max-w-[1200px] mx-auto px-6 pt-20 pb-32 scroll-container overflow-y-auto">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 pt-16 md:pt-20 pb-32 scroll-container overflow-y-auto">
 
         {/* ── Hero ── */}
-        <div className="text-center mb-20 animate-fade-in">
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-art-gold/10 text-art-gold mb-8 border border-art-gold/20 text-[9px] font-black uppercase tracking-[0.5em]">
+        <div className="text-center mb-12 md:mb-20 animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-art-gold/10 text-art-gold mb-6 md:mb-8 border border-art-gold/20 text-[9px] font-black uppercase tracking-[0.5em]">
             <Crown size={12} className="animate-pulse" /> 会员专属
           </div>
-          <h1 className="font-serif text-6xl md:text-8xl lg:text-9xl tracking-tighter leading-[0.9] mb-8">
+          <h1 className="font-serif text-4xl md:text-6xl lg:text-8xl xl:text-9xl tracking-tighter leading-[0.9] mb-6 md:mb-8">
             解锁<br /><span className="italic text-stone-300">无限</span>创作
           </h1>
-          <p className="text-stone-500 font-light max-w-xl mx-auto text-lg leading-relaxed">
+          <p className="text-stone-500 font-light max-w-xl mx-auto text-base md:text-lg leading-relaxed">
             每天一杯咖啡的价格，换来 AI 艺术创作的完整体验。
           </p>
         </div>
 
         {/* ── Social Proof Stats ── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-20">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-12 md:mb-20">
           {[
             { val: 12847, suffix: '+', label: '活跃创作者' },
             { val: 580000, suffix: '+', label: 'AI 作品生成' },
             { val: 98, suffix: '%', label: '用户满意度' },
             { val: 50, suffix: '+', label: '大师修复关卡' },
           ].map((s, i) => (
-            <div key={i} className="bg-white rounded-3xl p-6 text-center border border-stone-100 shadow-sm">
-              <p className="font-mono text-3xl md:text-4xl text-stone-900 font-bold mb-1">
+            <div key={i} className="bg-white dark:bg-stone-900 rounded-2xl md:rounded-3xl p-4 md:p-6 text-center border border-stone-100 dark:border-white/10 shadow-sm">
+              <p className="font-mono text-2xl md:text-4xl text-stone-900 font-bold mb-1">
                 <AnimatedNumber value={s.val} suffix={s.suffix} />
               </p>
               <p className="text-stone-400 text-[10px] font-bold uppercase tracking-widest">{s.label}</p>
@@ -264,28 +264,30 @@ const Membership: React.FC<MembershipProps> = ({ currentTier, onUpgrade, onClose
             <p className="text-[10px] font-black uppercase tracking-[0.5em] text-art-gold mb-3">详细对比</p>
             <h2 className="font-serif text-5xl tracking-tighter">功能<span className="italic text-stone-300">一览</span></h2>
           </div>
-          <div className="bg-white rounded-[32px] border border-stone-100 overflow-hidden shadow-sm">
-            <div className="grid grid-cols-4 bg-stone-50 border-b border-stone-100">
-              <div className="p-5 text-xs font-black uppercase tracking-widest text-stone-400">功能</div>
-              {['速写客', '创作者', '赞助人'].map((n, i) => (
-                <div key={i} className={`p-5 text-center text-xs font-black uppercase tracking-widest ${i === 1 ? 'text-art-primary' : i === 2 ? 'text-art-gold' : 'text-stone-400'}`}>{n}</div>
-              ))}
-            </div>
-            {COMPARE_ROWS.map((row, i) => (
-              <div key={i} className={`grid grid-cols-4 border-b border-stone-50 last:border-0 ${i % 2 === 0 ? '' : 'bg-stone-50/50'}`}>
-                <div className="p-4 text-sm text-stone-600 font-medium flex items-center">{row.label}</div>
-                {[row.guest, row.artist, row.patron].map((val, j) => (
-                  <div key={j} className="p-4 flex items-center justify-center">
-                    {typeof val === 'boolean' ? (
-                      val ? <Check size={16} className={j === 1 ? 'text-art-primary' : j === 2 ? 'text-art-gold' : 'text-stone-400'} strokeWidth={3} />
-                           : <X size={14} className="text-stone-200" />
-                    ) : (
-                      <span className={`text-xs font-bold ${j === 1 ? 'text-art-primary' : j === 2 ? 'text-art-gold' : 'text-stone-400'}`}>{val}</span>
-                    )}
-                  </div>
+          <div className="overflow-x-auto rounded-[32px] border border-stone-100 dark:border-white/10 shadow-sm">
+            <div className="bg-white dark:bg-stone-900 min-w-[480px]">
+              <div className="grid grid-cols-4 bg-stone-50 dark:bg-stone-800 border-b border-stone-100 dark:border-white/10">
+                <div className="p-4 md:p-5 text-xs font-black uppercase tracking-widest text-stone-400">功能</div>
+                {['速写客', '创作者', '赞助人'].map((n, i) => (
+                  <div key={i} className={`p-4 md:p-5 text-center text-xs font-black uppercase tracking-widest ${i === 1 ? 'text-art-primary' : i === 2 ? 'text-art-gold' : 'text-stone-400'}`}>{n}</div>
                 ))}
               </div>
-            ))}
+              {COMPARE_ROWS.map((row, i) => (
+                <div key={i} className={`grid grid-cols-4 border-b border-stone-50 last:border-0 ${i % 2 === 0 ? '' : 'bg-stone-50/50'}`}>
+                  <div className="p-3 md:p-4 text-sm text-stone-600 font-medium flex items-center">{row.label}</div>
+                  {[row.guest, row.artist, row.patron].map((val, j) => (
+                    <div key={j} className="p-3 md:p-4 flex items-center justify-center">
+                      {typeof val === 'boolean' ? (
+                        val ? <Check size={16} className={j === 1 ? 'text-art-primary' : j === 2 ? 'text-art-gold' : 'text-stone-400'} strokeWidth={3} />
+                             : <X size={14} className="text-stone-200" />
+                      ) : (
+                        <span className={`text-xs font-bold ${j === 1 ? 'text-art-primary' : j === 2 ? 'text-art-gold' : 'text-stone-400'}`}>{val}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -297,7 +299,7 @@ const Membership: React.FC<MembershipProps> = ({ currentTier, onUpgrade, onClose
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {TESTIMONIALS.map((t, i) => (
-              <div key={i} className="bg-white rounded-[28px] p-8 border border-stone-100 shadow-sm hover:shadow-md transition-shadow">
+            <div key={i} className="bg-white dark:bg-stone-900 rounded-[28px] p-8 border border-stone-100 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex gap-1 mb-4">
                   {[...Array(5)].map((_, j) => <Star key={j} size={12} className="fill-art-gold text-art-gold" />)}
                 </div>
@@ -320,19 +322,19 @@ const Membership: React.FC<MembershipProps> = ({ currentTier, onUpgrade, onClose
             <p className="text-[10px] font-black uppercase tracking-[0.5em] text-art-gold mb-3">常见问题</p>
             <h2 className="font-serif text-5xl tracking-tighter">你可能<span className="italic text-stone-300">想知道</span></h2>
           </div>
-          <div className="bg-white rounded-[28px] border border-stone-100 px-8 shadow-sm">
+          <div className="bg-white dark:bg-stone-900 rounded-[28px] border border-stone-100 dark:border-white/10 px-8 shadow-sm">
             {FAQ.map((item, i) => <FAQItem key={i} q={item.q} a={item.a} />)}
           </div>
         </div>
 
         {/* ── Final CTA ── */}
-        <div className="text-center bg-stone-900 rounded-[40px] p-16 relative overflow-hidden">
+        <div className="text-center bg-stone-900 rounded-[28px] md:rounded-[40px] p-8 md:p-16 relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(197,160,89,0.15),_transparent_70%)] pointer-events-none" />
           <Crown size={32} className="text-art-gold mx-auto mb-6 animate-pulse" />
-          <h2 className="font-serif text-5xl md:text-6xl text-white tracking-tighter mb-4">现在加入<span className="italic text-art-gold">创作者</span></h2>
-          <p className="text-white/50 font-light mb-10 max-w-md mx-auto">与 12,000+ 艺术创作者一起，用 AI 重新定义艺术创作。</p>
+          <h2 className="font-serif text-3xl md:text-5xl lg:text-6xl text-white tracking-tighter mb-4">现在加入<span className="italic text-art-gold">创作者</span></h2>
+          <p className="text-white/50 font-light mb-8 md:mb-10 max-w-md mx-auto text-sm md:text-base">与 12,000+ 艺术创作者一起，用 AI 重新定义艺术创作。</p>
           <button onClick={() => handleSelect('artist')} disabled={currentTier !== 'guest' || !!processingTier}
-            className="inline-flex items-center gap-3 px-12 py-5 bg-art-gold text-black font-black uppercase tracking-[0.3em] text-xs rounded-full hover:brightness-110 transition-all shadow-[0_8px_40px_rgba(197,160,89,0.4)] active:scale-95 disabled:opacity-50">
+            className="inline-flex items-center gap-3 px-8 md:px-12 py-4 md:py-5 bg-art-gold text-black font-black uppercase tracking-[0.3em] text-xs rounded-full hover:brightness-110 transition-all shadow-[0_8px_40px_rgba(197,160,89,0.4)] active:scale-95 disabled:opacity-50">
             {processingTier === 'artist' ? <Loader2 size={16} className="animate-spin" /> : <><Sparkles size={14} /> 立即订阅 · ¥39/月</>}
           </button>
           <p className="text-white/30 text-xs mt-6">7 天无理由退款 · 随时取消</p>

@@ -31,22 +31,19 @@ const Sparkle: React.FC<SparkleProps> = ({
     );
   }
 
-  // 4-pointed star
+  // 4-pointed star — sharp diamond shape matching MANA etoile.svg style
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 24 24"
+      viewBox="0 0 28 28"
       fill="none"
       className={`sparkle-twinkle ${className}`}
       style={{ opacity, ...style }}
       aria-hidden="true"
     >
       <path
-        d="M12 2 C12 2, 13 8, 12 12 C11 8, 12 2, 12 2Z
-           M12 22 C12 22, 11 16, 12 12 C13 16, 12 22, 12 22Z
-           M2 12 C2 12, 8 11, 12 12 C8 13, 2 12, 2 12Z
-           M22 12 C22 12, 16 13, 12 12 C16 11, 22 12, 22 12Z"
+        d="M14 0 L15.8 12.2 L28 14 L15.8 15.8 L14 28 L12.2 15.8 L0 14 L12.2 12.2 Z"
         fill="currentColor"
       />
     </svg>

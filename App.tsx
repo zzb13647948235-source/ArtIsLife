@@ -26,6 +26,7 @@ import { DarkModeProvider } from './contexts/DarkModeContext';
 import { ViewState, GeneratedImage, ChatMessage, UserTier, User } from './types';
 import { authService } from './services/authService';
 import { MessageSquare, AlertTriangle, RefreshCw, X } from 'lucide-react';
+import FloatingArtTip from './components/FloatingArtTip';
 
 const STORAGE_KEY_ART_HISTORY = 'artislife_history';
 const NAV_ORDER: ViewState[] = ['intro', 'home', 'journal', 'styles', 'gallery', 'chat', 'game', 'map', 'market', 'community'];
@@ -88,7 +89,7 @@ const PageTransition: React.FC<{
     prevIndex: number;
 }> = ({ children, overlay, viewKey, index, currentIndex, prevIndex }) => {
     const isActive = index === currentIndex;
-    const isAdjacent = Math.abs(index - currentIndex) <= 1;
+    const isAdjacent = Math.abs(index - currentIndex) <= 2;
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     useLayoutEffect(() => {
@@ -257,17 +258,18 @@ function AppContent() {
           const dy = touchStartY - e.touches[0].clientY;
           const dx = Math.abs(touchStartX - e.touches[0].clientX);
 
-          // Must be more vertical than horizontal, and at least 60px
-          if (Math.abs(dy) < 60 || dx > Math.abs(dy) * 0.7) return;
+          // Must be more vertical than horizontal, and at least 80px
+          if (Math.abs(dy) < 80 || dx > Math.abs(dy) * 0.7) return;
 
           const now = Date.now();
-          if (now - lastScrollTime.current < 600) return;
+          const cooldown = currentView === 'journal' ? 1000 : 600;
+          if (now - lastScrollTime.current < cooldown) return;
 
           const currentContainer = document.getElementById(`page-${currentView}`)?.querySelector('.scroll-container');
           if (!currentContainer) return;
 
-          const isAtBottom = Math.abs(currentContainer.scrollHeight - currentContainer.scrollTop - currentContainer.clientHeight) < 50;
-          const isAtTop = currentContainer.scrollTop < 10;
+          const isAtBottom = Math.abs(currentContainer.scrollHeight - currentContainer.scrollTop - currentContainer.clientHeight) < 80;
+          const isAtTop = currentContainer.scrollTop < 20;
           const currentIndex = NAV_ORDER.indexOf(currentView);
 
           // Intro page: no touch-based page switching
@@ -329,6 +331,7 @@ function AppContent() {
           <LiquidBackground currentView={currentView} />
           <ParticleBackground />
           <CustomCursor />
+          {currentView !== 'intro' && <FloatingArtTip />}
 
           <Navigation
               currentView={currentView}
@@ -358,7 +361,7 @@ function AppContent() {
 
               {currentView === 'login' && <div className="absolute inset-0 z-[100] animate-fade-in"><Login onLoginSuccess={(u) => { setUser(u); handleNavigate('gallery'); }} onNavigate={handleNavigate} /></div>}
               {currentView === 'membership' && (
-                <div className="absolute inset-0 z-[110] animate-fade-in bg-white overflow-y-auto overscroll-contain">
+                <div className="absolute inset-0 z-[110] animate-fade-in bg-white dark:bg-stone-950 overflow-y-auto overscroll-contain">
                   <Membership 
                     currentTier={user?.tier || 'guest'} 
                     onUpgrade={async (t) => { 
@@ -386,7 +389,7 @@ function AppContent() {
           
           {showAuthOverlay && (
             <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-stone-900/70 backdrop-blur-sm animate-fade-in" onClick={() => setShowAuthOverlay(false)}>
-                <div onClick={e => e.stopPropagation()} className="w-full max-w-4xl h-[85vh] bg-white rounded-[48px] overflow-hidden shadow-2xl relative">
+                <div onClick={e => e.stopPropagation()} className="w-full max-w-4xl h-[85vh] bg-white dark:bg-stone-900 rounded-[48px] overflow-hidden shadow-2xl relative">
                     <button onClick={() => setShowAuthOverlay(false)} className="absolute top-8 right-8 z-[1010] p-2 text-stone-300 hover:text-stone-900 transition-colors"><X size={24}/></button>
                     <Login embedMode onLoginSuccess={(u) => { setUser(u); setShowAuthOverlay(false); }} onNavigate={handleNavigate} />
                 </div>
@@ -407,6 +410,8 @@ function AppContent() {
         .scroll-container::-webkit-scrollbar-track { background: transparent; }
         .scroll-container::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
         .scroll-container::-webkit-scrollbar-thumb:hover { background: rgba(188,75,26,0.5); }
+        .dark .scroll-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+        .dark .scroll-container::-webkit-scrollbar-thumb:hover { background: rgba(188,75,26,0.5); }
       `}</style>
     </ErrorBoundary>
   );

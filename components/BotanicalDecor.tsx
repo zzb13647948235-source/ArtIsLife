@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDarkMode } from '../contexts/DarkModeContext';
 
 // ── SVG Plant Components ──────────────────────────────────────────────────────
 
@@ -229,8 +230,9 @@ interface BotanicalDecorProps {
 }
 
 const BotanicalDecor: React.FC<BotanicalDecorProps> = ({ page }) => {
+  const { isDark } = useDarkMode();
   const plants = PAGE_PLANTS[page];
-  if (!plants) return null;
+  if (!plants || !isDark) return null;
   return (
     <div className="absolute bottom-0 left-0 right-0 h-[200px] pointer-events-none overflow-hidden z-[5]">
       {plants.map((p, i) => (

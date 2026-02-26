@@ -121,7 +121,7 @@ const IntroModel: React.FC<{
           mesh.geometry.computeVertexNormals();
         }
         mesh.material = new THREE.MeshStandardMaterial({
-          color: 0xede9e0, roughness: 0.55, metalness: 0,
+          color: 0xf0ece4, roughness: 0.45, metalness: 0.05,
           side: THREE.DoubleSide,
         });
       }
@@ -185,13 +185,13 @@ const IntroScene: React.FC<{
     {/* Rembrandt lighting rig */}
     <ambientLight intensity={0.15} color="#1a1510" />
     {/* Key: upper-left warm, ~45° — creates the signature triangle */}
-    <directionalLight position={[-2.5, 4, 1.5]} intensity={3.5} color="#ffe8c0" />
+    <directionalLight position={[-2.5, 4, 1.5]} intensity={4.5} color="#ffe8c0" />
     {/* Fill: right cool, very dim — 1:7 ratio keeps shadow dramatic */}
-    <directionalLight position={[3, 0.5, 1]} intensity={0.45} color="#a0b8e0" />
+    <directionalLight position={[3, 0.5, 1]} intensity={0.5} color="#a0b8e0" />
     {/* Rim: behind-right warm — separates bust from black bg */}
-    <pointLight position={[1.5, 3, -3]} intensity={2.8} color="#ffc060" />
-    {/* Ground bounce: subtle warm from below */}
-    <pointLight position={[0, -2, 1]} intensity={0.25} color="#8b6040" />
+    <pointLight position={[1.5, 3, -3]} intensity={3.5} color="#ffc060" />
+    {/* Rainbow color bounce from below */}
+    <pointLight position={[0, -2, 1]} intensity={0.8} color="#ff6090" />
     <ModelErrorBoundary spRef={spRef} mouseRef={mouseRef}>
       <Suspense fallback={<FallbackSphere spRef={spRef} />}>
         <IntroModel spRef={spRef} mouseRef={mouseRef} />
@@ -199,6 +199,52 @@ const IntroScene: React.FC<{
     </ModelErrorBoundary>
   </>
 );
+
+// ── Rainbow horizontal stripes (scroll-driven, left→right) ───────────────────
+const H_COLORS = [
+  '#F97028', '#F489A3', '#F0BB0D', '#F3A20F', '#E40303',
+  '#FF8C00', '#FFED00', '#008026', '#004DFF', '#750787',
+  '#784F17', '#000000', '#FFAFC8', '#74D7EE', '#20B2AA',
+  '#F97028', '#F489A3', '#F0BB0D',
+];
+
+const RainbowHLines: React.FC<{ scrollProgress: number }> = ({ scrollProgress }) => {
+  const rawProgress = Math.max(0, Math.min(1, (scrollProgress - 0.05) / 0.55));
+
+  const W = 1200;
+  const H = 800;
+  const count = H_COLORS.length;
+  const stripeH = H / count; // evenly divide full height
+
+  return (
+    <svg
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
+      style={{ zIndex: 0 }}
+    >
+      {H_COLORS.map((color, i) => {
+        const y = (i + 0.5) * stripeH;
+        // stagger: top lines first, bottom lines last
+        const stagger = (i / (count - 1)) * 0.5;
+        const lineProgress = Math.max(0, Math.min(1, (rawProgress - stagger) / 0.5));
+        const dashOffset = W * (1 - lineProgress);
+        return (
+          <line
+            key={i}
+            x1={0} y1={y} x2={W} y2={y}
+            stroke={color}
+            strokeWidth={stripeH}
+            strokeLinecap="butt"
+            strokeDasharray={W}
+            strokeDashoffset={dashOffset}
+            opacity={1}
+          />
+        );
+      })}
+    </svg>
+  );
+};
 
 // ── Main component ────────────────────────────────────────────────────────────
 const IntroShowcase: React.FC<IntroShowcaseProps> = ({ onNavigate, isActive = true }) => {
@@ -239,14 +285,19 @@ const IntroShowcase: React.FC<IntroShowcaseProps> = ({ onNavigate, isActive = tr
 
   return (
     <div ref={outerRef} style={{ height: '500vh' }} className="relative">
-      <div className="sticky top-0 h-screen w-full overflow-hidden bg-white">
+      <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
 
-        {/* Canvas */}
+        {/* Rainbow horizontal lines — behind everything */}
         <div className="absolute inset-0 z-0">
+          <RainbowHLines scrollProgress={scrollProgress} />
+        </div>
+
+        {/* Canvas — transparent bg so rainbow shows through */}
+        <div className="absolute inset-0 z-10">
           <Canvas
             camera={{ position: [0, 0, 5.5], fov: 42 }}
-            gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
-            style={{ background: '#ffffff' }}
+            gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+            style={{ background: 'transparent' }}
             dpr={[1, 1.5]}
           >
             <IntroScene spRef={spRef} mouseRef={mouseRef} />
@@ -255,17 +306,39 @@ const IntroShowcase: React.FC<IntroShowcaseProps> = ({ onNavigate, isActive = tr
 
         {/* Vignette */}
         <div className="absolute inset-0 z-10 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at center, transparent 30%, rgba(8,7,5,0.75) 100%)' }} />
+          style={{ background: 'radial-gradient(ellipse at center, transparent 20%, rgba(0,0,0,0.82) 100%)' }} />
 
         {/* Section 1 — center intro */}
         {(() => {
           const op = sectionOpacity(scrollProgress, 0.00, 0.25);
+          // Apple-style: text slides up + fades in as section enters
+          const entered = scrollProgress > 0.01;
           return (
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none"
-              style={{ opacity: op, transition: 'opacity 0.3s ease' }}>
-              <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-amber-400/70 mb-6">PLATFORM</span>
-              <h1 className="font-serif text-[12vw] md:text-[8rem] text-white leading-none tracking-tight drop-shadow-2xl">ArtIsLife</h1>
-              <p className="text-stone-400 text-xl md:text-2xl font-light tracking-[0.2em] mt-4">艺术，让生命更丰盛</p>
+              style={{ opacity: op, transition: 'opacity 0.5s ease' }}>
+              <p style={{
+                transform: entered ? 'translateY(0)' : 'translateY(16px)',
+                opacity: entered ? 1 : 0,
+                transition: 'transform 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s, opacity 0.9s ease 0.1s',
+                fontSize: '11px', fontWeight: 700, letterSpacing: '0.6em', textTransform: 'uppercase', color: 'rgba(251,191,36,0.6)', marginBottom: '2rem'
+              }}>A New Era of Art</p>
+              <h1 style={{
+                fontSize: 'clamp(4rem, 13vw, 11rem)', lineHeight: 1, letterSpacing: '-0.03em', fontWeight: 700,
+                transform: entered ? 'translateY(0)' : 'translateY(32px)',
+                opacity: entered ? 1 : 0,
+                transition: 'transform 1.1s cubic-bezier(0.16,1,0.3,1) 0.2s, opacity 1.1s ease 0.2s',
+                color: 'white', textAlign: 'center',
+              }}>
+                ArtIsLife
+              </h1>
+              <p style={{
+                transform: entered ? 'translateY(0)' : 'translateY(20px)',
+                opacity: entered ? 0.5 : 0,
+                transition: 'transform 1.1s cubic-bezier(0.16,1,0.3,1) 0.4s, opacity 1.1s ease 0.4s',
+                fontSize: 'clamp(1rem, 2vw, 1.5rem)', fontWeight: 300, letterSpacing: '0.15em', marginTop: '1.5rem', color: 'white'
+              }}>
+                艺术，让生命更丰盛
+              </p>
             </div>
           );
         })()}
@@ -273,20 +346,34 @@ const IntroShowcase: React.FC<IntroShowcaseProps> = ({ onNavigate, isActive = tr
         {/* Section 2 — left */}
         {(() => {
           const op = sectionOpacity(scrollProgress, 0.22, 0.50);
+          const entered = scrollProgress > 0.24;
           return (
-            <div className="absolute inset-0 z-20 flex items-center pointer-events-none px-8 md:px-20"
-              style={{ opacity: op, transition: 'opacity 0.3s ease' }}>
-              <div className="max-w-sm">
-                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-amber-400/70 mb-4 block">我们是谁</span>
-                <h2 className="font-serif text-3xl md:text-4xl text-white leading-tight mb-4">创作者的数字家园</h2>
-                <p className="text-stone-400 text-sm md:text-base leading-relaxed font-light mb-6">
-                  ArtIsLife 是为艺术家、收藏家与爱好者打造的一体化创作平台。在这里，AI 赋能创作，区块链确权资产，社区连接灵魂。
+            <div className="absolute inset-0 z-20 flex items-center pointer-events-none px-6 md:px-24"
+              style={{ opacity: op, transition: 'opacity 0.5s ease' }}>
+              <div className="max-w-lg">
+                <p style={{
+                  transform: entered ? 'translateY(0)' : 'translateY(14px)',
+                  opacity: entered ? 1 : 0,
+                  transition: 'transform 0.9s cubic-bezier(0.16,1,0.3,1) 0s, opacity 0.9s ease 0s',
+                  fontSize: '11px', fontWeight: 700, letterSpacing: '0.6em', textTransform: 'uppercase', color: 'rgba(251,191,36,0.6)', marginBottom: '1.5rem', display: 'block'
+                }}>创作者的家园</p>
+                <h2 style={{
+                  fontSize: 'clamp(2.5rem, 6vw, 5.5rem)', lineHeight: 1.05, letterSpacing: '-0.03em', fontWeight: 700,
+                  transform: entered ? 'translateY(0)' : 'translateY(28px)',
+                  opacity: entered ? 1 : 0,
+                  transition: 'transform 1.1s cubic-bezier(0.16,1,0.3,1) 0.1s, opacity 1.1s ease 0.1s',
+                  color: 'white', marginBottom: '2rem'
+                }}>
+                  为艺术而生。
+                </h2>
+                <p style={{
+                  transform: entered ? 'translateY(0)' : 'translateY(18px)',
+                  opacity: entered ? 0.45 : 0,
+                  transition: 'transform 1.1s cubic-bezier(0.16,1,0.3,1) 0.25s, opacity 1.1s ease 0.25s',
+                  fontSize: 'clamp(1rem, 1.5vw, 1.25rem)', fontWeight: 300, lineHeight: 1.7, maxWidth: '28rem', color: 'white'
+                }}>
+                  AI 赋能创作，区块链确权资产，社区连接灵魂。一体化平台，为每一位创作者而建。
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  {['AI 艺术生成', '数字藏品市场', '创作者社区', '博物馆导览'].map(f => (
-                    <span key={f} className="text-[10px] px-3 py-1 border border-amber-400/30 text-amber-400/70 rounded-full uppercase tracking-wider">{f}</span>
-                  ))}
-                </div>
               </div>
             </div>
           );
@@ -295,48 +382,69 @@ const IntroShowcase: React.FC<IntroShowcaseProps> = ({ onNavigate, isActive = tr
         {/* Section 3 — right */}
         {(() => {
           const op = sectionOpacity(scrollProgress, 0.45, 0.75);
+          const entered = scrollProgress > 0.47;
           return (
-            <div className="absolute inset-0 z-20 flex items-center justify-end pointer-events-none px-8 md:px-20"
-              style={{ opacity: op, transition: 'opacity 0.3s ease' }}>
-              <div className="max-w-sm text-right">
-                <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-amber-400/70 mb-4 block">发展前景</span>
-                <h2 className="font-serif text-3xl md:text-4xl text-white leading-tight mb-4">数字艺术新纪元</h2>
-                <p className="text-stone-400 text-sm md:text-base leading-relaxed font-light mb-6">
-                  全球数字艺术市场规模预计在 2028 年突破 $1,200 亿，年复合增长率达 34%。我们正处于这场变革的核心。
+            <div className="absolute inset-0 z-20 flex items-center justify-end pointer-events-none px-6 md:px-24"
+              style={{ opacity: op, transition: 'opacity 0.5s ease' }}>
+              <div className="max-w-lg" style={{ textAlign: 'right' }}>
+                <p style={{
+                  transform: entered ? 'translateY(0)' : 'translateY(14px)',
+                  opacity: entered ? 1 : 0,
+                  transition: 'transform 0.9s cubic-bezier(0.16,1,0.3,1) 0s, opacity 0.9s ease 0s',
+                  fontSize: '11px', fontWeight: 700, letterSpacing: '0.6em', textTransform: 'uppercase', color: 'rgba(251,191,36,0.6)', marginBottom: '1.5rem', display: 'block'
+                }}>市场前景</p>
+                <h2 style={{
+                  fontSize: 'clamp(2.5rem, 6vw, 5.5rem)', lineHeight: 1.05, letterSpacing: '-0.03em', fontWeight: 700,
+                  transform: entered ? 'translateY(0)' : 'translateY(28px)',
+                  opacity: entered ? 1 : 0,
+                  transition: 'transform 1.1s cubic-bezier(0.16,1,0.3,1) 0.1s, opacity 1.1s ease 0.1s',
+                  color: 'white', marginBottom: '2rem'
+                }}>
+                  千亿赛道，<br />正在开启。
+                </h2>
+                <p style={{
+                  transform: entered ? 'translateY(0)' : 'translateY(18px)',
+                  opacity: entered ? 0.45 : 0,
+                  transition: 'transform 1.1s cubic-bezier(0.16,1,0.3,1) 0.25s, opacity 1.1s ease 0.25s',
+                  fontSize: 'clamp(1rem, 1.5vw, 1.25rem)', fontWeight: 300, lineHeight: 1.7, maxWidth: '28rem', marginLeft: 'auto', color: 'white'
+                }}>
+                  全球数字艺术市场预计 2028 年突破 $1,200 亿，年复合增长率 34%。我们正处于变革核心。
                 </p>
-                <div className="flex flex-col gap-2 items-end">
-                  {['$1,200亿 市场规模', '34% 年增长率', '5亿+ 潜在用户'].map(s => (
-                    <span key={s} className="text-[11px] text-amber-300/80 font-mono tracking-wider">{s}</span>
-                  ))}
-                </div>
               </div>
             </div>
           );
         })()}
 
-        {/* Section 4 — center CTA */}
+        {/* Section 4 — center CTA — stays fixed once visible */}
         {(() => {
-          const op = sectionOpacity(scrollProgress, 0.70, 1.00);
+          const op = scrollProgress >= 0.70 ? Math.min(1, (scrollProgress - 0.70) / 0.08) : 0;
+          const entered = scrollProgress > 0.72;
           return (
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center"
-              style={{ opacity: op, transition: 'opacity 0.3s ease', pointerEvents: op > 0.5 ? 'auto' : 'none' }}>
-              <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-amber-400/70 mb-6">路线图</span>
-              <h2 className="font-serif text-5xl md:text-7xl text-white leading-none tracking-tight mb-10">共创未来</h2>
-              <div className="flex flex-col gap-4 mb-10 w-full max-w-xs">
-                {[
-                  { phase: 'Phase 1', desc: '平台上线 · AI 创作工具 · 社区建设' },
-                  { phase: 'Phase 2', desc: '数字藏品市场 · 创作者经济体系' },
-                  { phase: 'Phase 3', desc: '元宇宙展览 · 全球艺术家网络' },
-                ].map(({ phase, desc }) => (
-                  <div key={phase} className="flex items-start gap-4">
-                    <span className="text-[10px] font-bold text-amber-400/70 uppercase tracking-widest mt-0.5 w-16 shrink-0">{phase}</span>
-                    <span className="text-stone-400 text-xs leading-relaxed">{desc}</span>
-                  </div>
-                ))}
-              </div>
+              style={{ opacity: op, transition: 'opacity 0.5s ease', pointerEvents: op > 0.5 ? 'auto' : 'none' }}>
+              <p style={{
+                transform: entered ? 'translateY(0)' : 'translateY(14px)',
+                opacity: entered ? 1 : 0,
+                transition: 'transform 0.9s cubic-bezier(0.16,1,0.3,1) 0s, opacity 0.9s ease 0s',
+                fontSize: '11px', fontWeight: 700, letterSpacing: '0.6em', textTransform: 'uppercase', color: 'rgba(251,191,36,0.6)', marginBottom: '2rem'
+              }}>共创未来</p>
+              <h2 style={{
+                fontSize: 'clamp(3rem, 9vw, 8rem)', lineHeight: 1, letterSpacing: '-0.04em', fontWeight: 700,
+                transform: entered ? 'translateY(0)' : 'translateY(36px)',
+                opacity: entered ? 1 : 0,
+                transition: 'transform 1.2s cubic-bezier(0.16,1,0.3,1) 0.1s, opacity 1.2s ease 0.1s',
+                color: 'white', textAlign: 'center', marginBottom: '4rem'
+              }}>
+                现在，<br />就是起点。
+              </h2>
               <button
                 onClick={() => onNavigate('home')}
-                className="px-10 py-4 border border-white/30 text-white text-xs font-bold uppercase tracking-[0.3em] hover:bg-white hover:text-stone-900 transition-all duration-500 rounded-full backdrop-blur-sm"
+                style={{
+                  transform: entered ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.95)',
+                  opacity: entered ? 1 : 0,
+                  transition: 'transform 1.1s cubic-bezier(0.16,1,0.3,1) 0.3s, opacity 1.1s ease 0.3s',
+                }}
+                className="group px-8 md:px-12 py-4 md:py-5 bg-white text-stone-900 text-xs font-bold uppercase tracking-[0.35em] hover:bg-amber-400 transition-colors duration-500 rounded-full active:scale-95"
               >
                 进入平台
               </button>

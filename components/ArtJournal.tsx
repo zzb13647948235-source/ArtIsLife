@@ -247,8 +247,8 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
   ];
 
   return (
-    <div className="min-h-screen pt-32 pb-24 px-6 md:px-12 max-w-[1400px] mx-auto">
-       <div className="space-y-32">
+    <div className="min-h-screen pt-24 md:pt-32 pb-24 px-4 md:px-12 max-w-[1400px] mx-auto">
+       <div className="space-y-16 md:space-y-32">
            <div className="text-center space-y-4 animate-fade-in">
                 <div className="inline-block px-3 py-1 bg-art-primary/10 text-art-primary rounded-full text-[10px] font-bold uppercase tracking-[0.4em] mb-4">
                     {t('journal.tag_curated')}
@@ -259,7 +259,7 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
                   <Sparkle size={14} opacity={0.4} variant="circle" className="absolute top-8 -left-4 text-art-gold" style={{ animationDelay: '1.4s' }} />
                   <Sparkle size={28} opacity={0.6} className="absolute -bottom-4 right-4 text-art-primary" style={{ animationDelay: '0.4s' }} />
                   <Sparkle size={12} opacity={0.35} variant="circle" className="absolute bottom-0 -right-6 text-art-muted" style={{ animationDelay: '2s' }} />
-                  <h2 className="font-sans font-black text-7xl md:text-9xl text-stone-900 tracking-[-0.05em] leading-none select-none uppercase">
+                  <h2 className="font-sans font-black text-5xl md:text-7xl lg:text-9xl text-stone-900 tracking-[-0.05em] leading-none select-none uppercase">
                       {isActive && <AppleText text={t('journal.title')} delay={0.2} />}
                       <span className="text-art-primary">.</span>
                   </h2>
@@ -269,20 +269,20 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
                 </p>
            </div>
 
-           <div onClick={() => setSelectedArticle(featured)} className="grid grid-cols-1 lg:grid-cols-12 gap-0 shadow-2xl rounded-[40px] overflow-hidden bg-white border border-stone-100 group cursor-pointer animate-fade-in-up transform transition-transform hover:scale-[1.01]">
+           <div onClick={() => setSelectedArticle(featured)} className="grid grid-cols-1 lg:grid-cols-12 gap-0 shadow-2xl rounded-[28px] md:rounded-[40px] overflow-hidden bg-white dark:bg-stone-900 border border-stone-100 dark:border-white/10 group cursor-pointer animate-fade-in-up transform transition-transform hover:scale-[1.01]">
                 <div className="lg:col-span-7 relative h-[60vh] lg:h-auto overflow-hidden">
                     <FadeInImage src={featured.image} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent pointer-events-none"></div>
                 </div>
-                <div className="lg:col-span-5 p-12 md:p-16 flex flex-col justify-center space-y-8 relative">
+                <div className="lg:col-span-5 p-6 md:p-16 flex flex-col justify-center space-y-4 md:space-y-8 relative">
                     <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-art-primary">
                         <Bookmark size={14} /> {featured.tag}
                     </div>
-                    <h3 className="font-serif text-4xl md:text-5xl text-stone-900 leading-[1.1] first-letter:text-7xl first-letter:font-bold first-letter:mr-1">
+                    <h3 className="font-serif text-2xl md:text-4xl lg:text-5xl text-stone-900 dark:text-white leading-[1.1]">
                         {featured.title}
                     </h3>
-                    <p className="text-stone-500 text-lg leading-relaxed font-light">{featured.desc}</p>
-                    <div className="pt-8 border-t border-stone-100 flex items-center justify-between">
+                    <p className="text-stone-500 dark:text-stone-400 text-lg leading-relaxed font-light">{featured.desc}</p>
+                    <div className="pt-8 border-t border-stone-100 dark:border-white/10 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-stone-400"><User size={18} /></div>
                             <div>
@@ -313,7 +313,7 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
                         {t('journal.view_archive')} <ArrowRight size={14} />
                     </button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 md:gap-x-12 gap-y-10 md:gap-y-16">
                     {stories.map((s, idx) => (
                         <div key={idx} onClick={() => setSelectedArticle(s)} className="group cursor-pointer space-y-6 flex flex-col h-full hover:-translate-y-2 transition-transform duration-500">
                             <div className="aspect-[4/3] rounded-[32px] overflow-hidden shadow-soft group-hover:shadow-xl transition-all duration-500 relative">
@@ -339,12 +339,12 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
                 </div>
            </div>
 
-           <div className="bg-[#1a1a1a] rounded-[48px] p-12 md:p-20 text-white relative overflow-hidden group">
+           <div className="bg-[#1a1a1a] rounded-[32px] md:rounded-[48px] p-8 md:p-20 text-white relative overflow-hidden group">
                 <div className="absolute -top-24 -right-24 w-96 h-96 bg-art-primary/10 rounded-full blur-[100px] group-hover:scale-125 transition-transform duration-[3s]"></div>
                 <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     <div className="space-y-6">
                         <MessageCircle size={40} className="text-art-primary" />
-                        <h3 className="font-serif text-4xl md:text-6xl leading-none whitespace-pre-line">{t('journal.newsletter_title')}</h3>
+                        <h3 className="font-serif text-3xl md:text-4xl lg:text-6xl leading-none whitespace-pre-line">{t('journal.newsletter_title')}</h3>
                         <p className="text-stone-400 font-light text-lg">{t('journal.newsletter_desc')}</p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4">
@@ -358,20 +358,20 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
        </div>
 
        {selectedArticle && (
-           <div className="fixed inset-0 z-[2000] bg-white animate-page-enter">
-               <div className="fixed top-0 left-0 w-full h-1 bg-stone-100 z-[2020]">
+           <div className="fixed inset-0 z-[2000] bg-white dark:bg-stone-950 animate-page-enter">
+               <div className="fixed top-0 left-0 w-full h-1 bg-stone-100 dark:bg-stone-800 z-[2020]">
                    <div className="h-full bg-art-primary transition-all duration-100 ease-out" style={{ width: `${readingProgress * 100}%` }}></div>
                </div>
-               <button onClick={() => setSelectedArticle(null)} className="fixed top-8 right-8 z-[2030] p-3 rounded-full bg-stone-100 hover:bg-stone-200 transition-colors">
-                   <X size={24} className="text-stone-600" />
+               <button onClick={() => setSelectedArticle(null)} className="fixed top-8 right-8 z-[2030] p-3 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors">
+                   <X size={24} className="text-stone-600 dark:text-stone-300" />
                </button>
                <div id="article-reader-container" className="h-full overflow-y-auto max-w-full">
                    <div className="max-w-3xl mx-auto px-6 py-24 md:py-32">
-                       <div className="text-center mb-16 space-y-6 animate-fade-in-up">
+                       <div className="text-center mb-10 md:mb-16 space-y-4 md:space-y-6 animate-fade-in-up">
                            <span className="text-art-primary text-xs font-bold uppercase tracking-[0.3em]">{selectedArticle.category || selectedArticle.tag}</span>
-                           <h1 className="font-serif text-5xl md:text-7xl text-stone-900 leading-tight">{selectedArticle.title}</h1>
-                           <div className="flex items-center justify-center gap-4 text-stone-400 text-sm pt-4 border-t border-stone-100 w-fit mx-auto mt-8 px-8">
-                               <span className="font-bold uppercase tracking-widest text-stone-800">{selectedArticle.author}</span>
+                           <h1 className="font-serif text-3xl md:text-5xl lg:text-7xl text-stone-900 dark:text-white leading-tight">{selectedArticle.title}</h1>
+                           <div className="flex items-center justify-center gap-4 text-stone-400 text-sm pt-4 border-t border-stone-100 dark:border-white/10 w-fit mx-auto mt-8 px-8">
+                               <span className="font-bold uppercase tracking-widest text-stone-800 dark:text-stone-200">{selectedArticle.author}</span>
                                <span>-</span>
                                <span className="font-mono">{selectedArticle.date}</span>
                                <span>-</span>
@@ -381,8 +381,8 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
                        <div className="w-full aspect-video rounded-2xl overflow-hidden shadow-xl mb-16 animate-scale-in">
                            <FadeInImage src={selectedArticle.image} className="w-full h-full object-cover" />
                        </div>
-                       <div className="prose prose-lg prose-stone max-w-none font-serif leading-loose first-letter:text-5xl first-letter:font-bold first-letter:text-art-accent first-letter:float-left first-letter:mr-3 animate-fade-in-up delay-300" dangerouslySetInnerHTML={{ __html: selectedArticle.content || "<p>文章内容正在撰写中...</p>" }}></div>
-                       <div className="mt-20 pt-10 border-t border-stone-100 flex justify-between items-center text-stone-400">
+                       <div className="prose prose-lg prose-stone dark:prose-invert max-w-none font-serif leading-loose first-letter:text-5xl first-letter:font-bold first-letter:text-art-accent first-letter:float-left first-letter:mr-3 animate-fade-in-up delay-300" dangerouslySetInnerHTML={{ __html: selectedArticle.content || "<p>文章内容正在撰写中...</p>" }}></div>
+                       <div className="mt-20 pt-10 border-t border-stone-100 dark:border-white/10 flex justify-between items-center text-stone-400">
                            <div className="flex gap-4">
                                <button className="flex items-center gap-2 hover:text-art-primary transition-colors"><Bookmark size={18} /> Save</button>
                                <button className="flex items-center gap-2 hover:text-art-primary transition-colors"><Share2 size={18} /> Share</button>

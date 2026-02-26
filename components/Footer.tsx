@@ -13,12 +13,12 @@ const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenLegal }) => {
   const { t } = useLanguage();
 
   return (
-    <footer className="w-full bg-[#0a0a0a] text-white pt-32 pb-12 border-t border-white/5 relative overflow-hidden">
+    <footer className="w-full bg-[#0a0a0a] text-white pt-16 md:pt-32 pb-12 border-t border-white/5 relative overflow-hidden">
       {/* Subtle Grain Texture */}
       <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] pointer-events-none"></div>
 
       <div className="max-w-[1800px] mx-auto px-6 md:px-12 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-16 lg:gap-24 mb-24">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-24 mb-16 md:mb-24">
           
           {/* Brand Column */}
           <div className="md:col-span-4 space-y-8">
@@ -35,8 +35,13 @@ const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenLegal }) => {
                {t('footer.tagline')}
              </p>
              <div className="flex gap-4 pt-4">
-                {[Instagram, Twitter, Facebook].map((Icon, i) => (
-                    <a key={i} href="#" className="w-10 h-10 rounded-full bg-white/5 border border-white/5 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300 hover:-translate-y-1 group">
+                {[
+                  { Icon: Instagram, href: 'https://www.instagram.com/artislife.official', label: 'Instagram' },
+                  { Icon: Twitter,   href: 'https://x.com/ArtIsLife_AI',                  label: 'Twitter / X' },
+                  { Icon: Facebook,  href: 'https://www.facebook.com/artislife.official',  label: 'Facebook' },
+                ].map(({ Icon, href, label }) => (
+                    <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
+                      className="w-10 h-10 rounded-full bg-white/5 border border-white/5 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300 hover:-translate-y-1 group">
                         <Icon size={16} className="group-hover:scale-110 transition-transform"/>
                     </a>
                 ))}

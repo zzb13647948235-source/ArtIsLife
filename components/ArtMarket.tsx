@@ -541,11 +541,11 @@ const ArtMarket: React.FC<ArtMarketProps> = ({ onNavigate, isActive, onFullScree
   ];
 
   return (
-    <div className="min-h-screen pt-32 pb-24 px-6 md:px-12 max-w-[1600px] mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-8 animate-fade-in relative z-20">
+    <div className="min-h-screen pt-20 md:pt-32 pb-16 md:pb-24 px-4 md:px-12 max-w-[1600px] mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-8 md:mb-12 gap-4 md:gap-8 animate-fade-in relative z-20">
             <div className="space-y-4">
                 <div className="flex items-center gap-3 text-art-gold"><Crown size={20} /><span className="text-[10px] font-bold uppercase tracking-[0.4em]">{t('market.tag_private')}</span></div>
-                <h2 className="font-serif text-7xl md:text-8xl text-white tracking-tighter leading-none">{isActive && <AppleText text={t('market.title')} delay={0.2} />}<span className="text-stone-700">.</span></h2>
+                <h2 className="font-serif text-5xl md:text-7xl lg:text-8xl text-white tracking-tighter leading-none">{isActive && <AppleText text={t('market.title')} delay={0.2} />}<span className="text-stone-700">.</span></h2>
                 
                 {/* Tab Navigation with 3 tabs */}
                 <div className="flex gap-2 pt-4">
@@ -587,7 +587,7 @@ const ArtMarket: React.FC<ArtMarketProps> = ({ onNavigate, isActive, onFullScree
         )}
 
         {/* Filters Toolbar */}
-        <div className="mb-8 flex flex-wrap gap-4 animate-fade-in-up delay-100">
+        <div className="mb-6 md:mb-8 flex flex-wrap gap-2 md:gap-4 animate-fade-in-up delay-100">
             <div className="relative group">
                 <select value={filterRarity} onChange={(e) => setFilterRarity(e.target.value)}
                     className="appearance-none bg-[#1a1a1a] border border-white/10 text-white text-xs font-bold uppercase tracking-wider pl-4 pr-10 py-3 rounded-full hover:border-art-gold/50 focus:outline-none focus:border-art-gold transition-colors">
@@ -621,10 +621,10 @@ const ArtMarket: React.FC<ArtMarketProps> = ({ onNavigate, isActive, onFullScree
             </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 min-h-[50vh]">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 min-h-[50vh]">
             {visibleItems.length > 0 ? (
                 visibleItems.map((item: any, idx: number) => (
-                    <MarketCard key={`${item.id}-${idx}`} onClick={() => activeTab === 'collection' ? setViewingItem(item) : setSelectedItem(item)} className={`group bg-[#111] rounded-[32px] overflow-hidden border transition-all flex flex-col animate-fade-in-up ${activeTab === 'collection' ? 'border-art-gold/20 shadow-[0_0_20px_rgba(197,160,89,0.1)]' : 'border-white/5 hover:border-art-gold/40 shadow-lg'}`}>
+                    <MarketCard key={`${item.id}-${idx}`} onClick={() => activeTab === 'collection' ? setViewingItem(item) : setSelectedItem(item)} className={`group bg-[#111] rounded-[20px] md:rounded-[32px] overflow-hidden border transition-all flex flex-col animate-fade-in-up ${activeTab === 'collection' ? 'border-art-gold/20 shadow-[0_0_20px_rgba(197,160,89,0.1)]' : 'border-white/5 hover:border-art-gold/40 shadow-lg'}`}>
                         <div className="aspect-[3/4] relative overflow-hidden bg-stone-900">
                             <img src={item.image} loading="lazy" className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110 opacity-80 group-hover:opacity-100" />
                             <div className="absolute top-4 left-4 flex gap-2 z-10">
@@ -635,7 +635,7 @@ const ArtMarket: React.FC<ArtMarketProps> = ({ onNavigate, isActive, onFullScree
                             <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent opacity-60 group-hover:opacity-90 transition-opacity"></div>
                             {activeTab !== 'collection' && <div className="absolute bottom-0 left-0 w-full p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-500"><LivePrice basePrice={item.basePrice} /></div>}
                         </div>
-                        <div className="p-6 space-y-2 flex-1 flex flex-col justify-between relative z-10 bg-[#111]">
+                        <div className="p-4 md:p-6 space-y-2 flex-1 flex flex-col justify-between relative z-10 bg-[#111]">
                             <div><h3 className="font-serif text-xl text-white group-hover:text-art-gold transition-colors truncate leading-none tracking-tight mb-2">{item.title}</h3><div className="flex items-center justify-between"><p className="text-[10px] text-stone-500 uppercase tracking-[0.2em] font-medium">{item.artist}</p><ArrowUpRight size={14} className="text-stone-700 group-hover:text-white transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1" /></div></div>
                         </div>
                     </MarketCard>

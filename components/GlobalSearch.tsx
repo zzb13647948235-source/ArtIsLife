@@ -10,6 +10,7 @@ interface SearchResult {
   subtitle: string;
   imageUrl?: string;
   view: ViewState;
+  targetId: string;
 }
 
 interface GlobalSearchProps {
@@ -25,7 +26,8 @@ const buildIndex = (): SearchResult[] => {
       title: art.title,
       subtitle: art.artist + (art.year !== 'unknown' ? ` · ${art.year}` : ''),
       imageUrl: art.url,
-      view: 'styles',
+      view: 'market',
+      targetId: art.title,
     });
   });
 
@@ -35,6 +37,7 @@ const buildIndex = (): SearchResult[] => {
       title: style.name,
       subtitle: style.enName + ' · ' + style.period,
       view: 'styles',
+      targetId: style.id,
     });
   });
 
@@ -45,6 +48,7 @@ const buildIndex = (): SearchResult[] => {
       subtitle: level.artist + ' · 修复挑战',
       imageUrl: level.imageUrl,
       view: 'game',
+      targetId: String(level.id),
     });
   });
 
@@ -88,6 +92,9 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ onNavigate }) => {
 
   const handleSelect = (r: SearchResult) => {
     onNavigate(r.view);
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('search-target', { detail: { type: r.type, id: r.targetId } }));
+    }, 600);
     setOpen(false);
   };
 

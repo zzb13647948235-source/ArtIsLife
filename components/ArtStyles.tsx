@@ -3,6 +3,36 @@ import { ART_STYLES } from '../constants';
 import { ArrowUpRight, X, Info, Search, Loader2 } from 'lucide-react';
 import { ViewState } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
+import { gsap } from 'gsap';
+
+// Sticky follow-cursor label for each style row
+const useStickyLabel = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const labelRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  const posRef = useRef({ x: 0, y: 0 });
+  const rafRef = useRef<number>(0);
+
+  const onMouseMove = useCallback((e: React.MouseEvent) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    posRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    if (labelRef.current) {
+      gsap.to(labelRef.current, {
+        x: posRef.current.x,
+        y: posRef.current.y,
+        duration: 0.4,
+        ease: 'power3.out',
+        overwrite: 'auto',
+      });
+    }
+  }, []);
+
+  const onMouseEnter = useCallback(() => setVisible(true), []);
+  const onMouseLeave = useCallback(() => setVisible(false), []);
+
+  return { containerRef, labelRef, visible, onMouseMove, onMouseEnter, onMouseLeave };
+};
 
 // --- HELPER & GENERIC COMPONENTS ---
 
@@ -76,6 +106,33 @@ const TiltFrame: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 // --- REFACTORED & MEMOIZED COMPONENTS ---
 
+// StyleRow: wraps each art style row with a sticky follow-cursor label
+const StyleRow: React.FC<{ styleName: string; children: React.ReactNode; id?: string }> = ({ styleName, children, id }) => {
+  const { containerRef, labelRef, visible, onMouseMove, onMouseEnter, onMouseLeave } = useStickyLabel();
+  return (
+    <div
+      id={id}
+      ref={containerRef}
+      onMouseMove={onMouseMove}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      className="group relative border-t border-stone-200/60 transition-colors duration-1000 hover:bg-white/40 animate-fade-in"
+    >
+      <div
+        ref={labelRef}
+        className="pointer-events-none absolute z-50 -translate-x-1/2 -translate-y-1/2"
+        style={{ opacity: visible ? 1 : 0, top: 0, left: 0, transition: 'opacity 0.2s' }}
+      >
+        <div className="flex items-center gap-2 bg-art-accent text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full shadow-hard whitespace-nowrap">
+          <span>{styleName}</span>
+          <ArrowUpRight size={12} />
+        </div>
+      </div>
+      {children}
+    </div>
+  );
+};
+
 interface ArtStyleListProps {
     styles: any[];
     t: (key: string) => string;
@@ -85,6 +142,17 @@ interface ArtStyleListProps {
 
 const ArtStyleList: React.FC<ArtStyleListProps> = memo(({ styles, t, onTryStyle, onSelectStyle }) => {
     const [hoveredIdx, setHoveredIdx] = useState<string | null>(null);
+
+    useEffect(() => {
+        const handler = (e: Event) => {
+            const { type, id } = (e as CustomEvent).detail;
+            if (type !== 'style') return;
+            const el = document.getElementById(`style-${id}`);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+        window.addEventListener('search-target', handler);
+        return () => window.removeEventListener('search-target', handler);
+    }, []);
 
     if (styles.length === 0) {
         return (
@@ -100,17 +168,17 @@ const ArtStyleList: React.FC<ArtStyleListProps> = memo(({ styles, t, onTryStyle,
             {styles.map((style, index) => {
                 const styleName = t(`styles.${style.id}_name`);
                 return (
-                    <div key={style.id} className="group relative border-t border-stone-200/60 transition-colors duration-1000 hover:bg-white/40 animate-fade-in">
-                        <div className="px-6 md:px-12 max-w-[1800px] mx-auto py-24 md:py-48 grid grid-cols-1 md:grid-cols-12 gap-16 items-start">
-                            <div className="md:col-span-4 md:sticky md:top-40 reveal-on-scroll z-10">
-                                <div className="flex items-center gap-4 mb-8 opacity-60">
+                    <StyleRow key={style.id} styleName={styleName} id={`style-${style.id}`}>
+                        <div className="px-4 md:px-12 max-w-[1800px] mx-auto py-8 md:py-24 lg:py-48 grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-16 items-start">
+                            <div className="md:col-span-4 md:sticky md:top-28 reveal-on-scroll z-10">
+                                <div className="flex items-center gap-4 mb-6 opacity-60">
                                     <span className="font-mono text-xs block font-bold text-stone-600">0{index + 1}</span>
                                     <div className="h-px flex-1 bg-stone-300"></div>
                                 </div>
-                                <h3 className="font-serif text-5xl md:text-7xl text-art-accent mb-4 tracking-tighter">{styleName}</h3>
-                                <p className="font-serif text-2xl text-stone-400 italic mb-10">{style.enName}</p>
-                                <div className="relative mb-12 p-8 bg-white/40 backdrop-blur-md rounded-2xl border border-white/60 shadow-soft transition-all duration-500 hover:shadow-medium group-hover:bg-white/60">
-                                    <p className="text-stone-800 leading-loose text-lg font-light">{t(`styles.${style.id}_desc`)}</p>
+                                <h3 className="font-serif text-3xl md:text-5xl lg:text-7xl text-art-accent mb-3 tracking-tighter">{styleName}</h3>
+                                <p className="font-serif text-xl text-stone-400 italic mb-6 md:mb-10">{style.enName}</p>
+                                <div className="relative mb-8 md:mb-12 p-6 md:p-8 bg-white/40 backdrop-blur-md rounded-2xl border border-white/60 shadow-soft transition-all duration-500 hover:shadow-medium group-hover:bg-white/60">
+                                    <p className="text-stone-800 leading-loose text-base md:text-lg font-light">{t(`styles.${style.id}_desc`)}</p>
                                 </div>
                                 <div className="flex flex-col gap-4">
                                     <button onClick={() => onTryStyle(styleName)} className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-art-accent hover:text-art-primary transition-all pb-2 border-b border-art-accent/20 hover:border-art-primary group/btn w-fit">
@@ -122,7 +190,7 @@ const ArtStyleList: React.FC<ArtStyleListProps> = memo(({ styles, t, onTryStyle,
                                     </button>
                                 </div>
                             </div>
-                            <div className="md:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-20 md:gap-32">
+                            <div className="md:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 lg:gap-32">
                                 {style.works.map((work: any, idx: number) => {
                                     const workId = `${style.id}-${idx}`;
                                     const transTitleKey = `styles.works.${style.id}-${idx}-title`;
@@ -130,13 +198,13 @@ const ArtStyleList: React.FC<ArtStyleListProps> = memo(({ styles, t, onTryStyle,
                                     const workTitle = t(transTitleKey) !== transTitleKey ? t(transTitleKey) : work.title;
                                     const workDesc = t(transDescKey) !== transDescKey ? t(transDescKey) : work.desc;
                                     return (
-                                        <div key={idx} onMouseEnter={() => setHoveredIdx(workId)} onMouseLeave={() => setHoveredIdx(null)} className={`flex flex-col gap-12 frame-reveal ${idx % 2 === 0 ? 'from-right' : 'from-left'} ${idx % 2 !== 0 ? 'md:mt-40' : ''}`} style={{ transitionDelay: `${idx * 0.15}s` }}>
+                                        <div key={idx} onMouseEnter={() => setHoveredIdx(workId)} onMouseLeave={() => setHoveredIdx(null)} className={`flex flex-col gap-8 md:gap-12 frame-reveal ${idx % 2 === 0 ? 'from-right' : 'from-left'} ${idx % 2 !== 0 ? 'md:mt-40' : ''}`} style={{ transitionDelay: `${idx * 0.15}s` }}>
                                             <TiltFrame>
                                                 <div className="relative group/work transition-all duration-700 ease-luxury hover:z-20">
                                                     <div className="absolute top-20 left-10 w-full h-full bg-black/30 blur-[40px] opacity-40 z-0"></div>
                                                     <div className="relative z-10 bg-[#2b2722] p-4 rounded-sm shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5),0_18px_36px_-18px_rgba(0,0,0,0.5)] border-t border-[#3d3831] border-b border-[#1a1815]">
                                                         <div className="border-[3px] border-[#a68a53] p-[1px] shadow-sm">
-                                                            <div className="bg-[#f0f0e8] p-10 md:p-14 relative shadow-[inset_0_0_30px_rgba(0,0,0,0.1)] overflow-hidden">
+                                                            <div className="bg-[#f0f0e8] p-6 md:p-14 relative shadow-[inset_0_0_30px_rgba(0,0,0,0.1)] overflow-hidden">
                                                                 <div className="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] mix-blend-multiply pointer-events-none"></div>
                                                                 <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-black/5 pointer-events-none"></div>
                                                                 <div className="relative border-[5px] border-[#c5a059] shadow-inner bg-[#1a1a1a]">
@@ -157,7 +225,7 @@ const ArtStyleList: React.FC<ArtStyleListProps> = memo(({ styles, t, onTryStyle,
                                             <div className={`transition-all duration-700 ${hoveredIdx === workId ? 'translate-x-2' : ''}`}>
                                                 <div className="flex items-center gap-4 mb-4">
                                                     <div className={`h-px bg-art-primary transition-all duration-700 ${hoveredIdx === workId ? 'w-16' : 'w-8'}`}></div>
-                                                    <h4 className="font-serif text-3xl md:text-4xl text-art-accent leading-tight">《{workTitle}》</h4>
+                                                    <h4 className="font-serif text-2xl md:text-3xl lg:text-4xl text-art-accent leading-tight">《{workTitle}》</h4>
                                                 </div>
                                                 <div className="pl-12">
                                                     <p className="text-xs font-bold uppercase tracking-[0.3em] text-stone-500 mb-4">{work.artist}</p>
@@ -171,7 +239,7 @@ const ArtStyleList: React.FC<ArtStyleListProps> = memo(({ styles, t, onTryStyle,
                                 })}
                             </div>
                         </div>
-                    </div>
+                    </StyleRow>
                 );
             })}
         </div>
@@ -298,16 +366,16 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
   }, [searchQuery, activeEra, activeRegion, activeMedium, t]);
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-transparent py-32 relative overflow-x-hidden">
+    <div ref={containerRef} className="min-h-screen bg-transparent py-20 md:py-32 relative overflow-x-hidden">
       
       <ScrollProgressBar isActive={isActive} scrollContainerRef={containerRef} />
 
-      <div className="px-6 md:px-12 max-w-[1800px] mx-auto mb-20 flex flex-col md:flex-row justify-between items-end gap-12">
+      <div className="px-4 md:px-12 max-w-[1800px] mx-auto mb-12 md:mb-20 flex flex-col md:flex-row justify-between items-end gap-8 md:gap-12">
         <div className="relative z-10">
            <span className={`block font-sans text-xs font-bold tracking-[0.3em] uppercase text-art-primary mb-4 text-shadow-sm transition-all duration-1000 delay-300 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
               {t('styles.subtitle')}
            </span>
-           <h2 className="font-serif text-6xl md:text-8xl text-art-accent leading-none drop-shadow-sm">
+           <h2 className="font-serif text-4xl md:text-6xl lg:text-8xl text-art-accent leading-none drop-shadow-sm">
              {isActive && <AppleText text={t('styles.title_1')} delay={0.4} />} <br/>
              {isActive && <AppleText text={t('styles.title_2')} delay={0.6} />}
            </h2>
@@ -335,7 +403,7 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
         </div>
       </div>
 
-      <div className={`px-6 md:px-12 max-w-[1800px] mx-auto mb-8 transition-all duration-1000 delay-900 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+      <div className={`px-4 md:px-12 max-w-[1800px] mx-auto mb-8 transition-all duration-1000 delay-900 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         {[
           {
             label: t('styles.filter_era'), values: eras, active: activeEra,
@@ -384,15 +452,15 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
         onSelectStyle={setSelectedStyle}
       />
 
-      <div className="bg-art-accent text-white py-48 text-center px-8 relative overflow-hidden reveal-on-scroll mt-20">
+      <div className="bg-art-accent text-white py-16 md:py-48 text-center px-8 relative overflow-hidden reveal-on-scroll mt-20">
          <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
          <div className="relative z-10 max-w-4xl mx-auto">
-            <h3 className="font-serif text-5xl md:text-8xl mb-16 leading-tight">
+            <h3 className="font-serif text-4xl md:text-5xl lg:text-8xl mb-10 md:mb-16 leading-tight">
                {isActive && <AppleText text={t('styles.cta_title')} delay={0.2} />}
             </h3>
-            <button 
+            <button
                 onClick={() => onNavigate('gallery')}
-                className="group relative px-16 py-6 bg-white text-art-accent rounded-full text-xs font-bold uppercase tracking-[0.3em] overflow-hidden hover:text-white transition-all shadow-hard"
+                className="group relative px-10 md:px-16 py-5 md:py-6 bg-white text-art-accent rounded-full text-xs font-bold uppercase tracking-[0.3em] overflow-hidden hover:text-white transition-all shadow-hard active:scale-95"
             >
                 <div className="absolute inset-0 bg-art-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-luxury"></div>
                 <span className="relative z-10">{t('styles.cta_btn')}</span>
@@ -402,15 +470,15 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
 
       {selectedStyle && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-stone-900/80 backdrop-blur-sm animate-fade-in" onClick={() => setSelectedStyle(null)}>
-              <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[40px] overflow-hidden shadow-2xl relative flex flex-col md:flex-row" onClick={e => e.stopPropagation()}>
-                  <button onClick={() => setSelectedStyle(null)} className="absolute top-6 right-6 p-2 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 transition-colors z-50">
-                      <X size={20} />
+              <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[28px] md:rounded-[40px] overflow-hidden shadow-2xl relative flex flex-col md:flex-row" onClick={e => e.stopPropagation()}>
+                  <button onClick={() => setSelectedStyle(null)} className="absolute top-4 right-4 md:top-6 md:right-6 p-2.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 transition-colors z-50 active:scale-90">
+                      <X size={18} />
                   </button>
-                  <div className="w-full md:w-1/3 bg-stone-50 p-8 flex flex-col justify-center border-r border-stone-100 relative overflow-hidden">
+                  <div className="w-full md:w-1/3 bg-stone-50 p-6 md:p-8 flex flex-col justify-center border-b md:border-b-0 md:border-r border-stone-100 relative overflow-hidden">
                       <div className={`absolute inset-0 opacity-10 ${selectedStyle.color}`}></div>
-                      <div className="relative z-10 space-y-8">
-                          <h3 className="font-serif text-5xl text-art-accent tracking-tighter">{t(`styles.${selectedStyle.id}_name`)}</h3>
-                          <p className="font-serif text-2xl text-stone-400 italic">{selectedStyle.enName}</p>
+                      <div className="relative z-10 space-y-4 md:space-y-8">
+                          <h3 className="font-serif text-3xl md:text-5xl text-art-accent tracking-tighter">{t(`styles.${selectedStyle.id}_name`)}</h3>
+                          <p className="font-serif text-lg md:text-2xl text-stone-400 italic">{selectedStyle.enName}</p>
                           <div className="font-mono text-xs text-stone-500 flex items-center gap-2">
                             <span>{selectedStyle.period}</span>
                           </div>
@@ -425,7 +493,7 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
                       </div>
                   </div>
                   <div className="w-full md:w-2/3 overflow-y-auto">
-                      <div className="p-12 grid grid-cols-1 gap-12">
+                      <div className="p-6 md:p-12 grid grid-cols-1 gap-8 md:gap-12">
                           {selectedStyle.works.map((work: any, index: number) => {
                               const transTitleKey = `styles.works.${selectedStyle.id}-${index}-title`;
                               const transDescKey = `styles.works.${selectedStyle.id}-${index}-desc`;

@@ -113,7 +113,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onNavigate, embedMode = f
                 {/* Bottom: Tagline */}
                 <div className="space-y-6">
                     <div className="w-16 h-1 bg-art-gold rounded-full"></div>
-                    <h2 className="font-serif text-5xl xl:text-6xl text-white leading-[1.1] tracking-tighter">
+                    <h2 className="font-serif text-3xl md:text-5xl xl:text-6xl text-white leading-[1.1] tracking-tighter">
                        {isLogin ? t('login.left_panel.welcome_back') : t('login.left_panel.start_renaissance')}
                     </h2>
                     <p className="text-white/60 text-sm font-light leading-relaxed max-w-sm">
@@ -140,14 +140,14 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onNavigate, embedMode = f
                 </button>
             )}
 
-            <div className="max-w-md w-full mx-auto my-auto px-8 py-12 md:px-12 md:py-16 space-y-8">
+            <div className="max-w-md w-full mx-auto my-auto px-6 py-8 md:px-12 md:py-16 space-y-8">
                 {/* Header */}
                 <div className="text-center space-y-3">
                     <div className="inline-flex items-center gap-2 text-art-primary mb-2">
                         <Sparkles size={14} className="animate-pulse" />
                         <span className="text-[9px] font-bold uppercase tracking-[0.4em]">{t('login.form.passage_title')}</span>
                     </div>
-                    <h1 className="font-serif text-4xl md:text-5xl text-stone-900 tracking-tight leading-none">
+                    <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-stone-900 tracking-tight leading-none">
                         {isLogin ? t('login.form.login_title') : t('login.form.register_title')}
                     </h1>
                     <p className="text-stone-400 text-sm italic font-serif">

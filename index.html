@@ -310,6 +310,50 @@
       .wind-sway-med-r  { animation: windSwayR     4.1s ease-in-out infinite; transform-origin: bottom center; }
       .wind-sway-fast-r { animation: windSwayRFast 2.9s ease-in-out infinite; transform-origin: bottom center; }
 
+      /* ── MANA-style letter pop-up ───────────────────────────────────────────── */
+      @keyframes letterPopUp {
+        0%   { transform: translateY(110%); }
+        100% { transform: translateY(0%);   }
+      }
+
+      /* ── Scroll indicator line collapse ─────────────────────────────────────── */
+      @keyframes scrollLineCollapse {
+        0%   { transform: scaleY(1);   opacity: 1; }
+        100% { transform: scaleY(0);   opacity: 0; }
+      }
+
+      /* ── Slow zoom for intro artwork ─────────────────────────────────────────── */
+      @keyframes slowZoom {
+        from { transform: scale(1.05); }
+        to   { transform: scale(1);    }
+      }
+
+      /* ── Animated dot grid background ───────────────────────────────────────── */
+      @keyframes dotDrift {
+        0%   { background-position: 0px 0px; }
+        100% { background-position: 28px 28px; }
+      }
+      .dot-grid-bg {
+        background-image: radial-gradient(circle, rgba(255,255,255,0.18) 2px, transparent 2px);
+        background-size: 32px 32px;
+        background-position: 0px 0px;
+        animation: dotDrift 6s linear infinite;
+      }
+
+      /* ── Pulse slow for restoration regions ──────────────────────────────────── */
+      @keyframes pulseSlow {
+        0%, 100% { opacity: 0.3; }
+        50%      { opacity: 0.7; }
+      }
+      .animate-pulse-slow { animation: pulseSlow 2.5s ease-in-out infinite; }
+
+      /* ── Fade in up for quiz fact panel ──────────────────────────────────────── */
+      @keyframes fadeInUp {
+        0%   { opacity: 0; transform: translateY(16px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in-up { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
       /* Touch-friendly minimum tap target */
       button, a, [role="button"] {
         min-height: 44px;

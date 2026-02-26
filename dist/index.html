@@ -45,9 +45,9 @@
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com" />
 
     <!-- Fonts: non-blocking load with font-display swap -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Lato:wght@300;400;700&family=Noto+Serif+SC:wght@300;400;500;700&display=swap" />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Lato:wght@300;400;700&family=Noto+Serif+SC:wght@300;400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Lato:wght@300;400;700&family=Noto+Serif+SC:wght@300;400;500;700&display=swap" rel="stylesheet" /></noscript>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet" /></noscript>
 
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -79,8 +79,9 @@
         theme: {
           extend: {
             fontFamily: {
-              serif: ['"Playfair Display"', '"Noto Serif SC"', 'serif'],
-              sans: ['"Lato"', '"Noto Sans SC"', 'sans-serif'],
+              serif: ['"Space Grotesk"', '"Noto Sans SC"', 'sans-serif'],
+              sans: ['"Space Grotesk"', '"Noto Sans SC"', 'sans-serif'],
+              display: ['"Space Grotesk"', '"Noto Sans SC"', 'sans-serif'],
             },
             colors: {
               art: {
@@ -137,37 +138,17 @@
               slideInRight: {
                 '0%': { opacity: '0', transform: 'translateX(40px)' },
                 '100%': { opacity: '1', transform: 'translateX(0)' },
-              },
-              textClipReveal: {
-                '0%': { transform: 'translateY(105%)' },
-                '100%': { transform: 'translateY(0)' },
-              },
-              slideUpReveal: {
-                '0%': { opacity: '0', transform: 'translateY(48px)' },
-                '100%': { opacity: '1', transform: 'translateY(0)' },
-              },
-              pageSlideIn: {
-                '0%': { transform: 'translateY(100%) scale(1.015)', opacity: '0.6' },
-                '100%': { transform: 'translateY(0) scale(1)', opacity: '1' },
-              },
-              slideFromBottom: {
-                '0%': { transform: 'translateY(100%)' },
-                '100%': { transform: 'translateY(0)' },
-              },
+              }
             },
             animation: {
               'fade-in': 'fadeIn 0.8s ease-out forwards',
-              'fade-in-up': 'fadeInUp 1s cubic-bezier(0.24, 1, 0.36, 1) forwards',
-              'reveal-right': 'revealRight 1.2s cubic-bezier(0.24, 1, 0.36, 1) forwards',
-              'reveal-left': 'revealLeft 1.2s cubic-bezier(0.24, 1, 0.36, 1) forwards',
+              'fade-in-up': 'fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'reveal-right': 'revealRight 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'reveal-left': 'revealLeft 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
               'scale-in': 'scaleIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-              'page-enter': 'pageEnter 0.8s cubic-bezier(0.24, 1, 0.36, 1) forwards',
-              'apple-reveal': 'appleReveal 1.2s cubic-bezier(0.24, 1, 0.36, 1) forwards',
-              'slide-in-right': 'slideInRight 1s cubic-bezier(0.24, 1, 0.36, 1) forwards',
-              'text-clip-reveal': 'textClipReveal 0.7s cubic-bezier(0.24, 1, 0.36, 1) forwards',
-              'slide-up-reveal': 'slideUpReveal 0.65s cubic-bezier(0.24, 1, 0.36, 1) forwards',
-              'page-slide-in': 'pageSlideIn 0.6s cubic-bezier(0.24, 1, 0.36, 1) forwards',
-              'slide-from-bottom': 'slideFromBottom 600ms cubic-bezier(0.24, 1, 0.36, 1) forwards',
+              'page-enter': 'pageEnter 0.8s cubic-bezier(0.2, 0, 0.2, 1) forwards',
+              'apple-reveal': 'appleReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'slide-in-right': 'slideInRight 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
               'spin-slow': 'spin 15s linear infinite',
               'shake': 'shake 0.5s ease-in-out',
               'marquee': 'marquee 30s linear infinite',
@@ -279,13 +260,66 @@
       .frame-reveal.from-left { transform: translateX(-100px) rotate(-3deg); }
       .frame-reveal.active { opacity: 1; transform: translateX(0) rotate(0); }
 
-      /* ── DEBUG SAFETY NET ── */
-      body > div[style*="position: fixed"],
-      body > div[style*="position:fixed"] {
-        opacity: 1 !important;
-        z-index: 9999 !important;
-        display: flex !important;
-        visibility: visible !important;
+      /* ── Sparkle twinkle ─────────────────────────────────────────────────── */
+      @keyframes sparkleTwinkle {
+        0%, 100% { opacity: 1;    transform: scale(1)    rotate(0deg);  }
+        40%       { opacity: 0.3; transform: scale(0.75) rotate(20deg); }
+        70%       { opacity: 0.8; transform: scale(1.1)  rotate(-10deg);}
+      }
+      .sparkle-twinkle { animation: sparkleTwinkle 3s ease-in-out infinite; }
+
+      /* ── Progress bar shimmer ────────────────────────────────────────────── */
+      @keyframes shimmerSweep {
+        0%   { transform: translateX(-100%); }
+        100% { transform: translateX(500%);  }
+      }
+      .shimmer-bar::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        width: 30%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+        animation: shimmerSweep 1.6s ease-in-out infinite;
+      }
+
+      /* ── Botanical wind-sway animations ─────────────────────────────────── */
+      @keyframes windSwayL {
+        0%,100% { transform: rotate(0deg); }
+        25%      { transform: rotate(-4deg); }
+        75%      { transform: rotate(2.5deg); }
+      }
+      @keyframes windSwayR {
+        0%,100% { transform: rotate(0deg); }
+        25%      { transform: rotate(4deg); }
+        75%      { transform: rotate(-2.5deg); }
+      }
+      @keyframes windSwayLFast {
+        0%,100% { transform: rotate(0deg); }
+        30%      { transform: rotate(-6deg); }
+        70%      { transform: rotate(3.5deg); }
+      }
+      @keyframes windSwayRFast {
+        0%,100% { transform: rotate(0deg); }
+        30%      { transform: rotate(6deg); }
+        70%      { transform: rotate(-3.5deg); }
+      }
+      .wind-sway-slow   { animation: windSwayL     5.5s ease-in-out infinite; transform-origin: bottom center; }
+      .wind-sway-med    { animation: windSwayL     3.8s ease-in-out infinite; transform-origin: bottom center; }
+      .wind-sway-fast   { animation: windSwayLFast 2.6s ease-in-out infinite; transform-origin: bottom center; }
+      .wind-sway-slow-r { animation: windSwayR     6.2s ease-in-out infinite; transform-origin: bottom center; }
+      .wind-sway-med-r  { animation: windSwayR     4.1s ease-in-out infinite; transform-origin: bottom center; }
+      .wind-sway-fast-r { animation: windSwayRFast 2.9s ease-in-out infinite; transform-origin: bottom center; }
+
+      /* ── MANA-style letter pop-up ───────────────────────────────────────────── */
+      @keyframes letterPopUp {
+        0%   { transform: translateY(110%); }
+        100% { transform: translateY(0%);   }
+      }
+
+      /* ── Scroll indicator line collapse ─────────────────────────────────────── */
+      @keyframes scrollLineCollapse {
+        0%   { transform: scaleY(1);   opacity: 1; }
+        100% { transform: scaleY(0);   opacity: 0; }
       }
 
       /* Touch-friendly minimum tap target */
@@ -296,13 +330,13 @@
       /* Override for inline/decorative elements */
       button.no-min, a.no-min { min-height: unset; min-width: unset; }
     </style>
-    <script type="module" crossorigin src="/assets/index-axR2Nd5G.js"></script>
+    <script type="module" crossorigin src="/assets/index-CH2pexF9.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/react-vendor-D_FnW1F8.js">
     <link rel="modulepreload" crossorigin href="/assets/ui-vendor-Hcmexxns.js">
     <link rel="modulepreload" crossorigin href="/assets/three-vendor-DTkXwBWA.js">
   </head>
   <body>
     <a href="#main-content" class="skip-to-content">跳转到主要内容</a>
-    <div id="root"></div>
+    <div id="root"></div>
   </body>
 </html>
