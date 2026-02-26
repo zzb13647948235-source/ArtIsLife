@@ -48,10 +48,10 @@ export interface UGCPost {
   id: string;
   userId: string;
   userName: string;
-  userAvatar?: string;
+  userAvatar?: string | null;
   imageUrl: string;
   title: string;
-  description?: string;
+  description?: string | null;
   tags: string[];
   likedByIds: string[];
   comments: UGCComment[];

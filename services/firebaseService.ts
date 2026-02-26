@@ -221,6 +221,8 @@ export const firebaseService = {
     const docRef = await addDoc(collection(db, 'ugc'), {
       ...post,
       imageUrl,
+      userAvatar: post.userAvatar ?? null,
+      description: post.description ?? null,
       likedByIds: [],
       comments: [],
       timestamp: serverTimestamp(),

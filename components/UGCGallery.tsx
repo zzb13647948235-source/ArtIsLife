@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { UGCPost, UGCComment, User, ViewState } from '../types';
 import { authService } from '../services/authService';
 import {
@@ -68,9 +69,9 @@ const UploadForm: React.FC<{ user: User; onSubmit: (post: UGCPost) => void; onCa
     setSubmitting(true);
     try {
       const post = await authService.createUGCPost({
-        userId: user.id, userName: user.name, userAvatar: user.avatar,
+        userId: user.id, userName: user.name, userAvatar: user.avatar ?? null,
         imageUrl: preview, title: title.trim(),
-        description: description.trim() || undefined,
+        description: description.trim() || null,
         tags, isAIGenerated: isAI,
       });
       onSubmit(post);
@@ -562,13 +563,15 @@ const UGCGallery: React.FC<UGCGalleryProps> = ({ user, onAuthRequired, isActive 
         </div>
       )}
 
-      {showUpload && user && (
-        <UploadForm user={user} onSubmit={(p) => { setPosts(prev => [p, ...prev]); setShowUpload(false); }} onCancel={() => setShowUpload(false)} />
+      {showUpload && user && createPortal(
+        <UploadForm user={user} onSubmit={(p) => { setPosts(prev => [p, ...prev]); setShowUpload(false); }} onCancel={() => setShowUpload(false)} />,
+        document.body
       )}
 
-      {selectedPost && (
+      {selectedPost && createPortal(
         <PostModal post={selectedPost} user={user} onClose={() => setSelectedPost(null)}
-          onLike={handleLike} onComment={handleComment} onDelete={handleDelete} onAuthRequired={onAuthRequired} />
+          onLike={handleLike} onComment={handleComment} onDelete={handleDelete} onAuthRequired={onAuthRequired} />,
+        document.body
       )}
 
       <style>{`.scrollbar-hide::-webkit-scrollbar{display:none}`}</style>
