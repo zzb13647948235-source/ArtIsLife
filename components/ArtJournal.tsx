@@ -116,6 +116,7 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
   const { t } = useLanguage();
   const [selectedArticle, setSelectedArticle] = useState<any | null>(null);
   const [readingProgress, setReadingProgress] = useState(0);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
 
   useEffect(() => {
       onArticleOpen?.(!!selectedArticle);
@@ -314,7 +315,7 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
                     </button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 md:gap-x-12 gap-y-10 md:gap-y-16">
-                    {stories.map((s, idx) => (
+                    {(isMobile ? stories.slice(0, 4) : stories).map((s, idx) => (
                         <div key={idx} onClick={() => setSelectedArticle(s)} className="group cursor-pointer space-y-6 flex flex-col h-full hover:-translate-y-2 transition-transform duration-500">
                             <div className="aspect-[4/3] rounded-[32px] overflow-hidden shadow-soft group-hover:shadow-xl transition-all duration-500 relative">
                                 <div className="w-full h-full group-hover:scale-105 transition-transform duration-700">

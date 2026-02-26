@@ -198,6 +198,8 @@ const LiquidBackground: React.FC<LiquidBackgroundProps> = ({ currentView }) => {
   }, [currentView]);
 
   useEffect(() => {
+      // Skip ripple system on mobile — canvas is already disabled
+      if (window.innerWidth < 768) return;
       let timeoutId: ReturnType<typeof setTimeout>;
       const spawnRipple = () => {
           const view = currentViewRef.current;

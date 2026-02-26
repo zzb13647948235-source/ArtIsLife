@@ -125,6 +125,11 @@ const PageTransition: React.FC<{
     const mobile = isMobileDevice();
     const duration = mobile ? 300 : 480;
     const opDuration = mobile ? 200 : 320;
+    // Mobile: only render current page + next page content (not previous)
+    // This halves memory usage and prevents Safari from crashing
+    const shouldRenderContent = mobile
+        ? (isActive || index === currentIndex + 1)
+        : isAdjacent;
 
     return (
         <div
@@ -139,6 +144,7 @@ const PageTransition: React.FC<{
                 opacity,
                 visibility: isAdjacent ? 'visible' : 'hidden',
                 pointerEvents: isActive ? 'auto' : 'none',
+                contain: 'layout style paint',
                 transition: isActive
                     ? `transform ${duration}ms cubic-bezier(0.22, 1, 0.36, 1), opacity ${opDuration}ms ease-out`
                     : `transform ${duration}ms cubic-bezier(0.22, 1, 0.36, 1), opacity ${opDuration - 40}ms ease-in`,
@@ -157,9 +163,9 @@ const PageTransition: React.FC<{
                     scrollBehavior: 'auto',
                 }}
             >
-                {isAdjacent ? children : null}
+                {shouldRenderContent ? children : null}
             </div>
-            {isAdjacent && overlay}
+            {shouldRenderContent && overlay}
         </div>
     );
 };
