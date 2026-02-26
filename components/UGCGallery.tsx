@@ -433,14 +433,15 @@ const PostModal: React.FC<{
             )}
             {user
               ? <div className="flex items-center gap-2">
-                  <div className={`w-9 h-9 rounded-full ${getAvatarColor(user.name)} border-2 border-black flex items-center justify-center text-white text-xs font-black flex-shrink-0 overflow-hidden`}>
+                  <div className={`w-8 h-8 rounded-full ${getAvatarColor(user.name)} border-2 border-black flex items-center justify-center text-white text-xs font-black flex-shrink-0 overflow-hidden`} style={{minWidth:'2rem',minHeight:'2rem'}}>
                     {user.avatar
                       ? <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                       : user.name.charAt(0).toUpperCase()}
                   </div>
                   <button
                     onClick={() => setShowEmoji(v => !v)}
-                    className="w-9 h-9 flex items-center justify-center bg-yellow-200 border-2 border-black rounded-full hover:bg-yellow-300 transition-colors flex-shrink-0 active:scale-90 text-base"
+                    className="w-8 h-8 flex items-center justify-center bg-yellow-200 border-2 border-black rounded-full hover:bg-yellow-300 transition-colors flex-shrink-0 active:scale-90 text-base leading-none"
+                    style={{minWidth:'2rem',minHeight:'2rem'}}
                   >😊</button>
                   <input
                     ref={inputRef}
@@ -455,7 +456,8 @@ const PostModal: React.FC<{
                   <button
                     onClick={submitComment}
                     disabled={submitting || !commentText.trim()}
-                    className="w-9 h-9 flex items-center justify-center bg-black text-white rounded-full disabled:opacity-40 hover:bg-stone-800 transition-colors flex-shrink-0 active:scale-90 border-2 border-black"
+                    className="w-8 h-8 flex items-center justify-center bg-black text-white rounded-full disabled:opacity-40 hover:bg-stone-800 transition-colors flex-shrink-0 active:scale-90 border-2 border-black"
+                    style={{minWidth:'2rem',minHeight:'2rem'}}
                   >
                     {submitting ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
                   </button>
