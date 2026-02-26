@@ -116,11 +116,11 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
     { id: 'styles',     label: t('nav.styles') },
     { id: 'gallery',    label: t('nav.gallery') },
     { id: 'chat',       label: t('nav.chat') },
-    { id: 'game',       label: t('nav.game') },
     { id: 'map',        label: t('nav.map') },
-    { id: 'market',     label: t('nav.market') },
     { id: 'community',  label: '社区', icon: <Users size={12} className="text-art-primary" /> },
     { id: 'membership', label: 'VIP', icon: <Crown size={12} className="text-art-gold" /> },
+    { id: 'game',       label: t('nav.game') },
+    { id: 'market',     label: t('nav.market') },
   ];
 
   const isDarkMode = currentView === 'market' && !scrolled;

@@ -29,7 +29,7 @@ import { MessageSquare, AlertTriangle, RefreshCw, X } from 'lucide-react';
 import FloatingArtTip from './components/FloatingArtTip';
 
 const STORAGE_KEY_ART_HISTORY = 'artislife_history';
-const NAV_ORDER: ViewState[] = ['intro', 'home', 'journal', 'styles', 'gallery', 'chat', 'game', 'map', 'market', 'community'];
+const NAV_ORDER: ViewState[] = ['intro', 'home', 'journal', 'styles', 'gallery', 'chat', 'map', 'community', 'game', 'market'];
 
 interface ErrorBoundaryProps { children?: ReactNode; }
 interface ErrorBoundaryState { hasError: boolean; }
