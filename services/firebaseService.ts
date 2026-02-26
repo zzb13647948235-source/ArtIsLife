@@ -13,6 +13,27 @@ import {
 } from 'firebase/auth';
 import { User, UGCPost, UGCComment } from '../types';
 
+// Firebase 错误码 → 中文
+const translateError = (error: any): string => {
+  const code = error?.code || '';
+  const map: Record<string, string> = {
+    'auth/email-already-in-use': '该邮箱已被注册，请直接登录',
+    'auth/invalid-email': '邮箱格式不正确',
+    'auth/operation-not-allowed': '邮箱/密码登录未启用，请在 Firebase 控制台开启',
+    'auth/weak-password': '密码强度不足，至少需要6位',
+    'auth/user-disabled': '该账号已被禁用',
+    'auth/user-not-found': '未找到该邮箱对应的账号，请先注册',
+    'auth/wrong-password': '密码错误，请重试',
+    'auth/invalid-credential': '邮箱或密码错误，请重试',
+    'auth/too-many-requests': '登录尝试次数过多，请稍后再试',
+    'auth/network-request-failed': '网络连接失败，请检查网络',
+  };
+  return map[code] || error?.message || '操作失败，请重试';
+};
+
+// 注册期间跳过 onAuthStateChanged 覆盖
+let isRegistering = false;
+
 // 压缩图片为小尺寸 base64
 const compressImage = (dataUrl: string, maxSize: number): Promise<string> => {
   return new Promise((resolve) => {
@@ -47,6 +68,7 @@ let currentUser: User | null = null;
 
 // 监听 Firebase Auth 状态变化
 onAuthStateChanged(auth, async (firebaseUser) => {
+  if (isRegistering) return; // 注册流程中跳过，避免覆盖
   if (firebaseUser) {
     const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
     if (userDoc.exists()) {
@@ -100,36 +122,46 @@ export const firebaseService = {
 
   // ---- 注册 ----
   async register(name: string, email: string, password: string): Promise<User> {
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
-    await updateProfile(cred.user, { displayName: name });
-    const newUser: User = {
-      id: cred.user.uid,
-      name,
-      email,
-      tier: 'guest',
-      joinedAt: Date.now(),
-      balance: 1000,
-      inventoryIds: [],
-      likedItemIds: []
-    };
-    await doc(db, 'users', cred.user.uid);
-    const { setDoc } = await import('firebase/firestore');
-    await setDoc(doc(db, 'users', cred.user.uid), newUser);
-    currentUser = newUser;
-    notifyAuth(newUser);
-    return newUser;
+    isRegistering = true;
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(cred.user, { displayName: name });
+      const newUser: User = {
+        id: cred.user.uid,
+        name,
+        email,
+        tier: 'guest',
+        joinedAt: Date.now(),
+        balance: 1000,
+        inventoryIds: [],
+        likedItemIds: []
+      };
+      const { setDoc } = await import('firebase/firestore');
+      await setDoc(doc(db, 'users', cred.user.uid), newUser);
+      currentUser = newUser;
+      notifyAuth(newUser);
+      return newUser;
+    } catch (error: any) {
+      throw new Error(translateError(error));
+    } finally {
+      isRegistering = false;
+    }
   },
 
   // ---- 登录 ----
   async login(email: string, password: string): Promise<User> {
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-    const userDoc = await getDoc(doc(db, 'users', cred.user.uid));
-    const user: User = userDoc.exists()
-      ? { id: cred.user.uid, ...userDoc.data() } as User
-      : { id: cred.user.uid, name: cred.user.displayName || '艺术家', email, tier: 'guest', joinedAt: Date.now(), balance: 1000, inventoryIds: [], likedItemIds: [] };
-    currentUser = user;
-    notifyAuth(user);
-    return user;
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      const userDoc = await getDoc(doc(db, 'users', cred.user.uid));
+      const user: User = userDoc.exists()
+        ? { id: cred.user.uid, ...userDoc.data() } as User
+        : { id: cred.user.uid, name: cred.user.displayName || '艺术家', email, tier: 'guest', joinedAt: Date.now(), balance: 1000, inventoryIds: [], likedItemIds: [] };
+      currentUser = user;
+      notifyAuth(user);
+      return user;
+    } catch (error: any) {
+      throw new Error(translateError(error));
+    }
   },
 
   // ---- 登出 ----
