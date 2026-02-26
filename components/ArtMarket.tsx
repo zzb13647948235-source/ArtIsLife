@@ -148,6 +148,32 @@ const AuctionModal: React.FC<{ item: any; user: User | null; onClose: () => void
     const [auctionStatus, setAuctionStatus] = useState<'active' | 'won' | 'lost'>('active');
     const [isHammerDown, setIsHammerDown] = useState(false);
 
+    const currentBidRef = useRef(item.basePrice);
+    const bidsRef = useRef<{ bidder: string, amount: number, time: string }[]>([]);
+    const isHammerDownRef = useRef(false);
+
+    const addBid = (bidder: string, amount: number) => {
+        const time = new Date().toLocaleTimeString();
+        const newBids = [{ bidder, amount, time }, ...bidsRef.current];
+        bidsRef.current = newBids;
+        currentBidRef.current = amount;
+        setBids(newBids);
+        setCurrentBid(amount);
+    };
+
+    const endAuction = () => {
+        if (isHammerDownRef.current) return;
+        isHammerDownRef.current = true;
+        setIsHammerDown(true);
+        const lastBidder = bidsRef.current[0]?.bidder;
+        if (lastBidder === 'You') {
+            setAuctionStatus('won');
+            if (user) authService.purchaseItem(user.id, currentBidRef.current, item.id.toString()).catch(console.error);
+        } else {
+            setAuctionStatus('lost');
+        }
+    };
+
     useEffect(() => {
         const timer = setInterval(() => {
             setTimeLeft(prev => {
@@ -157,38 +183,24 @@ const AuctionModal: React.FC<{ item: any; user: User | null; onClose: () => void
         }, 1000);
 
         const competitorTimer = setInterval(() => {
-            if (Math.random() > 0.6 && timeLeft > 5) {
-                const increase = Math.floor(Math.random() * 50) + 10;
-                const newBid = currentBid + increase;
-                setCurrentBid(prev => Math.max(prev, newBid));
-                addBid("Anonymous Collector", newBid);
-            }
+            if (isHammerDownRef.current) return;
+            setTimeLeft(t => {
+                if (Math.random() > 0.6 && t > 5) {
+                    const increase = Math.floor(Math.random() * 50) + 10;
+                    const newBid = currentBidRef.current + increase;
+                    addBid("Anonymous Collector", newBid);
+                }
+                return t;
+            });
         }, 3000);
 
         return () => { clearInterval(timer); clearInterval(competitorTimer); };
-    }, [timeLeft]); 
-
-    const endAuction = () => {
-        setIsHammerDown(true);
-        const lastBidder = bids[0]?.bidder;
-        if (lastBidder === 'You') {
-            setAuctionStatus('won');
-            if (user) authService.purchaseItem(user.id, currentBid, item.id.toString()).catch(console.error);
-        } else {
-            setAuctionStatus('lost');
-        }
-    };
-
-    const addBid = (bidder: string, amount: number) => {
-        const time = new Date().toLocaleTimeString();
-        setBids(prev => [{ bidder, amount, time }, ...prev]);
-        setCurrentBid(amount);
-    };
+    }, []);
 
     const placeBid = () => {
-        if (!user) return;
-        const nextBid = currentBid + 50;
-        if (user.balance < nextBid) { alert("资金不足 (Insufficient Funds)"); return; }
+        if (!user || isHammerDownRef.current) return;
+        const nextBid = currentBidRef.current + 50;
+        if (user.balance < nextBid) { alert("资金不足"); return; }
         addBid("You", nextBid);
     };
 

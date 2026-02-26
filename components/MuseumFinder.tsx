@@ -74,9 +74,9 @@ const MuseumFinder: React.FC<MuseumFinderProps> = ({ onNavigate, onOpenLegal }) 
   };
 
   return (
-    <div className="min-h-screen bg-transparent relative flex flex-col">
+    <div className="min-h-screen bg-transparent relative flex flex-col overflow-x-hidden w-full">
       {/* Background Decor */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-stone-200/40 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-stone-200/40 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none overflow-hidden"></div>
 
       <div className="flex-1 w-full pt-20 md:pt-24 min-h-screen">
           <div className={`max-w-[1400px] mx-auto px-4 md:px-12 pb-20 transition-all duration-700 ease-luxury ${hasSearched ? 'translate-y-0' : 'translate-y-[5vh]'}`}>

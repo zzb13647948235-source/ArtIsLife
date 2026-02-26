@@ -211,6 +211,17 @@ export const firebaseService = {
     return updated;
   },
 
+  // ---- 更新头像 ----
+  async updateAvatar(userId: string, dataUrl: string): Promise<User> {
+    const compressed = await compressImage(dataUrl, 200);
+    await updateDoc(doc(db, 'users', userId), { avatar: compressed });
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    const updated = { id: userId, ...userDoc.data() } as User;
+    currentUser = updated;
+    notifyAuth(updated);
+    return updated;
+  },
+
   // ---- 发帖 ----
   async createUGCPost(post: Omit<UGCPost, 'id' | 'likedByIds' | 'comments' | 'timestamp'>): Promise<UGCPost> {
     let imageUrl = post.imageUrl;

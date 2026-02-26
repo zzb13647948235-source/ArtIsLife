@@ -187,7 +187,7 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
 
       <div className="w-full max-w-[1920px] mx-auto px-6 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10 h-full">
         
-        <div className="lg:col-span-6 flex flex-col justify-center relative z-20 pt-20 md:pt-24 lg:pt-0 min-w-0">
+        <div className="lg:col-span-6 flex flex-col justify-center relative z-20 pt-4 md:pt-8 lg:pt-0 min-w-0">
               <div className="flex items-center gap-4 mb-8 animate-fade-in">
                   <div className="w-8 h-[1px] bg-art-primary"></div>
                   <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-art-primary/80">{t('hero.est')}</span>

@@ -1,10 +1,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ViewState, User } from '../types';
-import { Menu, Crown, Moon, Sun, Users } from 'lucide-react';
+import { Menu, Crown, Moon, Sun, Users, Camera, LogOut } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useDarkMode } from '../contexts/DarkModeContext';
 import GlobalSearch from './GlobalSearch';
+import { authService } from '../services/authService';
 
 interface NavigationProps {
   currentView: ViewState;
@@ -19,13 +20,43 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [pupil, setPupil] = useState({ x: 0, y: 0 });
   const [expression, setExpression] = useState<'neutral' | 'happy' | 'surprised' | 'wink' | 'sad' | 'sleepy' | 'love' | 'angry'>('neutral');
   const [isBlinking, setIsBlinking] = useState(false);
   const [logoHovered, setLogoHovered] = useState(false);
   const logoRef = useRef<HTMLDivElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
   const { t, language, setLanguage } = useLanguage();
   const { isDark, toggle: toggleDark } = useDarkMode();
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const dataUrl = ev.target?.result as string;
+      try {
+        await (authService as any).updateAvatar(user.id, dataUrl);
+      } catch (err) {
+        console.error('头像上传失败', err);
+      }
+    };
+    reader.readAsDataURL(file);
+    setProfileMenuOpen(false);
+    e.target.value = '';
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target as Node)) {
+        setProfileMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
@@ -286,14 +317,33 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
 
             {/* User / Login */}
             {user ? (
-              <button onClick={onLogout} aria-label={`${user.name}，点击登出`} className="flex items-center gap-2 group">
-                <div className="w-8 h-8 rounded-full bg-stone-300 overflow-hidden ring-2 ring-transparent group-hover:ring-art-primary/50 transition-all">
-                  {user.avatar
-                    ? <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                    : <div aria-hidden="true" className="w-full h-full flex items-center justify-center text-stone-700 font-serif italic text-sm">{user.name[0]}</div>
-                  }
-                </div>
-              </button>
+              <div className="relative" ref={profileMenuRef}>
+                <button onClick={() => setProfileMenuOpen(v => !v)} aria-label="用户菜单" className="flex items-center gap-2 group">
+                  <div className="w-8 h-8 rounded-full bg-stone-300 overflow-hidden ring-2 ring-transparent group-hover:ring-art-primary/50 transition-all">
+                    {user.avatar
+                      ? <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                      : <div aria-hidden="true" className="w-full h-full flex items-center justify-center text-stone-700 font-serif italic text-sm">{user.name[0]}</div>
+                    }
+                  </div>
+                </button>
+                {profileMenuOpen && (
+                  <div className="absolute top-full right-0 mt-3 w-44 bg-white rounded-2xl shadow-xl border border-stone-100 py-2 z-[110] animate-fade-in">
+                    <div className="px-4 py-2 border-b border-stone-100 mb-1">
+                      <p className="text-xs font-bold text-stone-800 truncate">{user.name}</p>
+                      <p className="text-[10px] text-stone-400 truncate">{user.email}</p>
+                    </div>
+                    <button onClick={() => avatarInputRef.current?.click()}
+                      className="w-full flex items-center gap-2 px-4 py-2 text-xs text-stone-600 hover:bg-stone-50 transition-colors">
+                      <Camera size={13} /> 更换头像
+                    </button>
+                    <button onClick={() => { onLogout(); setProfileMenuOpen(false); }}
+                      className="w-full flex items-center gap-2 px-4 py-2 text-xs text-red-500 hover:bg-red-50 transition-colors">
+                      <LogOut size={13} /> 登出
+                    </button>
+                  </div>
+                )}
+                <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+              </div>
             ) : (
               <button onClick={() => onNavigate('login')}
                 className={`text-[10px] font-bold uppercase tracking-[0.2em] border-b border-transparent hover:border-current pb-0.5 transition-all ${baseTextColor}`}>
@@ -353,10 +403,16 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
               ))}
             </div>
             {user ? (
-              <button onClick={() => { onLogout(); setMobileMenuOpen(false); }}
-                className="text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-red-500 transition-colors">
-                登出
-              </button>
+              <div className="flex items-center gap-3">
+                <button onClick={() => { avatarInputRef.current?.click(); setMobileMenuOpen(false); }}
+                  className="text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-art-primary transition-colors flex items-center gap-1">
+                  <Camera size={11} /> 头像
+                </button>
+                <button onClick={() => { onLogout(); setMobileMenuOpen(false); }}
+                  className="text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-red-500 transition-colors">
+                  登出
+                </button>
+              </div>
             ) : (
               <button onClick={() => { onNavigate('login'); setMobileMenuOpen(false); }}
                 className="text-[10px] font-bold uppercase tracking-widest text-art-primary">

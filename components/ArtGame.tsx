@@ -399,7 +399,7 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
                           return (
                               <button key={visualIndex} onClick={() => handlePuzzleTileClick(visualIndex)}
                                 className={`absolute transition-all duration-300 border border-[#1a1a1a] box-border ${isSelected ? 'z-30 brightness-125 shadow-[0_0_30px_rgba(188,75,26,0.6)] scale-[0.98] ring-4 ring-art-primary' : 'z-10 hover:brightness-110'}`}
-                                style={{ width: `${tileSizePercent}%`, height: `${tileSizePercent}%`, left: `${col * tileSizePercent}%`, top: `${row * tileSizePercent}%`, backgroundImage: `url(${currentLevel.imageUrl})`, backgroundSize: `${size * 100}% ${size * 100}%`, backgroundPosition: `${originalCol * (100 / (size - 1))}% ${originalRow * (100 / (size - 1))}%` }}
+                                style={{ width: `${tileSizePercent}%`, height: `${tileSizePercent}%`, left: `${col * tileSizePercent}%`, top: `${row * tileSizePercent}%`, backgroundImage: `url(${encodeURI(currentLevel.imageUrl)})`, backgroundSize: `${size * 100}% ${size * 100}%`, backgroundPosition: `${size <= 1 ? '0' : (originalCol / (size - 1)) * 100}% ${size <= 1 ? '0' : (originalRow / (size - 1)) * 100}%` }}
                               ><span className="absolute top-1 left-2 text-[10px] text-white/50 font-mono pointer-events-none select-none drop-shadow-md">{tileIndex + 1}</span></button>
                           );
                       })}
@@ -685,7 +685,7 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
                    </div>
 
                    <div className="space-y-3 md:space-y-6">
-                       <h3 className="font-serif text-xl md:text-3xl text-stone-800 text-center lg:text-left mb-4 md:mb-8">Which masterpiece is this detail from?</h3>
+                       <h3 className="font-serif text-xl md:text-3xl text-stone-800 text-center lg:text-left mb-4 md:mb-8">这幅名画的局部出自哪件作品？</h3>
                        <div className="grid grid-cols-1 gap-2 md:gap-4">
                            {currentQ.options.map((opt: any) => {
                                let btnClass = "p-3 md:p-5 rounded-xl md:rounded-2xl border-2 border-stone-200 text-left font-serif text-base md:text-lg transition-all hover:border-art-primary hover:shadow-md bg-white text-stone-700 active:scale-[0.98]";
@@ -701,8 +701,8 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
                                       disabled={showFact}
                                       className={btnClass}
                                    >
-                                       {opt.title}
-                                       <span className="block text-xs font-sans font-bold uppercase tracking-widest text-stone-400 mt-1">{opt.artist}</span>
+                                       {(opt as any).titleZh || opt.title}
+                                       <span className="block text-xs font-sans font-bold uppercase tracking-widest text-stone-400 mt-1">{(opt as any).artistZh || opt.artist}</span>
                                    </button>
                                );
                            })}
@@ -711,10 +711,10 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
                        {showFact && (
                            <div className="animate-fade-in-up">
                                <div className="p-6 bg-art-primary/5 rounded-2xl border border-art-primary/10 mb-6">
-                                   <p className="text-stone-600 text-sm leading-relaxed"><span className="font-bold text-art-primary mr-2">Did you know?</span>{currentQ.target.description}</p>
+                                   <p className="text-stone-600 text-sm leading-relaxed"><span className="font-bold text-art-primary mr-2">你知道吗？</span>{currentQ.target.description}</p>
                                </div>
                                <button onClick={nextQuizStep} className="w-full py-4 bg-stone-900 text-white rounded-xl font-bold uppercase tracking-[0.2em] hover:bg-art-primary transition-colors">
-                                   {currentQuizIdx + 1 < quizQuestions.length ? 'Next Question' : 'Finish Quiz'}
+                                   {currentQuizIdx + 1 < quizQuestions.length ? '下一题' : '完成问答'}
                                </button>
                            </div>
                        )}
@@ -735,7 +735,7 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
                   <h2 className="font-serif text-4xl md:text-6xl text-art-accent italic">{t('game.won_title')}</h2>
                   <div className="flex flex-col gap-3 md:gap-4 items-center">
                       <p className="text-stone-500 font-light text-base md:text-lg">
-                          {gameMode === 'restoration' ? 'Masterpiece Restored' : gameMode === 'puzzle' ? 'Memory Reconstructed' : 'Knowledge Certified'}
+                          {gameMode === 'restoration' ? '杰作已修复' : gameMode === 'puzzle' ? '拼图已完成' : '知识已认证'}
                       </p>
                       {earnedCoins > 0 && (
                           <div className="flex items-center gap-2 px-5 md:px-6 py-2.5 md:py-3 bg-yellow-100 text-yellow-700 rounded-full font-bold border border-yellow-200 text-sm md:text-base">

@@ -478,7 +478,7 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
                   </button>
                   <div className="w-full md:w-1/3 bg-stone-50 p-5 md:p-8 flex flex-col justify-center border-b md:border-b-0 md:border-r border-stone-100 relative overflow-hidden shrink-0">
                       {/* Mobile back button */}
-                      <button onClick={() => setSelectedStyle(null)} className="md:hidden flex items-center gap-2 mb-4 text-stone-500 active:scale-95">
+                      <button onClick={(e) => { e.stopPropagation(); setSelectedStyle(null); }} className="md:hidden flex items-center gap-2 mb-4 text-stone-500 active:scale-95 relative z-20">
                           <ChevronLeft size={20} />
                           <span className="text-sm font-bold uppercase tracking-widest">返回</span>
                       </button>
