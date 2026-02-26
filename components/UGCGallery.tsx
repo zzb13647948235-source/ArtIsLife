@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { UGCPost, UGCComment, User, ViewState } from '../types';
 import { authService } from '../services/authService';
 import {
@@ -386,7 +386,6 @@ const UGCGallery: React.FC<UGCGalleryProps> = ({ user, onAuthRequired, onNavigat
   const [showUpload, setShowUpload] = useState(false);
   const [newPostCount, setNewPostCount] = useState(0);
   const [activeTag, setActiveTag] = useState<string | null>(null);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     const unsub = authService.subscribeToUGC((updated) => {
@@ -399,17 +398,7 @@ const UGCGallery: React.FC<UGCGalleryProps> = ({ user, onAuthRequired, onNavigat
     return () => { unsub(); };
   }, []);
 
-  useEffect(() => {
-    if (!isActive) return;
-    pollRef.current = setInterval(() => {
-      const fresh = authService.getUGCPosts();
-      setPosts(prev => {
-        if (JSON.stringify(fresh.map(p => p.id)) !== JSON.stringify(prev.map(p => p.id))) return fresh;
-        return prev;
-      });
-    }, 4000);
-    return () => { if (pollRef.current) clearInterval(pollRef.current); };
-  }, [isActive]);
+  // Firebase onSnapshot 已实时同步，无需轮询
 
   useEffect(() => {
     if (selectedPost) {
@@ -420,8 +409,8 @@ const UGCGallery: React.FC<UGCGalleryProps> = ({ user, onAuthRequired, onNavigat
 
   const handleLike = useCallback(async (postId: string) => {
     if (!user) { onAuthRequired(); return; }
-    const updated = await authService.toggleLikeUGCPost(user.id, postId);
-    setPosts(updated);
+    await authService.toggleLikeUGCPost(user.id, postId);
+    // onSnapshot 会自动更新 posts，无需手动 setPosts
   }, [user, onAuthRequired]);
 
   const handleComment = useCallback(async (postId: string, text: string) => {
@@ -460,7 +449,7 @@ const UGCGallery: React.FC<UGCGalleryProps> = ({ user, onAuthRequired, onNavigat
           </div>
           <div className="flex items-center gap-2 flex-shrink-0 mt-1">
             <button
-              onClick={() => setPosts(authService.getUGCPosts())}
+              onClick={() => setNewPostCount(0)}
               className="w-10 h-10 flex items-center justify-center rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 transition-colors active:scale-90"
               title="刷新"
             >
