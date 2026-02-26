@@ -469,44 +469,44 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
       </div>
 
       {selectedStyle && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-stone-900/80 backdrop-blur-sm animate-fade-in" onClick={() => setSelectedStyle(null)}>
-              <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[28px] md:rounded-[40px] overflow-hidden shadow-2xl relative flex flex-col md:flex-row" onClick={e => e.stopPropagation()}>
+          <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center md:p-4 bg-stone-900/80 backdrop-blur-sm animate-fade-in" onClick={() => setSelectedStyle(null)}>
+              <div className="bg-white w-full max-w-4xl max-h-[92vh] md:max-h-[90vh] rounded-t-[28px] md:rounded-[40px] overflow-hidden shadow-2xl relative flex flex-col md:flex-row" onClick={e => e.stopPropagation()}>
                   <button onClick={() => setSelectedStyle(null)} className="absolute top-4 right-4 md:top-6 md:right-6 p-2.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 transition-colors z-50 active:scale-90">
                       <X size={18} />
                   </button>
-                  <div className="w-full md:w-1/3 bg-stone-50 p-6 md:p-8 flex flex-col justify-center border-b md:border-b-0 md:border-r border-stone-100 relative overflow-hidden">
+                  <div className="w-full md:w-1/3 bg-stone-50 p-5 md:p-8 flex flex-col justify-center border-b md:border-b-0 md:border-r border-stone-100 relative overflow-hidden shrink-0">
                       <div className={`absolute inset-0 opacity-10 ${selectedStyle.color}`}></div>
-                      <div className="relative z-10 space-y-4 md:space-y-8">
-                          <h3 className="font-serif text-3xl md:text-5xl text-art-accent tracking-tighter">{t(`styles.${selectedStyle.id}_name`)}</h3>
-                          <p className="font-serif text-lg md:text-2xl text-stone-400 italic">{selectedStyle.enName}</p>
+                      <div className="relative z-10 space-y-3 md:space-y-8">
+                          <h3 className="font-serif text-2xl md:text-5xl text-art-accent tracking-tighter">{t(`styles.${selectedStyle.id}_name`)}</h3>
+                          <p className="font-serif text-base md:text-2xl text-stone-400 italic">{selectedStyle.enName}</p>
                           <div className="font-mono text-xs text-stone-500 flex items-center gap-2">
                             <span>{selectedStyle.period}</span>
                           </div>
                           {((selectedStyle as any).era || (selectedStyle as any).region || (selectedStyle as any).medium) && (
-                            <div className="flex flex-wrap gap-2 pt-2">
+                            <div className="flex flex-wrap gap-2 pt-1">
                               {(selectedStyle as any).era && <span className="px-2 py-1 bg-stone-100 rounded text-[10px] text-stone-500">{(selectedStyle as any).era}</span>}
                               {(selectedStyle as any).region && <span className="px-2 py-1 bg-stone-100 rounded text-[10px] text-stone-500">{(selectedStyle as any).region}</span>}
                               {(selectedStyle as any).medium && <span className="px-2 py-1 bg-stone-100 rounded text-[10px] text-stone-500">{(selectedStyle as any).medium}</span>}
                             </div>
                           )}
-                          <p className="text-stone-600 leading-relaxed text-sm pt-4 border-t border-stone-200">{t(`styles.${selectedStyle.id}_desc`)}</p>
+                          <p className="text-stone-600 leading-relaxed text-sm pt-3 border-t border-stone-200 hidden md:block">{t(`styles.${selectedStyle.id}_desc`)}</p>
                       </div>
                   </div>
                   <div className="w-full md:w-2/3 overflow-y-auto">
-                      <div className="p-6 md:p-12 grid grid-cols-1 gap-8 md:gap-12">
+                      <div className="p-5 md:p-12 grid grid-cols-1 gap-6 md:gap-12">
                           {selectedStyle.works.map((work: any, index: number) => {
                               const transTitleKey = `styles.works.${selectedStyle.id}-${index}-title`;
                               const transDescKey = `styles.works.${selectedStyle.id}-${index}-desc`;
                               const workTitle = t(transTitleKey) !== transTitleKey ? t(transTitleKey) : work.title;
                               const workDesc = t(transDescKey) !== transDescKey ? t(transDescKey) : work.desc;
                               return (
-                                  <div key={index} className="flex items-start gap-8 animate-fade-in" style={{animationDelay: `${index * 0.1}s`}}>
-                                      <div className="w-1/3 flex-shrink-0 rounded-md overflow-hidden shadow-md border-4 border-white">
+                                  <div key={index} className="flex flex-col sm:flex-row items-start gap-4 sm:gap-8 animate-fade-in" style={{animationDelay: `${index * 0.1}s`}}>
+                                      <div className="w-full sm:w-1/3 flex-shrink-0 rounded-md overflow-hidden shadow-md border-4 border-white">
                                           <FadeInImage src={work.imageUrl} alt={workTitle} className="aspect-[3/4]" />
                                       </div>
                                       <div className="flex-grow">
-                                          <h4 className="font-serif text-2xl text-art-accent mb-1">《{workTitle}》</h4>
-                                          <p className="text-sm text-stone-500 mb-3 font-mono">{work.artist}</p>
+                                          <h4 className="font-serif text-xl md:text-2xl text-art-accent mb-1">《{workTitle}》</h4>
+                                          <p className="text-sm text-stone-500 mb-2 font-mono">{work.artist}</p>
                                           <p className="text-stone-600 text-sm leading-loose">{workDesc}</p>
                                       </div>
                                   </div>
@@ -517,7 +517,7 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
                         const recs = getRecommendations(selectedStyle);
                         if (recs.length === 0) return null;
                         return (
-                          <div className="px-12 pb-12 border-t border-stone-100 pt-8">
+                          <div className="px-5 md:px-12 pb-6 md:pb-12 border-t border-stone-100 pt-5 md:pt-8">
                             <h5 className="text-xs font-bold uppercase tracking-widest text-stone-400 mb-6">{t('styles.recommendations')}</h5>
                             <div className="flex flex-col gap-3">
                               {recs.map((rec: any) => (

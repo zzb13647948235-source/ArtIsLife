@@ -184,27 +184,6 @@ const Membership: React.FC<MembershipProps> = ({ currentTier, onUpgrade, onClose
 
   return (
     <div className={`min-h-screen bg-[#fafaf9] dark:bg-stone-950 text-stone-900 dark:text-white relative overflow-x-hidden transition-opacity duration-500 ${isExiting ? 'opacity-0' : 'opacity-100'}`}>
-      {onClose && (
-        <button onClick={handleClose} className="fixed top-6 right-6 z-[150] p-3 rounded-full bg-white shadow-lg hover:bg-stone-50 text-stone-400 hover:text-stone-900 transition-all border border-stone-100 group">
-          <X size={20} className="group-hover:rotate-90 transition-transform duration-300" />
-        </button>
-      )}
-
-      {/* ── Urgency Banner ── */}
-      <div className="bg-stone-900 text-white py-3 px-6 text-center text-[10px] font-bold uppercase tracking-[0.3em] flex items-center justify-center gap-4 flex-wrap">
-        <span className="text-art-gold flex items-center gap-2"><Sparkles size={10} /> 本月限时优惠</span>
-        <span className="text-white/60">·</span>
-        <span>距优惠结束还有</span>
-        <div className="flex items-center gap-1 font-mono">
-          <span className="bg-white/10 px-2 py-0.5 rounded">{pad(countdown.h)}</span>
-          <span className="text-white/40">:</span>
-          <span className="bg-white/10 px-2 py-0.5 rounded">{pad(countdown.m)}</span>
-          <span className="text-white/40">:</span>
-          <span className="bg-white/10 px-2 py-0.5 rounded">{pad(countdown.s)}</span>
-        </div>
-        <span className="text-white/60">·</span>
-        <span className="text-art-gold">仅剩 47 个创作者席位</span>
-      </div>
 
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 pt-16 md:pt-20 pb-32 scroll-container overflow-y-auto">
 

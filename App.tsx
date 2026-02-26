@@ -351,7 +351,7 @@ function AppContent() {
               onNavigate={handleNavigate}
               user={user}
               onLogout={() => { authService.logout(); handleNavigate('home'); }}
-              isHidden={currentView === 'about' || currentView === 'login' || currentView === 'intro' || (isImmersiveMode && currentView !== 'membership') || isFullScreenModalOpen}
+              isHidden={currentView === 'about' || currentView === 'login' || currentView === 'intro' || isImmersiveMode || isFullScreenModalOpen || (currentView === 'membership' && (['game', 'gallery', 'chat'] as const).includes(previousView as any))}
               onOpenShop={() => setShowShop(true)}
           />
           
@@ -374,18 +374,29 @@ function AppContent() {
 
               {currentView === 'login' && <div className="absolute inset-0 z-[100] animate-fade-in"><Login onLoginSuccess={(u) => { setUser(u); handleNavigate('gallery'); }} onNavigate={handleNavigate} /></div>}
               {currentView === 'membership' && (
-                <div className="absolute inset-0 z-[110] animate-fade-in bg-white dark:bg-stone-950 overflow-y-auto overscroll-contain">
-                  <Membership 
-                    currentTier={user?.tier || 'guest'} 
-                    onUpgrade={async (t) => { 
-                      if (!user) {
-                        setShowAuthOverlay(true);
-                        throw new Error("AUTH_REQUIRED");
-                      }
-                      await authService.upgradeTier(user.id, t); 
-                    }} 
-                    onClose={() => setCurrentView(previousView)} 
-                  />
+                <div className="absolute inset-0 z-[110] animate-fade-in">
+                  {(['game', 'gallery', 'chat'] as const).includes(previousView as any) && (
+                    <button
+                      onClick={() => handleNavigate(previousView)}
+                      className="absolute top-4 right-4 z-[120] w-10 h-10 rounded-full bg-stone-900/80 hover:bg-stone-900 text-white/80 hover:text-white transition-all flex items-center justify-center"
+                      aria-label="返回"
+                    >
+                      <X size={18} />
+                    </button>
+                  )}
+                  <div className="absolute inset-0 bg-white dark:bg-stone-950 overflow-y-auto overscroll-contain">
+                    <Membership
+                      currentTier={user?.tier || 'guest'}
+                      onUpgrade={async (t) => {
+                        if (!user) {
+                          setShowAuthOverlay(true);
+                          throw new Error("AUTH_REQUIRED");
+                        }
+                        await authService.upgradeTier(user.id, t);
+                      }}
+                      onClose={() => handleNavigate(previousView === 'intro' ? 'home' : previousView)}
+                    />
+                  </div>
                 </div>
               )}
               {currentView === 'about' && (

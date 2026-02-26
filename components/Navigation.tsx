@@ -118,9 +118,9 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
     { id: 'chat',       label: t('nav.chat') },
     { id: 'map',        label: t('nav.map') },
     { id: 'community',  label: '社区', icon: <Users size={12} className="text-art-primary" /> },
-    { id: 'membership', label: 'VIP', icon: <Crown size={12} className="text-art-gold" /> },
     { id: 'game',       label: t('nav.game') },
     { id: 'market',     label: t('nav.market') },
+    { id: 'membership', label: 'VIP', icon: <Crown size={12} className="text-art-gold" /> },
   ];
 
   const isDarkMode = currentView === 'market' && !scrolled;
@@ -137,7 +137,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
       <nav
         aria-label="主导航"
         className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-[800ms] cubic-bezier(0.34, 1.56, 0.64, 1) will-change-transform
-        ${isHidden ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}
+        ${isHidden ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}
         ${scrolled
             ? 'py-4 bg-white/95 backdrop-blur-md shadow-sm border-b border-stone-200'
             : 'py-8 bg-transparent translate-y-2'

@@ -423,7 +423,7 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
                           </Tooltip>
                       </div>
                   </div>
-                  
+
                   {feedbackMessage && (
                       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-red-500/90 text-white px-6 py-2 rounded-full font-bold uppercase tracking-widest animate-bounce shadow-lg border border-red-400">
                           {feedbackMessage}
