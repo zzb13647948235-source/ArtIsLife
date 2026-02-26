@@ -338,16 +338,16 @@ const ListArtworkModal: React.FC<{
     }
 
     return (
-        <div className="fixed inset-0 z-[2100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-6 animate-fade-in" onClick={onClose}>
-            <div className="w-full max-w-4xl bg-[#111] rounded-[48px] overflow-hidden shadow-2xl border border-art-gold/20 relative" onClick={e => e.stopPropagation()}>
-                <button onClick={onClose} className="absolute top-6 right-6 z-[150] p-2 bg-white/10 rounded-full hover:bg-white/20 text-white"><X size={20}/></button>
-                
-                <div className="p-12 space-y-8">
+        <div className="fixed inset-0 z-[2100] bg-black/95 backdrop-blur-xl flex items-end md:items-center justify-center md:p-6 animate-fade-in" onClick={onClose}>
+            <div className="w-full max-w-4xl bg-[#111] rounded-t-[32px] md:rounded-[48px] overflow-hidden shadow-2xl border border-art-gold/20 relative max-h-[92vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                <button onClick={onClose} className="absolute top-4 right-4 z-[150] p-2 bg-white/10 rounded-full hover:bg-white/20 text-white"><X size={20}/></button>
+
+                <div className="p-6 md:p-12 space-y-5 md:space-y-8">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-art-gold/20 rounded-2xl flex items-center justify-center"><Upload size={24} className="text-art-gold" /></div>
+                        <div className="w-10 h-10 md:w-12 md:h-12 bg-art-gold/20 rounded-2xl flex items-center justify-center"><Upload size={20} className="text-art-gold" /></div>
                         <div>
-                            <h2 className="font-serif text-3xl text-white">上架绘梦作品</h2>
-                            <p className="text-stone-500 text-sm">将你的 AI 创作上架到藏馆市场交易</p>
+                            <h2 className="font-serif text-2xl md:text-3xl text-white">上架绘梦作品</h2>
+                            <p className="text-stone-500 text-xs md:text-sm">将你的 AI 创作上架到藏馆市场交易</p>
                         </div>
                     </div>
 
@@ -403,25 +403,25 @@ const ListArtworkModal: React.FC<{
                         )}
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         <div className="space-y-2">
                             <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400">作品名称</label>
                             <input value={title} onChange={e => setTitle(e.target.value)} placeholder="为你的杰作命名..."
-                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white outline-none focus:border-art-gold/50 transition-colors font-serif italic" />
+                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white outline-none focus:border-art-gold/50 transition-colors font-serif italic text-sm" />
                         </div>
                         <div className="space-y-2">
                             <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400">售价 (Ξ ArtCoin)</label>
                             <input value={price} onChange={e => setPrice(e.target.value)} type="number" min="1" placeholder="100"
-                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white outline-none focus:border-art-gold/50 transition-colors font-mono" />
+                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white outline-none focus:border-art-gold/50 transition-colors font-mono text-sm" />
                         </div>
                     </div>
 
                     <div className="space-y-2">
                         <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400">稀有度标签</label>
-                        <div className="flex gap-3">
+                        <div className="flex gap-2">
                             {(['Common', 'Rare', 'Legendary'] as const).map(r => (
                                 <button key={r} onClick={() => setRarity(r)}
-                                    className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all ${rarity === r
+                                    className={`flex-1 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all ${rarity === r
                                         ? r === 'Legendary' ? 'bg-art-gold/20 text-art-gold border-art-gold/40' : r === 'Rare' ? 'bg-purple-500/20 text-purple-300 border-purple-500/40' : 'bg-white/10 text-white border-white/30'
                                         : 'bg-transparent text-stone-500 border-white/5 hover:border-white/20'}`}>
                                     {r === 'Common' ? '普通' : r === 'Rare' ? '稀有' : '传说'}
@@ -433,7 +433,7 @@ const ListArtworkModal: React.FC<{
                     {error && <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-xs font-bold flex items-center gap-2"><AlertCircle size={14} /> {error}</div>}
 
                     <button onClick={handleList} disabled={isListing || !activeImageUrl}
-                        className="w-full py-5 bg-art-gold text-black rounded-2xl font-bold uppercase tracking-[0.2em] text-xs hover:bg-white transition-all shadow-xl disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3">
+                        className="w-full py-4 bg-art-gold text-black rounded-2xl font-bold uppercase tracking-[0.2em] text-xs hover:bg-white transition-all shadow-xl disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3">
                         {isListing ? <span className="animate-spin"><Sparkles size={16} /></span> : <Upload size={16} />}
                         {isListing ? '上架中...' : '确认上架'}
                     </button>

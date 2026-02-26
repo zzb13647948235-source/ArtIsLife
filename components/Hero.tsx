@@ -185,29 +185,29 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
           </div>
       </div>
 
-      <div className="w-full max-w-[1920px] mx-auto px-6 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10 h-full">
-        
+      <div className="w-full max-w-[1920px] mx-auto px-4 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10 h-full">
+
         <div className="lg:col-span-6 flex flex-col justify-center relative z-20 pt-4 md:pt-8 lg:pt-0 min-w-0">
-              <div className="flex items-center gap-4 mb-8 animate-fade-in">
+              <div className="flex items-center gap-4 mb-6 md:mb-8 animate-fade-in">
                   <div className="w-8 h-[1px] bg-art-primary"></div>
                   <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-art-primary/80">{t('hero.est')}</span>
               </div>
 
               {/* Original serif title */}
-              <h1 className="font-serif text-art-accent tracking-tighter select-none flex flex-col gap-1 md:gap-3 drop-shadow-sm relative z-30 mb-6 w-full overflow-hidden">
+              <h1 className="font-serif text-art-accent tracking-tighter select-none flex flex-col gap-1 md:gap-3 drop-shadow-sm relative z-30 mb-4 md:mb-6 w-full overflow-hidden">
                 <Sparkle size={32} opacity={0.9} className="absolute -top-4 left-[30%] text-art-primary" style={{ animationDelay: '0s' }} />
                 <Sparkle size={18} opacity={0.5} className="absolute top-8 left-[55%] text-art-accent" style={{ animationDelay: '0.6s' }} />
                 <Sparkle size={24} opacity={0.7} className="absolute top-2 right-8 text-art-gold" style={{ animationDelay: '1.2s' }} />
                 <Sparkle size={14} opacity={0.4} variant="circle" className="absolute top-16 left-[20%] text-art-primary" style={{ animationDelay: '1.8s' }} />
                 <Sparkle size={10} opacity={0.35} variant="circle" className="absolute -top-2 left-[70%] text-art-muted" style={{ animationDelay: '0.9s' }} />
 
-                <span className="leading-[0.9] block mix-blend-multiply transition-transform hover:scale-[1.02] origin-left duration-500" style={{ fontSize: 'clamp(2rem, 10vw, 13rem)' }}>
+                <span className="leading-[0.9] block mix-blend-multiply transition-transform hover:scale-[1.02] origin-left duration-500" style={{ fontSize: 'clamp(1.6rem, 8vw, 13rem)' }}>
                     <BrushText text={t('hero.title_1')} delay={0.2} />
                 </span>
-                <span className="leading-[1] block italic font-light text-stone-400 pl-2 lg:pl-16" style={{ fontSize: 'clamp(1.5rem, 7vw, 8.5rem)' }}>
+                <span className="leading-[1] block italic font-light text-stone-400 pl-2 lg:pl-16" style={{ fontSize: 'clamp(1.2rem, 6vw, 8.5rem)' }}>
                     <BrushText text={t('hero.title_2')} delay={0.5} />
                 </span>
-                <span className="leading-[0.9] block text-art-primary pb-2" style={{ fontSize: 'clamp(2rem, 10vw, 13.5rem)' }}>
+                <span className="leading-[0.9] block text-art-primary pb-2" style={{ fontSize: 'clamp(1.6rem, 8vw, 13.5rem)' }}>
                     <BrushText text={t('hero.title_3')} delay={0.8} />
                 </span>
 
@@ -216,26 +216,26 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
                 <Sparkle size={12} opacity={0.3} variant="circle" className="absolute bottom-2 right-12 text-art-gold" style={{ animationDelay: '2.1s' }} />
               </h1>
 
-           <div className="relative pl-4 md:pl-6 border-l-2 border-art-primary/30 max-w-md animate-fade-in-up delay-[1200ms]">
-              <p className="text-sm md:text-base text-stone-500 font-light leading-relaxed uppercase tracking-wide">
+           <div className="relative pl-3 md:pl-6 border-l-2 border-art-primary/30 max-w-md animate-fade-in-up delay-[1200ms]">
+              <p className="text-xs md:text-base text-stone-500 font-light leading-relaxed uppercase tracking-wide">
                   {t('hero.subtitle')}
               </p>
            </div>
 
-           <div className="flex items-center gap-3 md:gap-4 mt-6 md:mt-8 animate-fade-in-up delay-[1400ms] flex-wrap">
+           <div className="flex items-center gap-2 md:gap-4 mt-5 md:mt-8 animate-fade-in-up delay-[1400ms] flex-wrap">
               <MagneticButton>
-                <button onClick={() => onNavigate('game')} className="group relative px-7 md:px-8 py-3.5 md:py-4 bg-art-accent text-white rounded-full overflow-hidden shadow-hard active:scale-95">
+                <button onClick={() => onNavigate('game')} className="group relative px-5 md:px-8 py-3 md:py-4 bg-art-accent text-white rounded-full overflow-hidden shadow-hard active:scale-95">
                    <div className="absolute inset-0 w-full h-full bg-art-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.85,0,0.15,1)]"></div>
-                   <div className="relative z-10 flex items-center gap-3">
-                      <PlayCircle size={16} className="group-hover:fill-white/20 transition-all" />
-                      <span className="font-black uppercase tracking-[0.3em] text-xs">{t('hero.btn_start')}</span>
+                   <div className="relative z-10 flex items-center gap-2 md:gap-3">
+                      <PlayCircle size={15} className="group-hover:fill-white/20 transition-all" />
+                      <span className="font-black uppercase tracking-[0.2em] text-xs">{t('hero.btn_start')}</span>
                    </div>
                 </button>
               </MagneticButton>
               <MagneticButton>
-                <button onClick={() => onNavigate('gallery')} className="group flex items-center gap-3 px-6 md:px-7 py-3.5 md:py-4 rounded-full border-2 border-stone-300 hover:border-art-accent bg-transparent transition-all duration-300 active:scale-95">
-                   <span className="text-xs font-black uppercase tracking-[0.25em] text-stone-700 group-hover:text-art-accent">{t('hero.btn_create')}</span>
-                   <ArrowRight size={14} className="text-art-primary group-hover:translate-x-1 transition-transform"/>
+                <button onClick={() => onNavigate('gallery')} className="group flex items-center gap-2 md:gap-3 px-5 md:px-7 py-3 md:py-4 rounded-full border-2 border-stone-300 hover:border-art-accent bg-transparent transition-all duration-300 active:scale-95">
+                   <span className="text-xs font-black uppercase tracking-[0.2em] text-stone-700 group-hover:text-art-accent">{t('hero.btn_create')}</span>
+                   <ArrowRight size={13} className="text-art-primary group-hover:translate-x-1 transition-transform"/>
                 </button>
               </MagneticButton>
            </div>

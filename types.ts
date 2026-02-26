@@ -40,6 +40,7 @@ export interface UGCComment {
   id: string;
   userId: string;
   userName: string;
+  userAvatar?: string | null;
   text: string;
   timestamp: number;
 }
