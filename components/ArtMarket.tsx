@@ -303,7 +303,7 @@ const ListArtworkModal: React.FC<{
                 rarity: rarity,
                 isSystem: false
             };
-            await authService.listMarketItem(newItem);
+            await authService.listMarketItem(newItem as any);
             setListSuccess(true);
             setTimeout(() => { onListed(); onClose(); }, 1500);
         } catch (err: any) {

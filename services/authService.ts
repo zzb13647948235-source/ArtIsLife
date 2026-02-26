@@ -1,6 +1,14 @@
 
 import { User, UserTier, MarketItem, UGCPost, UGCComment } from '../types';
 import { MASTERPIECE_COLLECTION } from '../constants';
+import { firebaseService } from './firebaseService';
+
+// 所有调用统一走 Firebase
+export { firebaseService as authService };
+
+/*
+ * 以下为旧版 localStorage 实现，保留备用
+ */
 
 const STORAGE_KEY_USERS = 'artislife_users';
 const STORAGE_KEY_SESSION = 'artislife_session';
@@ -81,22 +89,22 @@ const getInitialMarketItems = (): MarketItem[] => {
     });
 };
 
-export const authService = {
+export const authServiceLegacy = {
   subscribe(listener: AuthListener) {
     listeners.add(listener);
-    listener(authService.getCurrentUser());
+    listener(authServiceLegacy.getCurrentUser());
     return () => listeners.delete(listener);
   },
 
   subscribeToUGC(listener: UGCListener) {
     ugcListeners.add(listener);
-    listener(authService.getUGCPosts());
+    listener(authServiceLegacy.getUGCPosts());
     return () => ugcListeners.delete(listener);
   },
 
   subscribeToMarket(listener: MarketListener) {
     marketListeners.add(listener);
-    listener(authService.getMarketItems());
+    listener(authServiceLegacy.getMarketItems());
     return () => marketListeners.delete(listener);
   },
 
