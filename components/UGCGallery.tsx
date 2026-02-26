@@ -289,6 +289,8 @@ const PostModal: React.FC<{
 }> = ({ post, user, onClose, onLike, onComment, onDelete, onAuthRequired }) => {
   const [commentText, setCommentText] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const isLiked = user ? post.likedByIds.includes(user.id) : false;
   const isOwner = user?.id === post.userId;
   const commentsEndRef = useRef<HTMLDivElement>(null);
@@ -303,10 +305,15 @@ const PostModal: React.FC<{
   const submitComment = async () => {
     if (!commentText.trim() || !user) return;
     setSubmitting(true);
-    await onComment(post.id, commentText.trim());
-    setCommentText('');
-    setSubmitting(false);
-    setTimeout(() => commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    try {
+      await onComment(post.id, commentText.trim());
+      setCommentText('');
+      setTimeout(() => commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -327,8 +334,10 @@ const PostModal: React.FC<{
           {/* Top bar */}
           <div className="flex items-center justify-between px-4 py-3 border-b-2 border-black flex-shrink-0 bg-white">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className={`w-9 h-9 rounded-full ${avatarColor} border-2 border-black flex items-center justify-center text-white text-xs font-black flex-shrink-0`}>
-                {post.userName.charAt(0).toUpperCase()}
+              <div className={`w-9 h-9 rounded-full ${avatarColor} border-2 border-black flex items-center justify-center text-white text-xs font-black flex-shrink-0 overflow-hidden`}>
+                {post.userAvatar
+                  ? <img src={post.userAvatar} alt={post.userName} className="w-full h-full object-cover" />
+                  : post.userName.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-black text-black truncate">{post.userName}</p>
@@ -392,8 +401,10 @@ const PostModal: React.FC<{
                   const cColor = getAvatarColor(c.userName);
                   return (
                     <div key={c.id} className="flex gap-2 items-start">
-                      <div className={`w-6 h-6 rounded-full ${cColor} border-2 border-black flex items-center justify-center text-[9px] font-black text-white flex-shrink-0 mt-0.5`}>
-                        {c.userName.charAt(0).toUpperCase()}
+                      <div className={`w-6 h-6 rounded-full ${cColor} border-2 border-black flex items-center justify-center text-[9px] font-black text-white flex-shrink-0 mt-0.5 overflow-hidden`}>
+                        {c.userAvatar
+                          ? <img src={c.userAvatar} alt={c.userName} className="w-full h-full object-cover" />
+                          : c.userName.charAt(0).toUpperCase()}
                       </div>
                       <div className="min-w-0 bg-white border-2 border-black rounded-2xl px-3 py-2 flex-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                         <span className="text-xs font-black text-black">{c.userName} </span>
@@ -407,18 +418,39 @@ const PostModal: React.FC<{
           </div>
 
           {/* Comment input */}
-          <div className="px-4 py-3 border-t-2 border-black flex-shrink-0 bg-white">
+          <div className="px-4 py-3 border-t-2 border-black flex-shrink-0 bg-white relative">
+            {showEmoji && (
+              <div className="absolute bottom-full left-0 right-0 bg-white border-2 border-black rounded-t-2xl p-3 z-10 shadow-lg">
+                <div className="grid grid-cols-8 gap-1.5">
+                  {['😀','😂','🥰','😍','🤩','😎','🥳','😭','😅','🤣','❤️','🔥','✨','👍','👏','🎨','🖌️','🎭','🌟','💫','🎉','🎊','💯','🙌','😊','🥺','😏','🤔','😴','🤯','💪','🫶'].map(e => (
+                    <button key={e} onClick={() => { setCommentText(t => t + e); setShowEmoji(false); inputRef.current?.focus(); }}
+                      className="text-xl hover:scale-125 transition-transform active:scale-95 leading-none p-0.5">
+                      {e}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             {user
               ? <div className="flex items-center gap-2">
-                  <div className={`w-7 h-7 rounded-full ${getAvatarColor(user.name)} border-2 border-black flex items-center justify-center text-white text-[9px] font-black flex-shrink-0`}>
-                    {user.name.charAt(0).toUpperCase()}
+                  <div className={`w-9 h-9 rounded-full ${getAvatarColor(user.name)} border-2 border-black flex items-center justify-center text-white text-xs font-black flex-shrink-0 overflow-hidden`}>
+                    {user.avatar
+                      ? <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                      : user.name.charAt(0).toUpperCase()}
                   </div>
+                  <button
+                    onClick={() => setShowEmoji(v => !v)}
+                    className="w-9 h-9 flex items-center justify-center bg-yellow-200 border-2 border-black rounded-full hover:bg-yellow-300 transition-colors flex-shrink-0 active:scale-90 text-base"
+                  >😊</button>
                   <input
+                    ref={inputRef}
                     value={commentText}
                     onChange={e => setCommentText(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && submitComment()}
+                    onFocus={() => { setShowEmoji(false); setTimeout(() => commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 300); }}
                     placeholder="说点什么…"
-                    className="flex-1 px-3 py-2 bg-stone-50 border-2 border-black rounded-full text-xs focus:outline-none font-medium"
+                    inputMode="text"
+                    className="flex-1 px-3 py-2 bg-stone-50 border-2 border-black rounded-full text-xs focus:outline-none font-medium min-w-0"
                   />
                   <button
                     onClick={submitComment}
@@ -475,7 +507,7 @@ const UGCGallery: React.FC<UGCGalleryProps> = ({ user, onAuthRequired, isActive 
 
   const handleComment = useCallback(async (postId: string, text: string) => {
     if (!user) { onAuthRequired(); return; }
-    await authService.addUGCComment(postId, { userId: user.id, userName: user.name, text });
+    await authService.addUGCComment(postId, { userId: user.id, userName: user.name, userAvatar: user.avatar ?? null, text });
   }, [user, onAuthRequired]);
 
   const handleDelete = useCallback(async (postId: string) => {
