@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo, memo, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { ART_STYLES } from '../constants';
 import { ArrowUpRight, X, Info, Search, Loader2, ChevronLeft } from 'lucide-react';
 import { ViewState } from '../types';
@@ -469,7 +470,7 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
          </div>
       </div>
 
-      {selectedStyle && (
+      {selectedStyle && createPortal(
           <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center md:p-4 bg-stone-900/80 md:backdrop-blur-sm animate-fade-in" onClick={() => setSelectedStyle(null)}>
               <div className="bg-white w-full max-w-4xl max-h-[92vh] md:max-h-[90vh] rounded-t-[28px] md:rounded-[40px] overflow-hidden shadow-2xl relative flex flex-col md:flex-row" onClick={e => e.stopPropagation()}>
                   <button onClick={() => setSelectedStyle(null)} className="hidden md:flex absolute top-6 right-6 p-2.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 transition-colors z-50 active:scale-90">
@@ -547,7 +548,7 @@ const ArtStyles: React.FC<ArtStylesProps> = ({ onNavigate, setPrefilledPrompt, i
                   </div>
               </div>
           </div>
-      )}
+      , document.body)}
     </div>
   );
 };
