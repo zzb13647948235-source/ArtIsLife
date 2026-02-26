@@ -102,7 +102,6 @@ export const firebaseService = {
 
   subscribeToUGC(listener: UGCListener) {
     ugcListeners.add(listener);
-    // 实时监听 Firestore ugc 集合
     const q = query(collection(db, 'ugc'), orderBy('timestamp', 'desc'));
     const unsub = onSnapshot(q, (snapshot) => {
       const posts: UGCPost[] = snapshot.docs.map(d => ({
@@ -112,6 +111,10 @@ export const firebaseService = {
       })) as UGCPost[];
       notifyUGC(posts);
       listener(posts);
+    }, (error) => {
+      console.error('Firestore onSnapshot error:', error.code, error.message);
+      // 权限错误时通知空列表，不崩溃
+      listener([]);
     });
     return () => { ugcListeners.delete(listener); unsub(); };
   },

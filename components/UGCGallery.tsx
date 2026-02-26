@@ -80,7 +80,7 @@ const UploadForm: React.FC<{ user: User; onSubmit: (post: UGCPost) => void; onCa
 
   return (
     <div className="fixed inset-0 z-[500] flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm" role="dialog" aria-modal="true">
-      <div className="bg-white rounded-t-[28px] md:rounded-[28px] w-full max-w-lg md:max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div className="bg-white rounded-t-[28px] md:rounded-[28px] w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="p-6">
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-serif text-xl font-bold text-stone-900">分享你的创作</h2>
