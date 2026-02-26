@@ -246,8 +246,39 @@ const RainbowHLines: React.FC<{ scrollProgress: number }> = ({ scrollProgress })
   );
 };
 
+// ── Mobile fallback — no WebGL ────────────────────────────────────────────────
+const IntroMobile: React.FC<{ onNavigate: (view: ViewState) => void }> = ({ onNavigate }) => (
+  <div className="relative w-full h-full bg-black flex flex-col items-center justify-center overflow-hidden px-8">
+    {/* Gradient blobs */}
+    <div className="absolute top-[-20%] left-[-20%] w-[80vw] h-[80vw] rounded-full bg-amber-500/20 blur-[80px] animate-blob" />
+    <div className="absolute bottom-[-20%] right-[-20%] w-[70vw] h-[70vw] rounded-full bg-orange-600/20 blur-[80px] animate-blob" style={{ animationDelay: '-8s' }} />
+
+    <p className="text-[10px] font-bold uppercase tracking-[0.6em] text-amber-400/70 mb-6 animate-fade-in">
+      A New Era of Art
+    </p>
+    <h1 className="font-serif text-white text-[18vw] leading-none tracking-tight text-center mb-4 animate-fade-in-up">
+      ArtIsLife
+    </h1>
+    <p className="text-white/50 text-sm font-light tracking-widest text-center mb-16 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+      艺术，让生命更丰盛
+    </p>
+    <button
+      onClick={() => onNavigate('home')}
+      className="px-10 py-4 bg-white text-stone-900 text-xs font-bold uppercase tracking-[0.35em] rounded-full active:scale-95 transition-transform animate-fade-in-up"
+      style={{ animationDelay: '0.4s' }}
+    >
+      进入平台
+    </button>
+  </div>
+);
+
 // ── Main component ────────────────────────────────────────────────────────────
 const IntroShowcase: React.FC<IntroShowcaseProps> = ({ onNavigate, isActive = true }) => {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
+  // On mobile skip Three.js entirely
+  if (isMobile) return <IntroMobile onNavigate={onNavigate} />;
+
   const outerRef = useRef<HTMLDivElement>(null);
   const spRef = useRef(0);
   const mouseRef = useRef({ x: 0, y: 0 });
