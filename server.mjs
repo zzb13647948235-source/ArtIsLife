@@ -317,7 +317,7 @@ app.post('/api/firebase/auth/balance', async (req, res) => {
 
 // ── 静态前端文件 ──────────────────────────────────────────────────────────────
 app.use(express.static(path.join(__dirname, 'dist')));
-app.get('*', (_req, res) => {
+app.get('/{*path}', (_req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
