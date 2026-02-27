@@ -200,7 +200,16 @@ export const proxyFirebaseService = {
   },
 
   async updateBalance(userId: string, amount: number): Promise<User> {
-    return currentUser!;
+    const res = await fetch(`${API_BASE}/auth/balance`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, amount }),
+    });
+    const user = await res.json();
+    if (!res.ok) throw new Error(user.error || '余额更新失败');
+    currentUser = user;
+    notifyAuth(currentUser);
+    return user;
   },
 
   getUGCPosts(): UGCPost[] { return []; },
