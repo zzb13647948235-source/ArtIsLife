@@ -3,8 +3,8 @@ import { firebaseService } from './firebaseService';
 import { authServiceLegacy } from './authServiceLegacy';
 import { proxyFirebaseService } from './proxyFirebaseService';
 
-// 根据网络环境自动选择服务
-let _service: any = firebaseService;
+// 默认走代理模式，避免检测期间用户已点击登录
+let _service: any = proxyFirebaseService;
 
 // 检测 Firebase 是否可直连
 const checkFirebaseAvailable = async (): Promise<boolean> => {
@@ -22,30 +22,13 @@ const checkFirebaseAvailable = async (): Promise<boolean> => {
   }
 };
 
-// 检测后端代理是否可用
-const checkProxyAvailable = async (): Promise<boolean> => {
-  try {
-    const res = await fetch('/api/firebase/ugc?action=list');
-    return res.ok;
-  } catch {
-    return false;
-  }
-};
-
-// 启动时检测：优先直连 Firebase，其次走代理，最后降级 localStorage
-checkFirebaseAvailable().then(async (available) => {
+// 启动时检测：如果 Firebase 可直连则切换到直连模式，否则保持代理
+checkFirebaseAvailable().then((available) => {
   if (available) {
-    console.log('[AuthService] Firebase 直连可用');
+    console.log('[AuthService] Firebase 直连可用，切换直连模式');
     _service = firebaseService;
   } else {
-    const proxyAvailable = await checkProxyAvailable();
-    if (proxyAvailable) {
-      console.log('[AuthService] 切换到后端代理模式（国内网络）');
-      _service = proxyFirebaseService;
-    } else {
-      console.warn('[AuthService] 代理不可用，降级到本地存储模式');
-      _service = authServiceLegacy;
-    }
+    console.log('[AuthService] Firebase 不可直连，使用后端代理模式');
   }
 });
 

@@ -119,6 +119,28 @@ app.post('/api/firebase/auth', async (req, res) => {
       const customToken = await adminAuth.createCustomToken(cred.uid);
       return res.json({ user: newUser, customToken });
     }
+    if (action === 'login') {
+      const { email, password } = req.body;
+      const authRes = await fetch(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAqxSTYim77L4Pj5_RyMsT9UDlWs5VliOE`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, returnSecureToken: false }) }
+      );
+      const authData = await authRes.json();
+      if (!authRes.ok) {
+        const msg = authData?.error?.message || '';
+        const cn = msg.includes('INVALID_PASSWORD') || msg.includes('INVALID_LOGIN_CREDENTIALS') ? '邮箱或密码错误，请重试'
+          : msg.includes('EMAIL_NOT_FOUND') ? '未找到该邮箱对应的账号，请先注册'
+          : msg.includes('TOO_MANY_ATTEMPTS') ? '登录尝试次数过多，请稍后再试'
+          : msg.includes('USER_DISABLED') ? '该账号已被禁用'
+          : '登录失败，请重试';
+        return res.status(401).json({ error: cn });
+      }
+      const uid = authData.localId;
+      const userDoc = await db.collection('users').doc(uid).get();
+      if (!userDoc.exists) return res.status(404).json({ error: '用户数据不存在' });
+      return res.json({ user: { id: uid, ...userDoc.data() } });
+    }
     if (action === 'getUser') {
       const { uid } = req.body;
       const doc = await db.collection('users').doc(uid).get();

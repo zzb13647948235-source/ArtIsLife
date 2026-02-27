@@ -1,11 +1,4 @@
 // 通过后端代理访问 Firebase，解决国内网络问题
-import {
-  signInWithCustomToken,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-} from 'firebase/auth';
-import { auth } from '../lib/firebase';
 import { User, UGCPost, UGCComment } from '../types';
 
 const API_BASE = '/api/firebase';
@@ -21,27 +14,6 @@ const notifyUGC = (posts: UGCPost[]) => ugcListeners.forEach(l => l(posts));
 let currentUser: User | null = null;
 let ugcPollInterval: ReturnType<typeof setInterval> | null = null;
 
-// 监听 Firebase Auth 状态（登录/登出）
-onAuthStateChanged(auth, async (firebaseUser) => {
-  if (firebaseUser) {
-    try {
-      const res = await fetch(`${API_BASE}/auth?action=getUser`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid: firebaseUser.uid }),
-      });
-      if (res.ok) {
-        currentUser = await res.json();
-        notifyAuth(currentUser);
-      }
-    } catch (e) {
-      console.error('[proxyService] getUser failed', e);
-    }
-  } else {
-    currentUser = null;
-    notifyAuth(null);
-  }
-});
 
 export const proxyFirebaseService = {
   subscribe(listener: AuthListener) {
@@ -94,29 +66,25 @@ export const proxyFirebaseService = {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || '注册失败');
-    // 用 customToken 登录 Firebase Auth（保持 onAuthStateChanged 工作）
-    await signInWithCustomToken(auth, data.customToken);
     currentUser = data.user;
     notifyAuth(currentUser);
     return data.user;
   },
 
   async login(email: string, password: string): Promise<User> {
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-    const res = await fetch(`${API_BASE}/auth?action=getUser`, {
+    const res = await fetch(`${API_BASE}/auth?action=login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid: cred.user.uid }),
+      body: JSON.stringify({ email, password }),
     });
-    const user = await res.json();
-    if (!res.ok) throw new Error(user.error || '登录失败');
-    currentUser = user;
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || '登录失败');
+    currentUser = data.user;
     notifyAuth(currentUser);
-    return user;
+    return data.user;
   },
 
   async logout(): Promise<void> {
-    await signOut(auth);
     currentUser = null;
     notifyAuth(null);
   },
