@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, inMemoryPersistence, setPersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
@@ -14,5 +14,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+// 禁用本地持久化，避免页面加载时自动发起 Firebase Auth 验证请求
+setPersistence(auth, inMemoryPersistence);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
