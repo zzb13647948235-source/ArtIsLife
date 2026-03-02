@@ -1,204 +1,91 @@
-# ArtIsLife 本地部署指南
+# 腾讯云部署指南 (Tencent Cloud Deployment Guide)
 
-## 系统要求
+## 构建完成 ✓
+生产版本已成功构建在 `dist/` 文件夹中 (274MB)
 
-- **Node.js**: 18.0 或更高版本
-- **npm**: 9.0 或更高版本
-- **操作系统**: Windows 10/11, macOS, Linux
-- **内存**: 建议 4GB 以上
+## 腾讯云部署方式
 
-## 快速开始
+### 方式一：腾讯云静态网站托管 (推荐)
 
-### 1. 安装依赖
+1. **登录腾讯云控制台**
+   - 访问：https://console.cloud.tencent.com/
+   - 进入"云开发 CloudBase"或"对象存储 COS"
 
+2. **使用云开发 CloudBase 静态托管**
+   - 进入云开发控制台：https://console.cloud.tencent.com/tcb
+   - 选择环境 → 静态网站托管
+   - 点击"上传文件"
+   - 将 `dist/` 文件夹中的所有内容上传
+   - 配置域名和 HTTPS
+
+3. **或使用对象存储 COS + CDN**
+   - 进入 COS 控制台：https://console.cloud.tencent.com/cos
+   - 创建存储桶（选择公有读私有写）
+   - 开启静态网站功能
+   - 上传 `dist/` 文件夹内容
+   - 配置 CDN 加速
+
+### 方式二：使用腾讯云 CLI 工具
+
+1. **安装 CloudBase CLI**
 ```bash
-cd 6541
-npm install
+npm install -g @cloudbase/cli
 ```
 
-### 2. 配置环境变量
-
-在项目根目录创建 `.env.local` 文件：
-
-```env
-GEMINI_API_KEY=你的Gemini_API密钥
-```
-
-> **安全提示**: `.env.local` 文件已被添加到 `.gitignore`，不会被提交到版本控制。
-
-### 3. 启动开发服务器
-
+2. **登录**
 ```bash
-npm run dev
+cloudbase login
 ```
 
-服务器将在 `http://localhost:3000` 启动。
-
-## 局域网访问配置
-
-### 自动配置（推荐）
-
-启动服务器后，终端会显示多个网络地址：
-
-```
-  ➜  Local:   http://localhost:3000/
-  ➜  Network: http://192.168.x.x:3000/
-```
-
-局域网内的其他设备可以通过 `Network` 地址访问网站。
-
-### 手动配置
-
-1. **获取本机IP地址**
-
-   Windows:
-   ```cmd
-   ipconfig
-   ```
-   
-   macOS/Linux:
-   ```bash
-   ifconfig | grep "inet "
-   ```
-
-2. **确保防火墙允许3000端口**
-
-   Windows:
-   ```cmd
-   netsh advfirewall firewall add rule name="ArtIsLife" dir=in action=allow protocol=TCP localport=3000
-   ```
-
-3. **访问网站**
-   
-   在局域网内任意设备的浏览器中输入：
-   ```
-   http://[本机IP]:3000
-   ```
-
-## 生产环境部署
-
-### 构建生产版本
-
+3. **初始化项目**
 ```bash
-npm run build
+cloudbase init
 ```
 
-构建产物位于 `dist/` 目录。
-
-### 预览生产版本
-
+4. **部署**
 ```bash
-npm run preview
+cloudbase hosting deploy dist/ -e your-env-id
 ```
 
-### 使用静态服务器部署
+### 方式三：手动上传（最简单）
 
-可以使用任何静态文件服务器托管 `dist/` 目录：
+1. 打开腾讯云控制台
+2. 进入对象存储 COS 或云开发静态托管
+3. 创建/选择存储桶
+4. 使用网页界面直接上传 `dist/` 文件夹中的所有文件
+5. 配置访问权限为公有读
+6. 获取访问域名
 
+## 重要配置
+
+### 环境变量
+确保在腾讯云环境中配置以下环境变量：
+- `API_KEY`: Google Gemini API 密钥（用于游戏球童评论功能）
+- Firebase 配置（如果使用）
+
+### 路由配置
+如果使用 React Router，需要配置重定向规则：
+- 所有路径重定向到 `index.html`
+
+### CORS 配置
+如果需要跨域访问，在 COS 中配置 CORS 规则
+
+## 当前构建信息
+- 构建时间：2026-03-02
+- 构建大小：274MB
+- 入口文件：dist/index.html
+- 资源文件：dist/assets/
+- 艺术作品：dist/artworks/
+- 新增功能：Hole in One 游戏（25个关卡，完整中文汉化）
+
+## 下一步
+1. 选择上述任一部署方式
+2. 上传 dist/ 文件夹内容
+3. 配置域名和 HTTPS
+4. 测试游戏功能（特别是 Hole in One 游戏的 10 个新关卡）
+
+## 需要安装 CLI 工具？
+运行以下命令安装腾讯云 CLI：
 ```bash
-# 使用 serve
-npx serve dist -l 3000
-
-# 使用 http-server
-npx http-server dist -p 3000
-
-# 使用 Python
-cd dist && python -m http.server 3000
+npm install -g @cloudbase/cli
 ```
-
-## 安全配置
-
-### 已实施的安全措施
-
-1. **输入验证与清理**
-   - 所有用户输入都经过严格验证
-   - 移除潜在的XSS攻击代码
-   - 限制输入长度
-
-2. **速率限制**
-   - 每IP每分钟最多30次请求
-   - 超限IP将被临时封禁5分钟
-
-3. **安全响应头**
-   - X-Content-Type-Options: nosniff
-   - X-Frame-Options: SAMEORIGIN
-   - X-XSS-Protection: 1; mode=block
-   - Referrer-Policy: strict-origin-when-cross-origin
-
-4. **API密钥保护**
-   - API密钥仅在服务器端使用
-   - 所有API请求通过服务器代理
-
-### 安全建议
-
-1. **定期更新依赖**
-   ```bash
-   npm audit
-   npm update
-   ```
-
-2. **使用HTTPS**（生产环境）
-   - 配置SSL证书
-   - 使用反向代理（如Nginx）
-
-3. **环境变量管理**
-   - 不要将 `.env.local` 提交到版本控制
-   - 生产环境使用环境变量注入
-
-## 常见问题
-
-### Q: 端口3000被占用怎么办？
-
-修改 `vite.config.ts` 中的端口配置，或使用命令行参数：
-```bash
-npm run dev -- --port 3001
-```
-
-### Q: 局域网设备无法访问？
-
-1. 检查防火墙设置
-2. 确保设备在同一网络
-3. 确认使用正确的IP地址
-
-### Q: API请求失败？
-
-1. 检查 `.env.local` 中的API密钥是否正确
-2. 确认网络连接正常
-3. 查看浏览器控制台错误信息
-
-## 项目结构
-
-```
-6541/
-├── components/      # React组件
-├── contexts/        # Context providers
-├── data/           # 静态数据和翻译
-├── public/         # 静态资源
-│   └── artworks/   # 艺术作品图片
-├── services/       # 服务层
-├── .env.local      # 环境变量（不提交）
-├── App.tsx         # 主应用组件
-├── constants.ts    # 常量定义
-├── index.html      # HTML入口
-├── index.tsx       # React入口
-├── package.json    # 项目配置
-├── tsconfig.json   # TypeScript配置
-├── types.ts        # 类型定义
-└── vite.config.ts  # Vite配置
-```
-
-## 技术栈
-
-- **前端框架**: React 18 + TypeScript
-- **构建工具**: Vite
-- **样式**: Tailwind CSS
-- **AI服务**: Google Gemini API
-- **状态管理**: React Context
-
-## 版权信息
-
-本网站所有权归杨福庭所有
-
----
-
-*本文档最后更新：2025年2月*
