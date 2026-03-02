@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 
-import { GoogleGenAI, ThinkingLevel } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { ENABLE_AI_CADDY } from "../constants";
 
 const SCORE_ALBATROSS = -3;
@@ -47,8 +47,8 @@ export const getCaddyCommentary = async (
   if (!process.env.API_KEY) return fallbackMsg;
 
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    
+    const ai = new GoogleGenerativeAI(process.env.API_KEY || "");
+
     // Level descriptions (same as Python)
     const levels: Record<string, string> = {
         "Droid Head": "LAYOUT: A horizontal, pill-shaped arena with rounded ends. The ground is a vibrant gradient transitioning from lime green (left) to sunset orange and deep violet (right).\nSTART: The ball is positioned on the far left, centered vertically.\nGOAL: A black cup with a white flagpole and pink triangular pennant, located on the far right.\nOBSTACLE: A black bot located in the middle-right of the path. The bot is a dynamic hazard that moves vertically, obstructing a direct line of sight to the hole.\nDIFFICULTY: Introductory. Focuses on timing the shot to bypass the moving hazard or utilizing the rounded rails for a bank shot.",
@@ -72,26 +72,18 @@ export const getCaddyCommentary = async (
         prompt = `You are a mini-golf caddy. You are respectful, kids could be around. The player finished a level in ${strokes} strokes (Par ${par}). That's a ${scoreTerm}. Give a one-sentence reaction. Be enthusiastic, positive. Only respond with things that could be in a G rated film. If this is a hole in one, you should mention that. Do NOT mention the hole name. Do not reference the player's robotic helpers. Do not mention bots or droids ever. ${finalNote}Max 15 words.`;
     }
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: prompt,
-      config: {
-        thinkingConfig: {
-          includeThoughts: false,
-          thinkingLevel: ThinkingLevel.MINIMAL,
-        },
-        temperature: 1.0, 
-      },
-    });
+    const model = ai.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-    // CRITICAL: Updated response parsing for @google/genai
-    const text = response.text?.trim();
-    
+    const response = await model.generateContent(prompt);
+
+    // CRITICAL: Updated response parsing for @google/generative-ai
+    const text = response.response.text()?.trim();
+
     if (text) {
       commentaryCache[cacheKey] = text;
       return text;
     }
-    
+
     return fallbackMsg;
 
   } catch (error: any) {
