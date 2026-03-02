@@ -1,0 +1,571 @@
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { X, RotateCcw, Trophy, ChevronRight } from 'lucide-react';
+
+type Phase = 'aiming' | 'rolling' | 'won' | 'missed';
+interface V2 { x: number; y: number; }
+interface Wall { x: number; y: number; w: number; h: number; }
+interface Level { name: string; nameEn: string; start: V2; hole: V2; holeR: number; walls: Wall[]; }
+
+const LEVELS: Level[] = [
+  {
+    name: '直道一击', nameEn: 'Straight Shot',
+    start: { x: 0.12, y: 0.5 },
+    hole: { x: 0.85, y: 0.5 },
+    holeR: 0.032,
+    walls: [
+      { x: 0.05, y: 0.28, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.69, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.28, w: 0.03, h: 0.44 },
+      { x: 0.92, y: 0.28, w: 0.03, h: 0.44 },
+    ],
+  },
+  {
+    name: '弯道挑战', nameEn: 'Curve Challenge',
+    start: { x: 0.12, y: 0.25 },
+    hole: { x: 0.85, y: 0.75 },
+    holeR: 0.03,
+    walls: [
+      { x: 0.05, y: 0.12, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.85, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.12, w: 0.03, h: 0.76 },
+      { x: 0.92, y: 0.12, w: 0.03, h: 0.76 },
+      { x: 0.42, y: 0.12, w: 0.03, h: 0.5 },
+    ],
+  },
+  {
+    name: '迷宫穿越', nameEn: 'Maze Run',
+    start: { x: 0.1, y: 0.5 },
+    hole: { x: 0.88, y: 0.5 },
+    holeR: 0.028,
+    walls: [
+      { x: 0.05, y: 0.15, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.82, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.15, w: 0.03, h: 0.7 },
+      { x: 0.92, y: 0.15, w: 0.03, h: 0.7 },
+      { x: 0.28, y: 0.15, w: 0.03, h: 0.45 },
+      { x: 0.52, y: 0.4, w: 0.03, h: 0.45 },
+      { x: 0.72, y: 0.15, w: 0.03, h: 0.45 },
+    ],
+  },
+  {
+    name: 'Z字形', nameEn: 'Zigzag',
+    start: { x: 0.12, y: 0.2 },
+    hole: { x: 0.85, y: 0.8 },
+    holeR: 0.03,
+    walls: [
+      { x: 0.05, y: 0.1, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.87, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.1, w: 0.03, h: 0.8 },
+      { x: 0.92, y: 0.1, w: 0.03, h: 0.8 },
+      { x: 0.25, y: 0.3, w: 0.5, h: 0.03 },
+      { x: 0.25, y: 0.6, w: 0.5, h: 0.03 },
+    ],
+  },
+  {
+    name: '双通道', nameEn: 'Twin Paths',
+    start: { x: 0.12, y: 0.5 },
+    hole: { x: 0.85, y: 0.5 },
+    holeR: 0.03,
+    walls: [
+      { x: 0.05, y: 0.2, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.77, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.2, w: 0.03, h: 0.6 },
+      { x: 0.92, y: 0.2, w: 0.03, h: 0.6 },
+      { x: 0.05, y: 0.485, w: 0.6, h: 0.03 },
+    ],
+  },
+  {
+    name: '螺旋通道', nameEn: 'Spiral',
+    start: { x: 0.12, y: 0.3 },
+    hole: { x: 0.5, y: 0.5 },
+    holeR: 0.028,
+    walls: [
+      { x: 0.05, y: 0.15, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.82, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.15, w: 0.03, h: 0.7 },
+      { x: 0.92, y: 0.15, w: 0.03, h: 0.7 },
+      { x: 0.25, y: 0.35, w: 0.5, h: 0.03 },
+      { x: 0.25, y: 0.62, w: 0.5, h: 0.03 },
+      { x: 0.25, y: 0.35, w: 0.03, h: 0.3 },
+      { x: 0.72, y: 0.35, w: 0.03, h: 0.3 },
+    ],
+  },
+  {
+    name: '窄道精准', nameEn: 'Narrow Path',
+    start: { x: 0.12, y: 0.5 },
+    hole: { x: 0.85, y: 0.5 },
+    holeR: 0.028,
+    walls: [
+      { x: 0.05, y: 0.35, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.62, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.35, w: 0.03, h: 0.3 },
+      { x: 0.92, y: 0.35, w: 0.03, h: 0.3 },
+      { x: 0.3, y: 0.35, w: 0.03, h: 0.12 },
+      { x: 0.5, y: 0.5, w: 0.03, h: 0.12 },
+      { x: 0.7, y: 0.35, w: 0.03, h: 0.12 },
+    ],
+  },
+  {
+    name: '十字路口', nameEn: 'Crossroads',
+    start: { x: 0.12, y: 0.5 },
+    hole: { x: 0.85, y: 0.5 },
+    holeR: 0.03,
+    walls: [
+      { x: 0.05, y: 0.15, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.82, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.15, w: 0.03, h: 0.7 },
+      { x: 0.92, y: 0.15, w: 0.03, h: 0.7 },
+      { x: 0.35, y: 0.15, w: 0.03, h: 0.32 },
+      { x: 0.35, y: 0.5, w: 0.03, h: 0.35 },
+      { x: 0.62, y: 0.15, w: 0.03, h: 0.32 },
+      { x: 0.62, y: 0.5, w: 0.03, h: 0.35 },
+    ],
+  },
+  {
+    name: '阶梯挑战', nameEn: 'Stairway',
+    start: { x: 0.12, y: 0.2 },
+    hole: { x: 0.85, y: 0.8 },
+    holeR: 0.03,
+    walls: [
+      { x: 0.05, y: 0.1, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.87, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.1, w: 0.03, h: 0.8 },
+      { x: 0.92, y: 0.1, w: 0.03, h: 0.8 },
+      { x: 0.2, y: 0.3, w: 0.25, h: 0.03 },
+      { x: 0.52, y: 0.45, w: 0.25, h: 0.03 },
+      { x: 0.2, y: 0.6, w: 0.25, h: 0.03 },
+    ],
+  },
+  {
+    name: '终极迷宫', nameEn: 'Ultimate Maze',
+    start: { x: 0.12, y: 0.2 },
+    hole: { x: 0.85, y: 0.8 },
+    holeR: 0.028,
+    walls: [
+      { x: 0.05, y: 0.1, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.87, w: 0.9, h: 0.03 },
+      { x: 0.05, y: 0.1, w: 0.03, h: 0.8 },
+      { x: 0.92, y: 0.1, w: 0.03, h: 0.8 },
+      { x: 0.25, y: 0.1, w: 0.03, h: 0.35 },
+      { x: 0.45, y: 0.25, w: 0.03, h: 0.35 },
+      { x: 0.65, y: 0.1, w: 0.03, h: 0.35 },
+      { x: 0.25, y: 0.55, w: 0.03, h: 0.35 },
+      { x: 0.45, y: 0.4, w: 0.03, h: 0.35 },
+      { x: 0.65, y: 0.55, w: 0.03, h: 0.35 },
+    ],
+  },
+];
+
+const BALL_R_REL = 0.022;
+const FRICTION = 0.982;
+const MAX_DRAG_REL = 0.28;
+const MAX_SPEED = 0.022;
+const STOP_SPEED = 0.0008;
+const RESTITUTION = 0.72;
+
+interface HoleInOneGameProps {
+  onBack: () => void;
+}
+
+const HoleInOneGame: React.FC<HoleInOneGameProps> = ({ onBack }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [levelIdx, setLevelIdx] = useState(0);
+  const [phase, setPhase] = useState<Phase>('aiming');
+  const [shots, setShots] = useState(0);
+  const [completedLevels, setCompletedLevels] = useState<number[]>([]);
+
+  const gs = useRef({
+    phase: 'aiming' as Phase,
+    ball: { x: 0.12, y: 0.5 },
+    vel: { x: 0, y: 0 },
+    mouse: { x: 0, y: 0 },
+    dragStart: null as V2 | null,
+    isDragging: false,
+    shots: 0,
+    levelIdx: 0,
+    cw: 0, ch: 0,
+  });
+  const rafRef = useRef(0);
+
+  const resetLevel = useCallback((idx: number) => {
+    const level = LEVELS[idx % LEVELS.length];
+    gs.current.ball = { ...level.start };
+    gs.current.vel = { x: 0, y: 0 };
+    gs.current.isDragging = false;
+    gs.current.dragStart = null;
+    gs.current.phase = 'aiming';
+    gs.current.shots = 0;
+    gs.current.levelIdx = idx;
+    setPhase('aiming');
+    setShots(0);
+    setLevelIdx(idx);
+  }, []);
+
+  const resolveWall = (ball: V2, vel: V2, wall: Wall, cw: number, ch: number) => {
+    const bx = ball.x * cw, by = ball.y * ch;
+    const br = BALL_R_REL * Math.min(cw, ch);
+    const wx = wall.x * cw, wy = wall.y * ch;
+    const ww = wall.w * cw, wh = wall.h * ch;
+    const nearX = Math.max(wx, Math.min(bx, wx + ww));
+    const nearY = Math.max(wy, Math.min(by, wy + wh));
+    const dx = bx - nearX, dy = by - nearY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < br && dist > 0) {
+      const nx = dx / dist, ny = dy / dist;
+      const overlap = br - dist;
+      ball.x += (nx * overlap) / cw;
+      ball.y += (ny * overlap) / ch;
+      const dot = vel.x * nx + vel.y * ny;
+      if (dot < 0) {
+        vel.x -= (1 + RESTITUTION) * dot * nx;
+        vel.y -= (1 + RESTITUTION) * dot * ny;
+      }
+    }
+  };
+
+  const drawFrame = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const { cw, ch, ball, vel, isDragging, dragStart, mouse, phase: p, levelIdx: li } = gs.current;
+    if (cw === 0 || ch === 0) return;
+    const level = LEVELS[li % LEVELS.length];
+    const minDim = Math.min(cw, ch);
+    const br = BALL_R_REL * minDim;
+    const hr = level.holeR * minDim;
+
+    // Background
+    ctx.fillStyle = '#1b3a1b';
+    ctx.fillRect(0, 0, cw, ch);
+
+    // Subtle grass stripes
+    for (let i = 0; i < ch; i += 28) {
+      ctx.fillStyle = i % 56 === 0 ? 'rgba(255,255,255,0.015)' : 'rgba(0,0,0,0.015)';
+      ctx.fillRect(0, i, cw, 28);
+    }
+
+    // Walls
+    level.walls.forEach(wall => {
+      const wx = wall.x * cw, wy = wall.y * ch, ww = wall.w * cw, wh = wall.h * ch;
+      ctx.fillStyle = 'rgba(0,0,0,0.35)';
+      ctx.fillRect(wx + 3, wy + 3, ww, wh);
+      const g = ctx.createLinearGradient(wx, wy, wx, wy + wh);
+      g.addColorStop(0, '#8B7355');
+      g.addColorStop(1, '#5C4A2A');
+      ctx.fillStyle = g;
+      ctx.fillRect(wx, wy, ww, wh);
+      ctx.strokeStyle = 'rgba(255,220,150,0.25)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(wx, wy, ww, wh);
+    });
+
+    // Hole shadow
+    ctx.beginPath();
+    ctx.arc(level.hole.x * cw + 3, level.hole.y * ch + 3, hr, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fill();
+
+    // Hole
+    ctx.beginPath();
+    ctx.arc(level.hole.x * cw, level.hole.y * ch, hr, 0, Math.PI * 2);
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Flag pole
+    const fx = level.hole.x * cw, fy = level.hole.y * ch;
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(fx, fy - hr * 0.3);
+    ctx.lineTo(fx, fy - hr * 2.2);
+    ctx.stroke();
+    ctx.fillStyle = '#BC4B1A';
+    ctx.beginPath();
+    ctx.moveTo(fx, fy - hr * 2.2);
+    ctx.lineTo(fx + hr * 1.1, fy - hr * 1.7);
+    ctx.lineTo(fx, fy - hr * 1.2);
+    ctx.closePath();
+    ctx.fill();
+
+    // Aim line when dragging
+    if (isDragging && dragStart && p === 'aiming') {
+      const bpx = ball.x * cw, bpy = ball.y * ch;
+      const mpx = mouse.x * cw, mpy = mouse.y * ch;
+      const dx = bpx - mpx, dy = bpy - mpy;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const maxDrag = MAX_DRAG_REL * minDim;
+      const power = Math.min(dist / maxDrag, 1);
+      const nx = dist > 0 ? dx / dist : 0, ny = dist > 0 ? dy / dist : 0;
+
+      // Dotted aim line
+      ctx.save();
+      ctx.setLineDash([6, 8]);
+      ctx.strokeStyle = `rgba(255,255,255,${0.3 + power * 0.4})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(bpx, bpy);
+      ctx.lineTo(bpx + nx * minDim * 0.35 * power, bpy + ny * minDim * 0.35 * power);
+      ctx.stroke();
+      ctx.restore();
+
+      // Power arc
+      ctx.beginPath();
+      ctx.arc(bpx, bpy, br + 6, 0, Math.PI * 2 * power);
+      ctx.strokeStyle = power > 0.7 ? '#BC4B1A' : '#D6A868';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
+
+    // Ball shadow
+    ctx.beginPath();
+    ctx.arc(ball.x * cw + 3, ball.y * ch + 3, br, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fill();
+
+    // Ball
+    const bg = ctx.createRadialGradient(
+      ball.x * cw - br * 0.3, ball.y * ch - br * 0.3, br * 0.1,
+      ball.x * cw, ball.y * ch, br
+    );
+    bg.addColorStop(0, '#ffffff');
+    bg.addColorStop(0.6, '#e8e8e8');
+    bg.addColorStop(1, '#c0c0c0');
+    ctx.beginPath();
+    ctx.arc(ball.x * cw, ball.y * ch, br, 0, Math.PI * 2);
+    ctx.fillStyle = bg;
+    ctx.fill();
+
+    // Ball dimples
+    ctx.fillStyle = 'rgba(0,0,0,0.08)';
+    [[-0.3, -0.3], [0.3, -0.2], [-0.1, 0.35], [0.35, 0.25]].forEach(([ox, oy]) => {
+      ctx.beginPath();
+      ctx.arc(ball.x * cw + ox * br, ball.y * ch + oy * br, br * 0.18, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }, []);
+
+  const gameLoop = useCallback(() => {
+    const g = gs.current;
+    if (g.phase === 'rolling') {
+      const level = LEVELS[g.levelIdx % LEVELS.length];
+      const minDim = Math.min(g.cw, g.ch);
+
+      // Apply friction
+      g.vel.x *= FRICTION;
+      g.vel.y *= FRICTION;
+
+      // Move ball
+      g.ball.x += g.vel.x;
+      g.ball.y += g.vel.y;
+
+      // Resolve wall collisions
+      level.walls.forEach(wall => resolveWall(g.ball, g.vel, wall, g.cw, g.ch));
+
+      // Check hole
+      const dx = g.ball.x - level.hole.x;
+      const dy = g.ball.y - level.hole.y;
+      const distToHole = Math.sqrt(dx * dx + dy * dy);
+      if (distToHole < level.holeR + BALL_R_REL * 0.5) {
+        g.phase = 'won';
+        setPhase('won');
+        setShots(g.shots);
+        setCompletedLevels(prev => prev.includes(g.levelIdx) ? prev : [...prev, g.levelIdx]);
+        drawFrame();
+        return;
+      }
+
+      // Check stopped
+      const speed = Math.sqrt(g.vel.x * g.vel.x + g.vel.y * g.vel.y);
+      if (speed < STOP_SPEED) {
+        g.vel = { x: 0, y: 0 };
+        g.phase = 'aiming';
+        setPhase('aiming');
+        drawFrame();
+        return;
+      }
+    }
+
+    drawFrame();
+    rafRef.current = requestAnimationFrame(gameLoop);
+  }, [drawFrame]);
+
+  // Canvas resize
+  useEffect(() => {
+    const resize = () => {
+      const canvas = canvasRef.current;
+      const container = containerRef.current;
+      if (!canvas || !container) return;
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+      gs.current.cw = canvas.width;
+      gs.current.ch = canvas.height;
+      drawFrame();
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, [drawFrame]);
+
+  // Start game loop
+  useEffect(() => {
+    resetLevel(0);
+    rafRef.current = requestAnimationFrame(gameLoop);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [gameLoop, resetLevel]);
+
+  // Restart loop when phase changes back to aiming
+  useEffect(() => {
+    if (phase === 'aiming') {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(gameLoop);
+    }
+  }, [phase, gameLoop]);
+
+  const getCanvasPos = (e: React.MouseEvent | React.TouchEvent): V2 => {
+    const canvas = canvasRef.current!;
+    const rect = canvas.getBoundingClientRect();
+    const clientX = 'touches' in e ? e.touches[0]?.clientX ?? e.changedTouches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0]?.clientY ?? e.changedTouches[0].clientY : e.clientY;
+    return {
+      x: (clientX - rect.left) / gs.current.cw,
+      y: (clientY - rect.top) / gs.current.ch,
+    };
+  };
+
+  const handlePointerDown = (e: React.MouseEvent | React.TouchEvent) => {
+    if (gs.current.phase !== 'aiming') return;
+    const pos = getCanvasPos(e);
+    gs.current.dragStart = pos;
+    gs.current.mouse = pos;
+    gs.current.isDragging = true;
+  };
+
+  const handlePointerMove = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!gs.current.isDragging) return;
+    gs.current.mouse = getCanvasPos(e);
+  };
+
+  const handlePointerUp = (e: React.MouseEvent | React.TouchEvent) => {
+    const g = gs.current;
+    if (!g.isDragging || g.phase !== 'aiming') return;
+    g.isDragging = false;
+
+    const pos = getCanvasPos(e);
+    const minDim = Math.min(g.cw, g.ch);
+    const maxDrag = MAX_DRAG_REL * minDim;
+
+    const dx = g.ball.x - pos.x;
+    const dy = g.ball.y - pos.y;
+    const dist = Math.sqrt(dx * dx + dy * dy) * minDim;
+    const power = Math.min(dist / maxDrag, 1);
+
+    if (power < 0.02) { g.dragStart = null; return; }
+
+    const len = Math.sqrt(dx * dx + dy * dy);
+    g.vel.x = (dx / len) * power * MAX_SPEED;
+    g.vel.y = (dy / len) * power * MAX_SPEED;
+    g.phase = 'rolling';
+    g.shots += 1;
+    g.dragStart = null;
+    setPhase('rolling');
+    setShots(g.shots);
+
+    cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(gameLoop);
+  };
+
+  const handleRetry = () => {
+    cancelAnimationFrame(rafRef.current);
+    resetLevel(gs.current.levelIdx);
+    rafRef.current = requestAnimationFrame(gameLoop);
+  };
+
+  const handleNextLevel = () => {
+    const next = (gs.current.levelIdx + 1) % LEVELS.length;
+    cancelAnimationFrame(rafRef.current);
+    resetLevel(next);
+    rafRef.current = requestAnimationFrame(gameLoop);
+  };
+
+  const level = LEVELS[levelIdx % LEVELS.length];
+
+  return (
+    <div className="fixed inset-0 z-[120] bg-[#0d1f0d] flex flex-col animate-fade-in">
+      {/* Header */}
+      <div className="shrink-0 h-14 md:h-16 border-b border-white/10 flex items-center justify-between px-4 md:px-8 bg-black/30 backdrop-blur-md z-20">
+        <div className="flex items-center gap-3 md:gap-4 min-w-0">
+          <button onClick={onBack} className="text-white/50 hover:text-white transition-colors active:scale-90 shrink-0">
+            <X size={20} />
+          </button>
+          <div className="h-5 w-px bg-white/10 shrink-0" />
+          <div className="min-w-0">
+            <div className="text-[9px] font-bold uppercase tracking-[0.4em] text-white/30 truncate">趣味游戏 · Hole in One</div>
+            <div className="text-white font-serif text-sm truncate">{level.name} <span className="text-white/30 text-xs">· {level.nameEn}</span></div>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 md:gap-4 shrink-0">
+          <div className="flex gap-1.5 shrink-0">
+            {LEVELS.map((_, i) => (
+              <div key={i} className={`w-2 h-2 rounded-full transition-colors ${i === levelIdx % LEVELS.length ? 'bg-art-gold' : completedLevels.includes(i) ? 'bg-green-500' : 'bg-white/20'}`} />
+            ))}
+          </div>
+          <button onClick={handleRetry} className="p-2 rounded-full bg-white/5 hover:bg-white/15 text-white/60 hover:text-white transition-colors active:scale-90 shrink-0">
+            <RotateCcw size={15} />
+          </button>
+        </div>
+      </div>
+
+      {/* Canvas */}
+      <div ref={containerRef} className="flex-1 relative overflow-hidden cursor-crosshair"
+        onMouseDown={handlePointerDown} onMouseMove={handlePointerMove} onMouseUp={handlePointerUp}
+        onTouchStart={handlePointerDown} onTouchMove={handlePointerMove} onTouchEnd={handlePointerUp}>
+        <canvas ref={canvasRef} className="w-full h-full" />
+
+        {/* Instruction overlay */}
+        {phase === 'aiming' && shots === 0 && (
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/50 backdrop-blur-sm rounded-full text-white/60 text-xs font-bold uppercase tracking-widest pointer-events-none animate-pulse">
+            点击拖拽瞄准 · 松开击球
+          </div>
+        )}
+
+        {/* Won overlay */}
+        {phase === 'won' && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
+            <div className="text-center space-y-5">
+              <div className="w-20 h-20 bg-art-gold rounded-full flex items-center justify-center mx-auto shadow-2xl animate-bounce">
+                <Trophy size={36} className="text-white" fill="currentColor" />
+              </div>
+              <div className="font-serif text-4xl text-art-gold italic">进洞成功！</div>
+              <p className="text-white/60 text-sm uppercase tracking-widest">用了 {shots} 杆</p>
+              <div className="flex gap-3 justify-center pt-2">
+                <button onClick={handleRetry}
+                  className="px-6 py-3 border border-white/20 text-white/60 rounded-full font-bold uppercase tracking-widest text-xs hover:border-white/40 hover:text-white transition-all">
+                  重玩
+                </button>
+                {levelIdx % LEVELS.length < LEVELS.length - 1 ? (
+                  <button onClick={handleNextLevel}
+                    className="flex items-center gap-2 px-8 py-3 bg-white text-black rounded-full font-bold uppercase tracking-widest text-xs hover:bg-art-gold transition-colors">
+                    下一关 <ChevronRight size={14} />
+                  </button>
+                ) : (
+                  <button onClick={onBack}
+                    className="flex items-center gap-2 px-8 py-3 bg-art-gold text-black rounded-full font-bold uppercase tracking-widest text-xs hover:bg-white transition-colors">
+                    完成全部关卡！
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default HoleInOneGame;
+

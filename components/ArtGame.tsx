@@ -6,6 +6,7 @@ import { Palette, Play, ArrowRight, X, Star, ChevronLeft, Trophy, Eye, EyeOff, G
 import { useLanguage } from '../contexts/LanguageContext';
 import { authService } from '../services/authService';
 import AppleText from './AppleText';
+import HoleInOneGame from './HoleInOneGame';
 
 interface ArtGameProps {
   onImmersiveChange?: (isImmersive: boolean) => void;
@@ -69,7 +70,7 @@ const ConfettiCanvas: React.FC = () => {
 };
 
 const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequired, onNavigate }) => {
-  const [gameMode, setGameMode] = useState<'restoration' | 'puzzle' | 'quiz' | 'daily' | null>(null);
+  const [gameMode, setGameMode] = useState<'restoration' | 'puzzle' | 'quiz' | 'daily' | 'holeinone' | null>(null);
   const [currentLevelId, setCurrentLevelId] = useState<number | null>(null);
   const [gameState, setGameState] = useState<'mode-select' | 'level-select' | 'intro' | 'playing' | 'won' | 'level-complete'>('mode-select');
 
@@ -471,6 +472,18 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
       );
   }
 
+  if (gameMode === 'holeinone') {
+    return (
+      <HoleInOneGame
+        onBack={() => {
+          setGameMode(null);
+          setGameState('mode-select');
+          onImmersiveChange?.(false);
+        }}
+      />
+    );
+  }
+
   if (gameState === 'mode-select') {
     return (
       <div className="min-h-screen bg-[#080808] text-white scroll-container overflow-y-auto relative dot-grid-bg">
@@ -552,6 +565,56 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
               );
             })}
           </div>
+        </div>
+
+        {/* 趣味游戏 Divider */}
+        <div className="relative z-10 px-4 md:px-16 max-w-[1800px] mx-auto pb-4">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex-1 h-px bg-white/[0.06]" />
+            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5">
+              <span className="text-[9px] font-bold uppercase tracking-[0.5em] text-white/40">趣味游戏 · Fun Games</span>
+            </div>
+            <div className="flex-1 h-px bg-white/[0.06]" />
+          </div>
+
+          {/* Hole in One Card */}
+          <button
+            onClick={() => {
+              if (!user) { onAuthRequired(); return; }
+              setGameMode('holeinone');
+              onImmersiveChange?.(true);
+            }}
+            className="group relative w-full h-36 md:h-48 rounded-2xl overflow-hidden text-left cursor-pointer active:scale-[0.99] transition-transform"
+          >
+            {/* Golf green background */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0d2e0d] via-[#1a4a1a] to-[#0d2e0d]" />
+            <div className="absolute inset-0 opacity-20"
+              style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(255,255,255,0.05) 27px, rgba(255,255,255,0.05) 28px)' }} />
+            {/* Hole graphic */}
+            <div className="absolute right-12 md:right-16 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1 opacity-60 group-hover:opacity-90 transition-opacity hidden sm:flex">
+              <div className="w-1 h-14 bg-white/60 rounded-full" />
+              <div className="w-0 h-0 border-l-[10px] border-l-transparent border-r-0 border-t-[14px] border-t-[#BC4B1A] -mt-14 ml-1" />
+              <div className="w-10 h-10 rounded-full bg-black/80 border-2 border-white/30 -mt-1" />
+            </div>
+            {/* Ball graphic */}
+            <div className="absolute right-32 md:right-40 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white shadow-lg opacity-70 group-hover:opacity-100 group-hover:translate-x-6 transition-all duration-700 hidden sm:block" />
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent" />
+            <div className="relative z-10 h-full flex items-center justify-center px-6 md:px-8">
+              <div className="absolute left-6 md:left-8 top-1/2 -translate-y-1/2">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-[9px] font-black uppercase tracking-[0.5em] text-green-400">⛳ 一杆进洞</span>
+                </div>
+                <h3 className="font-serif text-2xl md:text-3xl text-white mb-1">Hole in One</h3>
+                <p className="text-white/40 text-xs md:text-sm max-w-xs hidden md:block">瞄准、击球，挑战 10 个关卡。</p>
+              </div>
+              <div className="flex items-center shrink-0">
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white flex items-center justify-center group-hover:bg-green-400 transition-colors duration-300 shadow-2xl shrink-0">
+                  <Play size={20} className="text-black ml-0.5" fill="currentColor" />
+                </div>
+              </div>
+            </div>
+          </button>
         </div>
       </div>
     );
