@@ -361,6 +361,18 @@
       }
       /* Override for inline/decorative elements */
       button.no-min, a.no-min { min-height: unset; min-width: unset; }
+
+      /* Mobile-specific optimizations */
+      @media (max-width: 768px) {
+        body {
+          font-size: 14px;
+        }
+
+        /* Reduce excessive vertical spacing on mobile */
+        .h-full {
+          min-height: 600px;
+        }
+      }
     </style>
   </head>
   <body>

@@ -62,7 +62,7 @@ const FeatureCard: React.FC<{ feature: Feature; index: number }> = ({ feature, i
       ref={ref}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="relative rounded-2xl md:rounded-3xl p-4 md:p-6 flex flex-col gap-3 md:gap-4 cursor-default transition-all duration-700"
+      className="relative rounded-2xl md:rounded-3xl p-3 md:p-4 lg:p-6 flex flex-col gap-2 md:gap-3 lg:gap-4 cursor-default transition-all duration-700"
       style={{
         background: feature.bg,
         border: `2px solid ${hovered ? feature.accent : 'transparent'}`,
@@ -73,17 +73,17 @@ const FeatureCard: React.FC<{ feature: Feature; index: number }> = ({ feature, i
         transition: `opacity 0.7s ease ${index * 0.12}s, transform 0.7s ease ${index * 0.12}s, border-color 0.3s ease, box-shadow 0.3s ease`,
       }}
     >
-      <div className="w-14 h-14 md:w-20 md:h-20 mx-auto">
+      <div className="w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 mx-auto">
         {animData && (
           <Lottie animationData={animData} loop autoplay style={{ width: '100%', height: '100%' }} />
         )}
       </div>
       <div className="text-center">
-        <div className="text-[10px] font-bold uppercase tracking-[0.3em] mb-1" style={{ color: feature.accent }}>
+        <div className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.3em] mb-1" style={{ color: feature.accent }}>
           {feature.subtitle}
         </div>
-        <h3 className="text-sm md:text-lg font-black text-stone-900 mb-1 md:mb-2">{feature.title}</h3>
-        <p className="text-xs md:text-sm text-stone-500 leading-relaxed hidden sm:block">{feature.desc}</p>
+        <h3 className="text-xs md:text-sm lg:text-lg font-black text-stone-900 mb-1 md:mb-2 break-words">{feature.title}</h3>
+        <p className="text-[10px] md:text-xs lg:text-sm text-stone-500 leading-relaxed hidden sm:block break-words">{feature.desc}</p>
       </div>
       <div
         className="absolute bottom-0 left-6 right-6 h-[2px] rounded-full transition-all duration-500"
@@ -112,10 +112,10 @@ const LottieFeatures: React.FC = () => {
   }, []);
 
   return (
-    <section className="w-full py-16 md:py-24 px-4 md:px-12 bg-art-bg relative z-30 -mt-px">
+    <section className="w-full py-12 md:py-16 lg:py-24 px-4 md:px-12 bg-art-bg relative z-30 -mt-px">
       <div
         ref={titleRef}
-        className="text-center mb-10 md:mb-16 transition-all duration-1000"
+        className="text-center mb-8 md:mb-12 lg:mb-16 transition-all duration-1000"
         style={{
           opacity: titleVisible ? 1 : 0,
           transform: titleVisible ? 'translateY(0)' : 'translateY(30px)',
@@ -126,7 +126,7 @@ const LottieFeatures: React.FC = () => {
           <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-art-primary">核心体验</span>
           <div className="w-8 md:w-12 h-px bg-art-primary" />
         </div>
-        <h2 className="text-4xl md:text-5xl lg:text-7xl font-black uppercase tracking-[-0.03em] text-stone-900 leading-none">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-7xl font-black uppercase tracking-[-0.03em] text-stone-900 leading-none">
           四大<br />
           <span className="text-art-primary">体验</span>
         </h2>

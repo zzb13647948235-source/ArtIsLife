@@ -109,13 +109,13 @@ const Marquee: React.FC = () => {
 const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isAnimateStart, setIsAnimateStart] = useState(false);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     if (isActive) {
         setIsAnimateStart(false);
         // 延迟启动动画，等待 Preloader 幕布动画完成
-        const timer = setTimeout(() => setIsAnimateStart(true), 800); 
+        const timer = setTimeout(() => setIsAnimateStart(true), 800);
         return () => clearTimeout(timer);
     }
   }, [isActive]);
@@ -167,10 +167,44 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
     return () => instances.forEach(d => d.kill());
   }, [isAnimateStart]);
 
+  // Dynamic font sizing based on language - longer text gets smaller size
+  const getTitleFontSize = () => {
+    const title1 = t('hero.title_1');
+    const title2 = t('hero.title_2');
+    const title3 = t('hero.title_3');
+    const totalLength = title1.length + title2.length + title3.length;
+
+    // Adjust sizing based on total character count
+    if (totalLength > 25) {
+      // Very long (French/Spanish)
+      return {
+        line1: 'clamp(1.8rem, 6vw, 10rem)',
+        line2: 'clamp(1.3rem, 4.5vw, 7rem)',
+        line3: 'clamp(1.8rem, 6vw, 10.5rem)',
+      };
+    } else if (totalLength > 15) {
+      // Medium (English)
+      return {
+        line1: 'clamp(2rem, 7vw, 12rem)',
+        line2: 'clamp(1.4rem, 5vw, 8rem)',
+        line3: 'clamp(2rem, 7vw, 12.5rem)',
+      };
+    } else {
+      // Short (Chinese/Japanese)
+      return {
+        line1: 'clamp(2rem, 7vw, 13rem)',
+        line2: 'clamp(1.5rem, 5vw, 8.5rem)',
+        line3: 'clamp(2rem, 7vw, 13.5rem)',
+      };
+    }
+  };
+
+  const titleSizes = getTitleFontSize();
+
   return (
     <div className="relative w-full h-full bg-transparent text-stone-900">
-      {/* Hero full-height section */}
-      <div className="relative h-full flex items-center overflow-hidden perspective-2000">
+      {/* Hero full-height section - optimized for mobile */}
+      <div className="relative h-full flex items-center overflow-hidden perspective-2000 min-h-[600px] md:min-h-0">
       
       {/* Background Layer */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
@@ -185,71 +219,71 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
           </div>
       </div>
 
-      <div className="w-full max-w-[1920px] mx-auto px-4 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10 h-full">
+      <div className="w-full max-w-[1920px] mx-auto px-4 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8 items-center relative z-10 h-full py-8 md:py-0">
 
-        <div className="lg:col-span-6 flex flex-col justify-center relative z-20 pt-4 md:pt-8 lg:pt-0 min-w-0">
-              <div className="flex items-center gap-4 mb-6 md:mb-8 animate-fade-in">
+        <div className="lg:col-span-6 flex flex-col justify-center relative z-20 min-w-0 max-w-full overflow-hidden">
+              <div className="flex items-center gap-4 mb-4 md:mb-6 lg:mb-8 animate-fade-in">
                   <div className="w-8 h-[1px] bg-art-primary"></div>
-                  <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-art-primary/80">{t('hero.est')}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-art-primary/80 whitespace-nowrap overflow-hidden text-ellipsis">{t('hero.est')}</span>
               </div>
 
-              {/* Original serif title */}
-              <h1 className="font-serif text-art-accent tracking-tighter select-none flex flex-col gap-1 md:gap-3 drop-shadow-sm relative z-30 mb-4 md:mb-6 w-full overflow-hidden">
-                <Sparkle size={32} opacity={0.9} className="absolute -top-4 left-[30%] text-art-primary" style={{ animationDelay: '0s' }} />
-                <Sparkle size={18} opacity={0.5} className="absolute top-8 left-[55%] text-art-accent" style={{ animationDelay: '0.6s' }} />
-                <Sparkle size={24} opacity={0.7} className="absolute top-2 right-8 text-art-gold" style={{ animationDelay: '1.2s' }} />
-                <Sparkle size={14} opacity={0.4} variant="circle" className="absolute top-16 left-[20%] text-art-primary" style={{ animationDelay: '1.8s' }} />
-                <Sparkle size={10} opacity={0.35} variant="circle" className="absolute -top-2 left-[70%] text-art-muted" style={{ animationDelay: '0.9s' }} />
+              {/* Original serif title - with better responsive sizing and overflow handling */}
+              <h1 className="font-serif text-art-accent tracking-tighter select-none flex flex-col gap-1 md:gap-2 lg:gap-3 drop-shadow-sm relative z-30 mb-3 md:mb-4 lg:mb-6 w-full max-w-full overflow-visible">
+                <Sparkle size={32} opacity={0.9} className="absolute -top-4 left-[30%] text-art-primary hidden lg:block" style={{ animationDelay: '0s' }} />
+                <Sparkle size={18} opacity={0.5} className="absolute top-8 left-[55%] text-art-accent hidden lg:block" style={{ animationDelay: '0.6s' }} />
+                <Sparkle size={24} opacity={0.7} className="absolute top-2 right-8 text-art-gold hidden lg:block" style={{ animationDelay: '1.2s' }} />
+                <Sparkle size={14} opacity={0.4} variant="circle" className="absolute top-16 left-[20%] text-art-primary hidden lg:block" style={{ animationDelay: '1.8s' }} />
+                <Sparkle size={10} opacity={0.35} variant="circle" className="absolute -top-2 left-[70%] text-art-muted hidden lg:block" style={{ animationDelay: '0.9s' }} />
 
-                <span className="leading-[0.9] block mix-blend-multiply transition-transform hover:scale-[1.02] origin-left duration-500" style={{ fontSize: 'clamp(1.6rem, 8vw, 13rem)' }}>
+                <span className="leading-[0.9] block mix-blend-multiply transition-transform hover:scale-[1.02] origin-left duration-500 break-words" style={{ fontSize: titleSizes.line1, maxWidth: '100%' }}>
                     <BrushText text={t('hero.title_1')} delay={0.2} />
                 </span>
-                <span className="leading-[1] block italic font-light text-stone-400 pl-2 lg:pl-16" style={{ fontSize: 'clamp(1.2rem, 6vw, 8.5rem)' }}>
+                <span className="leading-[1] block italic font-light text-stone-400 pl-2 lg:pl-16 break-words" style={{ fontSize: titleSizes.line2, maxWidth: '100%' }}>
                     <BrushText text={t('hero.title_2')} delay={0.5} />
                 </span>
-                <span className="leading-[0.9] block text-art-primary pb-2" style={{ fontSize: 'clamp(1.6rem, 8vw, 13.5rem)' }}>
+                <span className="leading-[0.9] block text-art-primary pb-2 break-words" style={{ fontSize: titleSizes.line3, maxWidth: '100%' }}>
                     <BrushText text={t('hero.title_3')} delay={0.8} />
                 </span>
 
-                <Sparkle size={28} opacity={0.8} className="absolute bottom-4 left-[10%] text-art-primary" style={{ animationDelay: '0.4s' }} />
-                <Sparkle size={16} opacity={0.45} className="absolute bottom-8 left-[45%] text-art-accent" style={{ animationDelay: '1.5s' }} />
-                <Sparkle size={12} opacity={0.3} variant="circle" className="absolute bottom-2 right-12 text-art-gold" style={{ animationDelay: '2.1s' }} />
+                <Sparkle size={28} opacity={0.8} className="absolute bottom-4 left-[10%] text-art-primary hidden lg:block" style={{ animationDelay: '0.4s' }} />
+                <Sparkle size={16} opacity={0.45} className="absolute bottom-8 left-[45%] text-art-accent hidden lg:block" style={{ animationDelay: '1.5s' }} />
+                <Sparkle size={12} opacity={0.3} variant="circle" className="absolute bottom-2 right-12 text-art-gold hidden lg:block" style={{ animationDelay: '2.1s' }} />
               </h1>
 
            <div className="relative pl-3 md:pl-6 border-l-2 border-art-primary/30 max-w-md animate-fade-in-up delay-[1200ms]">
-              <p className="text-xs md:text-base text-stone-500 font-light leading-relaxed uppercase tracking-wide">
+              <p className="text-xs md:text-sm lg:text-base text-stone-500 font-light leading-relaxed uppercase tracking-wide break-words">
                   {t('hero.subtitle')}
               </p>
            </div>
 
-           <div className="flex items-center gap-2 md:gap-4 mt-5 md:mt-8 animate-fade-in-up delay-[1400ms] flex-wrap">
+           <div className="flex items-center gap-2 md:gap-4 mt-4 md:mt-6 lg:mt-8 animate-fade-in-up delay-[1400ms] flex-wrap">
               <MagneticButton>
-                <button onClick={() => onNavigate('game')} className="group relative px-5 md:px-8 py-3 md:py-4 bg-art-accent text-white rounded-full overflow-hidden shadow-hard active:scale-95">
+                <button onClick={() => onNavigate('game')} className="group relative px-4 md:px-5 lg:px-8 py-2.5 md:py-3 lg:py-4 bg-art-accent text-white rounded-full overflow-hidden shadow-hard active:scale-95">
                    <div className="absolute inset-0 w-full h-full bg-art-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.85,0,0.15,1)]"></div>
                    <div className="relative z-10 flex items-center gap-2 md:gap-3">
                       <PlayCircle size={15} className="group-hover:fill-white/20 transition-all" />
-                      <span className="font-black uppercase tracking-[0.2em] text-xs">{t('hero.btn_start')}</span>
+                      <span className="font-black uppercase tracking-[0.2em] text-xs whitespace-nowrap">{t('hero.btn_start')}</span>
                    </div>
                 </button>
               </MagneticButton>
               <MagneticButton>
-                <button onClick={() => onNavigate('gallery')} className="group flex items-center gap-2 md:gap-3 px-5 md:px-7 py-3 md:py-4 rounded-full border-2 border-stone-300 hover:border-art-accent bg-transparent transition-all duration-300 active:scale-95">
-                   <span className="text-xs font-black uppercase tracking-[0.2em] text-stone-700 group-hover:text-art-accent">{t('hero.btn_create')}</span>
+                <button onClick={() => onNavigate('gallery')} className="group flex items-center gap-2 md:gap-3 px-4 md:px-5 lg:px-7 py-2.5 md:py-3 lg:py-4 rounded-full border-2 border-stone-300 hover:border-art-accent bg-transparent transition-all duration-300 active:scale-95">
+                   <span className="text-xs font-black uppercase tracking-[0.2em] text-stone-700 group-hover:text-art-accent whitespace-nowrap">{t('hero.btn_create')}</span>
                    <ArrowRight size={13} className="text-art-primary group-hover:translate-x-1 transition-transform"/>
                 </button>
               </MagneticButton>
            </div>
         </div>
 
-        <div className="hidden lg:flex lg:col-span-6 relative items-center justify-center mt-12 lg:mt-0 h-full pointer-events-none">
+        <div className="hidden lg:flex lg:col-span-6 relative items-center justify-center h-full pointer-events-none">
             <div className="relative w-full max-w-[500px] aspect-square z-10 flex items-center justify-center">
                 {HERO_IMAGES.map((img, index) => {
                     const arrivalDelay = index * 120;
                     const parallaxX = mousePos.x * (10 + index * 4);
                     const parallaxY = mousePos.y * (10 + index * 4);
-                    
+
                     return (
-                        <div 
+                        <div
                           key={img.id}
                           className={`absolute transition-all will-change-transform ${isAnimateStart ? 'opacity-100' : 'opacity-0'}`}
                           style={{
@@ -259,7 +293,7 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
                             transitionDuration: isAnimateStart ? '1.8s' : '0.1s',
                             transitionDelay: isAnimateStart ? `${arrivalDelay}ms` : '0ms',
                             transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
-                            transform: isAnimateStart 
+                            transform: isAnimateStart
                               ? `translate3d(${img.targetX + parallaxX}px, ${img.targetY + parallaxY}px, 0) rotate(${img.rotation + mousePos.x * 5}deg) scale(${img.scale})`
                               : `translate3d(150vw, -150vh, 0) rotate(180deg) scale(0.2)`
                           }}
@@ -267,9 +301,9 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
                           <div className="hero-painting-card w-full aspect-[3/4] bg-white p-2 md:p-3 shadow-hard rounded-sm border border-stone-100 relative overflow-hidden group pointer-events-auto ring-1 ring-black/5">
                               <div className="w-full h-full relative overflow-hidden bg-stone-200">
                                   {/* base image */}
-                                  <img src={img.url} className="w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-0" alt={img.id} />
+                                  <img src={img.url} className="w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-0" alt={img.id} loading="lazy" />
                                   {/* hover image — fades in on hover */}
-                                  <img src={img.hoverUrl} className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100 scale-105 group-hover:scale-100 transition-transform" alt={img.id} aria-hidden="true" />
+                                  <img src={img.hoverUrl} className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100 scale-105 group-hover:scale-100 transition-transform" alt={img.id} aria-hidden="true" loading="lazy" />
                                   {/* 蒙娜丽莎眼睛跟踪 */}
                                   {img.id === 'mona-lisa' && (
                                     <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
@@ -300,7 +334,7 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
         </div>
       </div>
       {/* MANA-style scroll indicator */}
-      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 animate-fade-in pointer-events-none"
+      <div className="absolute bottom-16 md:bottom-24 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 animate-fade-in pointer-events-none"
         style={{ animationDelay: '2s' }}>
         <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-stone-400">Scroll</span>
         <div className="w-px h-10 bg-stone-300 origin-top" style={{
