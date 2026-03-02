@@ -204,7 +204,7 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
   return (
     <div className="relative w-full h-full bg-transparent text-stone-900">
       {/* Hero full-height section - optimized for mobile */}
-      <div className="relative h-full flex items-center overflow-hidden perspective-2000 min-h-[600px] md:min-h-0">
+      <div className="relative h-full flex items-center overflow-hidden perspective-2000 min-h-screen md:min-h-0">
       
       {/* Background Layer */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
@@ -219,7 +219,7 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
           </div>
       </div>
 
-      <div className="w-full max-w-[1920px] mx-auto px-4 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8 items-center relative z-10 h-full py-8 md:py-0">
+      <div className="w-full max-w-[1920px] mx-auto px-4 md:px-12 lg:px-24 grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8 items-center relative z-10 h-full py-0">
 
         <div className="lg:col-span-6 flex flex-col justify-center relative z-20 min-w-0 max-w-full overflow-hidden">
               <div className="flex items-center gap-4 mb-4 md:mb-6 lg:mb-8 animate-fade-in">
