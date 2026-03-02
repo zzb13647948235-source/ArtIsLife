@@ -263,14 +263,14 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center gap-6" role="list">
+          <div className="hidden lg:flex items-center gap-4 xl:gap-6" role="list">
             {navItems.map((item) => (
               <button
                 key={item.id}
                 role="listitem"
                 onClick={() => onNavigate(item.id as ViewState)}
                 aria-current={currentView === item.id ? 'page' : undefined}
-                className={`relative text-xs font-extrabold uppercase tracking-[0.12em] transition-all duration-300 group flex flex-col items-center gap-1.5
+                className={`relative text-xs font-extrabold uppercase tracking-[0.12em] transition-all duration-300 group flex flex-col items-center gap-1.5 whitespace-nowrap
                   ${currentView === item.id ? activeClass : inactiveClass}`}
               >
                 <span className="flex items-center gap-2">{item.icon}{item.label}</span>
@@ -280,23 +280,23 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
           </div>
 
           {/* Actions */}
-          <div className="hidden lg:flex items-center gap-3 shrink-0">
+          <div className="hidden lg:flex items-center gap-4 xl:gap-6 shrink-0">
             <button onClick={toggleDark}
               aria-label={isDark ? '切换亮色模式' : '切换暗色模式'}
-              className={`p-2 rounded-full transition-all hover:bg-stone-100 dark:hover:bg-white/10 ${baseTextColor}`}>
+              className={`p-2 rounded-full transition-all hover:bg-stone-100 dark:hover:bg-white/10 ${baseTextColor} shrink-0`}>
               {isDark ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
             </button>
 
             <GlobalSearch onNavigate={onNavigate} />
 
             {/* Language Switcher */}
-            <div className="relative" onClick={e => e.stopPropagation()}>
+            <div className="relative shrink-0" onClick={e => e.stopPropagation()}>
               <button
                 onClick={() => setLangMenuOpen(!langMenuOpen)}
                 aria-label={`当前语言：${language.toUpperCase()}，点击切换`}
                 aria-haspopup="listbox"
                 aria-expanded={langMenuOpen}
-                className={`text-[10px] font-bold uppercase tracking-widest hover:opacity-70 transition-opacity ${baseTextColor}`}>
+                className={`text-[10px] font-bold uppercase tracking-widest hover:opacity-70 transition-opacity px-2 ${baseTextColor}`}>
                 {language.toUpperCase()}
               </button>
               <ul role="listbox" aria-label="选择语言"
@@ -317,7 +317,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
 
             {/* User / Login */}
             {user ? (
-              <div className="relative" ref={profileMenuRef}>
+              <div className="relative shrink-0" ref={profileMenuRef}>
                 <button onClick={() => setProfileMenuOpen(v => !v)} aria-label="用户菜单" className="flex items-center gap-2 group">
                   <div className="w-8 h-8 rounded-full bg-stone-300 overflow-hidden ring-2 ring-transparent group-hover:ring-art-primary/50 transition-all">
                     {user.avatar
@@ -346,7 +346,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onNavigate, user, 
               </div>
             ) : (
               <button onClick={() => onNavigate('login')}
-                className={`text-[10px] font-bold uppercase tracking-[0.2em] border-b border-transparent hover:border-current pb-0.5 transition-all ${baseTextColor}`}>
+                className={`text-[10px] font-bold uppercase tracking-[0.2em] border-b border-transparent hover:border-current pb-0.5 transition-all shrink-0 whitespace-nowrap ${baseTextColor}`}>
                 {t('nav.login')}
               </button>
             )}
