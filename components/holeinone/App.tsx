@@ -226,19 +226,19 @@ const App: React.FC = () => {
             <div className="absolute bottom-[200px] lg:bottom-[120px] left-1/2 -translate-x-1/2 z-40 w-full max-w-md select-none px-4">
             <div className="bg-[#131313] backdrop-blur-md p-4 rounded-3xl shadow-2xl flex items-center gap-4 relative pointer-events-auto">
                 <div className="flex flex-col text-center justify-center items-center gap-1.5 mx-auto pr-6">
-                    <span className="text-base text-[#9BA0A6] font-medium">Caddy analysis</span>
+                    <span className="text-base text-[#9BA0A6] font-medium">球童分析</span>
                     {gameState.commentaryLoading ? (
                       <Loader2 className="animate-spin text-white w-5 h-5 mt-1" />
                     ) : (
                       <p className="text-base font-medium text-white text-pretty">
-                        "{gameState.lastCommentary || "Line up your shot..."}"
+                        "{gameState.lastCommentary || "瞄准你的击球..."}"
                       </p>
                     )}
                 </div>
                 <button
                   onClick={() => setCaddyDismissed(true)}
                   className="absolute top-3 right-3 p-1 hover:bg-white/10 rounded-full transition-colors"
-                  aria-label="Dismiss caddy message"
+                  aria-label="关闭球童消息"
                 >
                   <CloseIcon className="w-5 h-5 text-[#9BA0A6]" />
                 </button>
@@ -257,31 +257,31 @@ const App: React.FC = () => {
         return (
             <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-xl p-[55px]">
                 <div className="bg-black text-white px-[30px] lg:px-10 py-10 lg:py-[50px] rounded-3xl text-center w-full rainbow-border animate-rotate-gradient animate-in fade-in zoom-in duration-200 flex flex-col items-center min-w-xs max-w-md">
-                    <h2 className="text-[48px] font-medium mb-6 leading-none tracking-tight">Nice shot</h2>
-                    
+                    <h2 className="text-[48px] font-medium mb-6 leading-none tracking-tight">漂亮一击</h2>
+
                     <div className="flex flex-col items-center mb-10">
-                        <p className="text-lg tracking-tight font-medium leading-none flex gap-1.5">{gameState.strokes} {gameState.strokes !== 1 ? "Strokes" : "Stroke"}
+                        <p className="text-lg tracking-tight font-medium leading-none flex gap-1.5">{gameState.strokes} {gameState.strokes !== 1 ? "杆" : "杆"}
                         {scoreInfo && (
                             <><span>—</span><span>{scoreInfo.term}</span></>
                         )}
                         </p>
                     </div>
-                    
+
                     {ENABLE_AI_CADDY && (
                         <div className="bg-[#202020] p-5 rounded-2xl mb-10 gap-3 flex flex-col justify-center w-full min-h-[100px]">
-                            <p className="text-lg text-[#9BA0A6] tracking-tight font-medium">Caddy message</p>
+                            <p className="text-lg text-[#9BA0A6] tracking-tight font-medium">球童评论</p>
                             {gameState.commentaryLoading ? (
                             <div className="flex justify-center py-2">
                                 <Loader2 className="animate-spin text-white" />
                             </div>
                             ) : (
-                            <p className="text-lg font-medium text-white tracking-tight">"{gameState.lastCommentary || "Good job!"}"</p>
+                            <p className="text-lg font-medium text-white tracking-tight">"{gameState.lastCommentary || "打得好！"}"</p>
                             )}
                         </div>
                     )}
 
                     <div className="flex flex-col gap-4">
-                      <button 
+                      <button
                           onClick={nextLevel}
                           disabled={nextLevelLoading}
                           className="w-full bg-white text-black hover:opacity-80 leading-none py-[22px] px-[22px] min-w-[175px] lg:min-w-[206px] rounded-full font-medium flex items-center justify-center gap-2 transition-transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
@@ -289,7 +289,7 @@ const App: React.FC = () => {
                           {nextLevelLoading ? (
                                <Loader2 className="animate-spin" />
                           ) : (
-                              isFinal ? <>View results</> : <>Next hole</>
+                              isFinal ? <>查看结果</> : <>下一关</>
                           )}
                       </button>
                     </div>
@@ -300,37 +300,37 @@ const App: React.FC = () => {
 
     if (gameState.state === 'GAME_OVER') {
         const parDiff = gameState.totalScore - totalPar;
-        const scoreText = parDiff === 0 ? "Even Par" : (parDiff > 0 ? `${parDiff} Over Par` : `${Math.abs(parDiff)} Under Par`);
-        
+        const scoreText = parDiff === 0 ? "标准杆" : (parDiff > 0 ? `高于标准杆 ${parDiff} 杆` : `低于标准杆 ${Math.abs(parDiff)} 杆`);
+
         return (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-xl p-[55px]">
             <div className="bg-black text-white px-[30px] lg:px-10 py-10 lg:py-[50px] rounded-3xl text-center w-full rainbow-border animate-rotate-gradient animate-in fade-in zoom-in duration-200 flex flex-col items-center min-w-xs max-w-md">
-                <h2 className="text-[48px] font-medium mb-6 leading-none tracking-tight">Course Complete</h2>
-                
+                <h2 className="text-[48px] font-medium mb-6 leading-none tracking-tight">球场完成</h2>
+
                 <div className="flex flex-col items-center mb-10">
                     <p className="text-xl tracking-tight font-bold leading-none mb-2">{scoreText}</p>
-                    <p className="text-lg text-[#9BA0A6] font-medium">Total Strokes: {gameState.totalScore} (Par {totalPar})</p>
+                    <p className="text-lg text-[#9BA0A6] font-medium">总杆数：{gameState.totalScore}（标准杆 {totalPar}）</p>
                 </div>
-                
+
                 {ENABLE_AI_CADDY && (
                     <div className="bg-[#202020] p-5 rounded-2xl mb-10 gap-3 flex flex-col justify-center w-full min-h-[100px]">
-                        <p className="text-lg text-[#9BA0A6] tracking-tight font-medium">Final analysis</p>
+                        <p className="text-lg text-[#9BA0A6] tracking-tight font-medium">最终评价</p>
                         {gameState.commentaryLoading ? (
                             <div className="flex justify-center py-2">
                                 <Loader2 className="animate-spin text-white" />
                             </div>
                         ) : (
-                            <p className="text-lg font-medium text-white tracking-tight">"{gameState.lastCommentary || "What a game!"}"</p>
+                            <p className="text-lg font-medium text-white tracking-tight">"{gameState.lastCommentary || "精彩的比赛！"}"</p>
                         )}
                     </div>
                 )}
 
                 <div className="flex flex-col gap-4">
-                  <button 
+                  <button
                       onClick={resetGame}
                       className="w-full bg-white text-black hover:opacity-80 leading-none py-[22px] px-[22px] min-w-[175px] lg:min-w-[206px] rounded-full font-medium flex items-center justify-center gap-2 transition-transform active:scale-95"
                   >
-                      Play again
+                      再玩一次
                   </button>
                 </div>
             </div>
@@ -342,12 +342,12 @@ const App: React.FC = () => {
   };
 
   const getScoreTerm = (strokes: number, par: number) => {
-    if (strokes === 1) return { term: "Hole-in-one", color: "text-black" };
+    if (strokes === 1) return { term: "一杆进洞", color: "text-black" };
     const diff = strokes - par;
-    if (diff === -1) return { term: "Birdie", color: "text-black" };
-    if (diff === 0) return { term: "Par", color: "text-black" };
-    if (diff === 1) return { term: "Bogey", color: "text-black" };
-    if (diff === 2) return { term: "Double bogey", color: "text-black" };
+    if (diff === -1) return { term: "小鸟球", color: "text-black" };
+    if (diff === 0) return { term: "标准杆", color: "text-black" };
+    if (diff === 1) return { term: "柏忌", color: "text-black" };
+    if (diff === 2) return { term: "双柏忌", color: "text-black" };
     return null;
   };
 
