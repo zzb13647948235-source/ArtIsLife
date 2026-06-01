@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Accessibility: removed user-scalable=no so users can zoom -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>ArtIsLife - 遇见艺术的灵魂</title>
+
+    <!-- SEO -->
+    <meta name="description" content="ArtIsLife — AI 驱动的艺术创作平台。用 AI 生成艺术画作、修复大师名画、探索博物馆、与 AI 艺术顾问对话，分享你的创作。" />
+    <meta name="keywords" content="AI艺术,AI绘画,艺术生成,名画修复,博物馆,艺术赏析,ArtIsLife,用户创作,社区" />
+    <meta name="author" content="ArtIsLife" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://artislife.vercel.app/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://artislife.vercel.app/" />
+    <meta property="og:title" content="ArtIsLife - 遇见艺术的灵魂" />
+    <meta property="og:description" content="AI 驱动的艺术创作平台 — 生成画作、修复名画、探索博物馆、与 AI 艺术顾问对话，分享你的创作。" />
+    <meta property="og:image" content="https://artislife.vercel.app/artworks/paintings/Adele Bloch-Bauer I.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:site_name" content="ArtIsLife" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ArtIsLife - 遇见艺术的灵魂" />
+    <meta name="twitter:description" content="AI 驱动的艺术创作平台 — 生成画作、修复名画、探索博物馆。" />
+    <meta name="twitter:image" content="https://artislife.vercel.app/artworks/paintings/Adele Bloch-Bauer I.jpg" />
+
+    <!-- Theme & PWA -->
+    <meta name="theme-color" content="#F9F8F6" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#111110" media="(prefers-color-scheme: dark)" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="ArtIsLife" />
+
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://upload.wikimedia.org" />
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com" />
+
+    <!-- Fonts: non-blocking load with font-display swap -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet" /></noscript>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "ArtIsLife",
+      "url": "https://artislife.vercel.app/",
+      "description": "AI 驱动的艺术创作平台，提供 AI 绘画生成、名画修复游戏、博物馆探索和艺术社区功能。",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Web",
+      "inLanguage": ["zh-CN", "en", "ja", "fr", "es"],
+      "offers": [
+        { "@type": "Offer", "name": "Sketch 免费版", "price": "0", "priceCurrency": "CNY" },
+        { "@type": "Offer", "name": "Artist 艺术家版", "price": "39", "priceCurrency": "CNY" },
+        { "@type": "Offer", "name": "Patron 赞助人版", "price": "299", "priceCurrency": "CNY" }
+      ],
+      "creator": { "@type": "Organization", "name": "ArtIsLife" },
+      "featureList": ["AI 图像生成", "名画修复游戏", "博物馆探索", "艺术社区", "AI 艺术顾问"]
+    }
+    </script>
+
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              serif: ['"Space Grotesk"', '"Noto Sans SC"', 'sans-serif'],
+              sans: ['"Space Grotesk"', '"Noto Sans SC"', 'sans-serif'],
+              display: ['"Space Grotesk"', '"Noto Sans SC"', 'sans-serif'],
+            },
+            colors: {
+              art: {
+                bg:        'var(--art-bg)',
+                surface:   'var(--art-surface)',
+                primary:   'var(--art-primary)',
+                secondary: 'var(--art-secondary)',
+                accent:    'var(--art-accent)',
+                muted:     'var(--art-muted)',
+                border:    'var(--art-border)',
+                gold:      'var(--art-gold)',
+              }
+            },
+            boxShadow: {
+              'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+              'medium': '0 10px 40px -4px rgba(0, 0, 0, 0.08)',
+              'hard': '0 20px 60px -10px rgba(0, 0, 0, 0.12)',
+            },
+            keyframes: {
+              fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(30px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              revealRight: {
+                '0%': { opacity: '0', transform: 'translateX(60px) rotate(2deg)' },
+                '100%': { opacity: '1', transform: 'translateX(0) rotate(0deg)' },
+              },
+              revealLeft: {
+                '0%': { opacity: '0', transform: 'translateX(-60px) rotate(-2deg)' },
+                '100%': { opacity: '1', transform: 'translateX(0) rotate(0deg)' },
+              },
+              scaleIn: {
+                '0%': { opacity: '0', transform: 'scale(0.95)' },
+                '100%': { opacity: '1', transform: 'scale(1)' },
+              },
+              pageEnter: {
+                '0%': { opacity: '0', transform: 'scale(1.02) translateY(10px)' },
+                '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
+              },
+              appleReveal: {
+                '0%': { opacity: '0', transform: 'translateY(15px)', filter: 'blur(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)', filter: 'blur(0)' },
+              },
+              shake: {
+                '0%, 100%': { transform: 'translateX(0)' },
+                '20%, 60%': { transform: 'translateX(-5px)' },
+                '40%, 80%': { transform: 'translateX(5px)' },
+              },
+              marquee: {
+                '0%': { transform: 'translateX(0%)' },
+                '100%': { transform: 'translateX(-33.333%)' },
+              },
+              slideInRight: {
+                '0%': { opacity: '0', transform: 'translateX(40px)' },
+                '100%': { opacity: '1', transform: 'translateX(0)' },
+              }
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.8s ease-out forwards',
+              'fade-in-up': 'fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'reveal-right': 'revealRight 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'reveal-left': 'revealLeft 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'scale-in': 'scaleIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+              'page-enter': 'pageEnter 0.8s cubic-bezier(0.2, 0, 0.2, 1) forwards',
+              'apple-reveal': 'appleReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'slide-in-right': 'slideInRight 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'spin-slow': 'spin 15s linear infinite',
+              'shake': 'shake 0.5s ease-in-out',
+              'marquee': 'marquee 30s linear infinite',
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      :root {
+        --art-bg:        #F9F8F6;
+        --art-surface:   #FFFFFF;
+        --art-primary:   #BC4B1A;
+        --art-secondary: #2D2A26;
+        --art-accent:    #0F0F0F;
+        --art-muted:     #8E8E93;
+        --art-border:    #E5E5EA;
+        --art-gold:      #C5A059;
+      }
+      .dark {
+        --art-bg:        #111110;
+        --art-surface:   #1C1C1A;
+        --art-primary:   #E05A22;
+        --art-secondary: #D4CFC8;
+        --art-accent:    #F5F4F0;
+        --art-muted:     #8E8E93;
+        --art-border:    #2D2D2A;
+        --art-gold:      #D4AF37;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        background-color: var(--art-bg);
+        cursor: default;
+        overflow: hidden;
+        overscroll-behavior: none;
+      }
+      /* Subtle paper texture via CSS gradient — no external request */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(180,160,120,0.015) 2px,
+            rgba(180,160,120,0.015) 4px
+          ),
+          repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 3px,
+            rgba(180,160,120,0.01) 3px,
+            rgba(180,160,120,0.01) 6px
+          );
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      /* Skip-to-content for keyboard/screen-reader users */
+      .skip-to-content {
+        position: absolute;
+        top: -100%;
+        left: 1rem;
+        z-index: 9999;
+        padding: 0.75rem 1.5rem;
+        background: #BC4B1A;
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.875rem;
+        text-decoration: none;
+        border-radius: 0 0 8px 8px;
+        transition: top 0.15s ease;
+        letter-spacing: 0.05em;
+      }
+      .skip-to-content:focus {
+        top: 0;
+        outline: 3px solid #fff;
+        outline-offset: 2px;
+      }
+
+      /* Global focus-visible ring */
+      :focus-visible {
+        outline: 2px solid var(--art-primary);
+        outline-offset: 3px;
+        border-radius: 4px;
+      }
+
+      /* Respect reduced-motion preference */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+
+      /* Scroll reveal */
+      .scroll-reveal { opacity: 0; transform: translateY(40px); transition: opacity 1s ease-out, transform 1s cubic-bezier(0.16, 1, 0.3, 1); will-change: opacity, transform; }
+      .scroll-reveal.active { opacity: 1; transform: translateY(0); }
+
+      .frame-reveal { opacity: 0; transition: all 1.4s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform, opacity; }
+      .frame-reveal.from-right { transform: translateX(100px) rotate(3deg); }
+      .frame-reveal.from-left { transform: translateX(-100px) rotate(-3deg); }
+      .frame-reveal.active { opacity: 1; transform: translateX(0) rotate(0); }
+
+      /* ── Sparkle twinkle ─────────────────────────────────────────────────── */
+      @keyframes sparkleTwinkle {
+        0%, 100% { opacity: 1;    transform: scale(1)    rotate(0deg);  }
+        40%       { opacity: 0.3; transform: scale(0.75) rotate(20deg); }
+        70%       { opacity: 0.8; transform: scale(1.1)  rotate(-10deg);}
+      }
+      .sparkle-twinkle { animation: sparkleTwinkle 3s ease-in-out infinite; }
+
+      /* ── Progress bar shimmer ────────────────────────────────────────────── */
+      @keyframes shimmerSweep {
+        0%   { transform: translateX(-100%); }
+        100% { transform: translateX(500%);  }
+      }
+      .shimmer-bar::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        width: 30%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+        animation: shimmerSweep 1.6s ease-in-out infinite;
+      }
+
+      /* ── Botanical wind-sway animations ─────────────────────────────────── */
+      @keyframes windSwayL {
+        0%,100% { transform: rotate(0deg); }
+        25%      { transform: rotate(-4deg); }
+        75%      { transform: rotate(2.5deg); }
+      }
+      @keyframes windSwayR {
+        0%,100% { transform: rotate(0deg); }
+        25%      { transform: rotate(4deg); }
+        75%      { transform: rotate(-2.5deg); }
+      }
+      @keyframes windSwayLFast {
+        0%,100% { transform: rotate(0deg); }
+        30%      { transform: rotate(-6deg); }
+        70%      { transform: rotate(3.5deg); }
+      }
+      @keyframes windSwayRFast {
+        0%,100% { transform: rotate(0deg); }
+        30%      { transform: rotate(6deg); }
+        70%      { transform: rotate(-3.5deg); }
+      }
+      .wind-sway-slow   { animation: windSwayL     5.5s ease-in-out infinite; transform-origin: bottom center; }
+      .wind-sway-med    { animation: windSwayL     3.8s ease-in-out infinite; transform-origin: bottom center; }
+      .wind-sway-fast   { animation: windSwayLFast 2.6s ease-in-out infinite; transform-origin: bottom center; }
+      .wind-sway-slow-r { animation: windSwayR     6.2s ease-in-out infinite; transform-origin: bottom center; }
+      .wind-sway-med-r  { animation: windSwayR     4.1s ease-in-out infinite; transform-origin: bottom center; }
+      .wind-sway-fast-r { animation: windSwayRFast 2.9s ease-in-out infinite; transform-origin: bottom center; }
+
+      /* ── MANA-style letter pop-up ───────────────────────────────────────────── */
+      @keyframes letterPopUp {
+        0%   { transform: translateY(110%); }
+        100% { transform: translateY(0%);   }
+      }
+
+      /* ── Scroll indicator line collapse ─────────────────────────────────────── */
+      @keyframes scrollLineCollapse {
+        0%   { transform: scaleY(1);   opacity: 1; }
+        100% { transform: scaleY(0);   opacity: 0; }
+      }
+
+      /* ── Slow zoom for intro artwork ─────────────────────────────────────────── */
+      @keyframes slowZoom {
+        from { transform: scale(1.05); }
+        to   { transform: scale(1);    }
+      }
+
+      /* ── Animated dot grid background ───────────────────────────────────────── */
+      @keyframes dotDrift {
+        0%   { background-position: 0px 0px; }
+        100% { background-position: 28px 28px; }
+      }
+      .dot-grid-bg {
+        background-image: radial-gradient(circle, rgba(255,255,255,0.18) 2px, transparent 2px);
+        background-size: 32px 32px;
+        background-position: 0px 0px;
+        animation: dotDrift 6s linear infinite;
+      }
+
+      /* ── Pulse slow for restoration regions ──────────────────────────────────── */
+      @keyframes pulseSlow {
+        0%, 100% { opacity: 0.3; }
+        50%      { opacity: 0.7; }
+      }
+      .animate-pulse-slow { animation: pulseSlow 2.5s ease-in-out infinite; }
+
+      /* ── Fade in up for quiz fact panel ──────────────────────────────────────── */
+      @keyframes fadeInUp {
+        0%   { opacity: 0; transform: translateY(16px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in-up { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+      /* Touch-friendly minimum tap target */
+      button, a, [role="button"] {
+        min-height: 44px;
+        min-width: 44px;
+      }
+      /* Override for inline/decorative elements */
+      button.no-min, a.no-min { min-height: unset; min-width: unset; }
+
+      /* Mobile-specific optimizations */
+      @media (max-width: 768px) {
+        body {
+          font-size: 14px;
+        }
+
+        /* Reduce excessive vertical spacing on mobile */
+        .h-full {
+          min-height: 600px;
+        }
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/index-DdtbJBF8.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/react-vendor-DV6kpKom.js">
+    <link rel="modulepreload" crossorigin href="/assets/ui-vendor-vFxHSXgE.js">
+    <link rel="modulepreload" crossorigin href="/assets/three-vendor-C1acDgr_.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-DOj-M2by.css">
+  </head>
+  <body>
+    <a href="#main-content" class="skip-to-content">跳转到主要内容</a>
+    <div id="root"></div>
+  </body>
+</html>

@@ -5,59 +5,76 @@ import { ArrowRight, Instagram, Twitter, Facebook, ArrowUp } from 'lucide-react'
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface FooterProps {
-  onNavigate: (view: ViewState) => void;
+  onNavigate: (viewState: ViewState) => void;
   onOpenLegal: (type: 'privacy' | 'terms') => void;
 }
 
 const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenLegal }) => {
   const { t } = useLanguage();
 
-  return (
-    <footer className="w-full bg-[#0a0a0a] text-white pt-16 md:pt-32 pb-12 border-t border-white/5 relative overflow-hidden">
-      {/* Subtle Grain Texture */}
-      <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] pointer-events-none"></div>
+  const footerStyle: React.CSSProperties = {
+    backgroundColor: '#0a0a0a',
+    color: '#ffffff',
+    paddingTop: '128px',
+    paddingBottom: '48px',
+    borderTop: '1px solid rgba(255,255,255,0.05)',
+    position: 'relative',
+    overflow: 'hidden',
+    width: '100%',
+  };
 
-      <div className="max-w-[1800px] mx-auto px-6 md:px-12 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-24 mb-16 md:mb-24">
-          
+  const grainStyle: React.CSSProperties = {
+    position: 'absolute',
+    inset: 0,
+    opacity: 0.03,
+    backgroundImage: "url('https://www.transparenttextures.com/patterns/stardust.png')",
+    pointerEvents: 'none',
+  };
+
+  return (
+    <footer style={footerStyle}>
+      <div style={grainStyle}></div>
+
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 48px', position: 'relative', zIndex: 10 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '40px', marginBottom: '96px' }}>
+
           {/* Brand Column */}
-          <div className="md:col-span-4 space-y-8">
-             <div className="flex items-center gap-4 group cursor-pointer w-fit" onClick={() => onNavigate('home')}>
-                <div className="w-12 h-12 bg-white text-black flex items-center justify-center rounded-lg group-hover:bg-art-primary group-hover:text-white transition-all duration-500 shadow-2xl">
-                    <span className="font-serif italic text-2xl font-bold">A</span>
+          <div style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer', width: 'fit-content' }} onClick={() => onNavigate('home')}>
+                <div style={{ width: '48px', height: '48px', backgroundColor: '#ffffff', color: '#000000', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px' }}>
+                    <span style={{ fontFamily: 'serif', fontStyle: 'italic', fontSize: '24px', fontWeight: 'bold' }}>A</span>
                 </div>
-                <div className="flex flex-col">
-                    <span className="font-serif text-3xl font-bold tracking-tight leading-none group-hover:text-stone-300 transition-colors">ArtIsLife.</span>
-                    <span className="text-[10px] uppercase tracking-[0.4em] text-stone-500 group-hover:text-art-primary transition-colors mt-1">Digital Museum</span>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontFamily: 'serif', fontSize: '30px', fontWeight: 'bold', letterSpacing: '-0.02em', lineHeight: 1 }}>ArtIsLife.</span>
+                    <span style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.4em', color: '#78716c', marginTop: '4px' }}>Digital Museum</span>
                 </div>
              </div>
-             <p className="text-stone-400 text-sm leading-loose max-w-sm font-light border-l border-white/10 pl-6">
+             <p style={{ color: '#a8a29e', fontSize: '14px', lineHeight: 1.75, maxWidth: '24rem', fontWeight: 300, borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '24px' }}>
                {t('footer.tagline')}
              </p>
-             <div className="flex gap-4 pt-4">
+             <div style={{ display: 'flex', gap: '16px', paddingTop: '16px' }}>
                 {[
                   { Icon: Instagram, href: 'https://www.instagram.com/artislife.official', label: 'Instagram' },
                   { Icon: Twitter,   href: 'https://x.com/ArtIsLife_AI',                  label: 'Twitter / X' },
                   { Icon: Facebook,  href: 'https://www.facebook.com/artislife.official',  label: 'Facebook' },
                 ].map(({ Icon, href, label }) => (
                     <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
-                      className="w-10 h-10 rounded-full bg-white/5 border border-white/5 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300 hover:-translate-y-1 group">
-                        <Icon size={16} className="group-hover:scale-110 transition-transform"/>
+                      style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', textDecoration: 'none' }}>
+                        <Icon size={16} />
                     </a>
                 ))}
              </div>
           </div>
 
           {/* Links Column 1 */}
-          <div className="md:col-span-2 md:col-start-6">
-             <h4 className="font-bold text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-8 flex items-center gap-3">
-                 <span className="w-1 h-1 bg-art-primary rounded-full"></span> {t('footer.explore')}
+          <div style={{ gridColumn: 'span 2' }}>
+             <h4 style={{ fontWeight: 'bold', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#78716c', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                 <span style={{ width: '4px', height: '4px', backgroundColor: '#BC4B1A', borderRadius: '9999px' }}></span> {t('footer.explore')}
              </h4>
-             <ul className="space-y-5 text-sm font-medium text-stone-300">
+             <ul style={{ display: 'flex', flexDirection: 'column', gap: '20px', fontSize: '14px', fontWeight: 500, color: '#d6d3d1', listStyle: 'none', padding: 0, margin: 0 }}>
                 {['home', 'styles', 'gallery', 'map'].map((key) => (
                     <li key={key}>
-                        <button onClick={() => onNavigate(key as ViewState)} className="hover:text-white hover:translate-x-2 transition-all cursor-pointer text-left w-full flex items-center gap-2 group">
-                            <span className="w-0 overflow-hidden group-hover:w-3 transition-all duration-300 h-px bg-art-primary"></span>
+                        <button onClick={() => onNavigate(key as ViewState)} style={{ color: '#d6d3d1', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: '14px', fontWeight: 500 }}>
                             {t(`nav.${key}`)}
                         </button>
                     </li>
@@ -66,54 +83,54 @@ const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenLegal }) => {
           </div>
 
           {/* Links Column 2 */}
-          <div className="md:col-span-2">
-             <h4 className="font-bold text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-8 flex items-center gap-3">
-                <span className="w-1 h-1 bg-art-primary rounded-full"></span> {t('footer.about')}
+          <div style={{ gridColumn: 'span 2' }}>
+             <h4 style={{ fontWeight: 'bold', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#78716c', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ width: '4px', height: '4px', backgroundColor: '#BC4B1A', borderRadius: '9999px' }}></span> {t('footer.about')}
              </h4>
-             <ul className="space-y-5 text-sm font-medium text-stone-300">
-                <li><button onClick={() => onNavigate('about')} className="hover:text-white transition-colors text-left">{t('footer.about_us')}</button></li>
-                <li><button onClick={() => onNavigate('membership')} className="hover:text-[#d4af37] transition-colors text-left">{t('footer.membership')}</button></li>
-                <li><button onClick={() => onOpenLegal('privacy')} className="hover:text-white transition-colors text-left">{t('footer.privacy')}</button></li>
-                <li><button onClick={() => onOpenLegal('terms')} className="hover:text-white transition-colors text-left">{t('footer.terms')}</button></li>
+             <ul style={{ display: 'flex', flexDirection: 'column', gap: '20px', fontSize: '14px', fontWeight: 500, color: '#d6d3d1', listStyle: 'none', padding: 0, margin: 0 }}>
+                <li><button onClick={() => onNavigate('about')} style={{ color: '#d6d3d1', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: '14px' }}>{t('footer.about_us')}</button></li>
+                <li><button onClick={() => onNavigate('membership')} style={{ color: '#d6d3d1', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: '14px' }}>{t('footer.membership')}</button></li>
+                <li><button onClick={() => onOpenLegal('privacy')} style={{ color: '#d6d3d1', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: '14px' }}>{t('footer.privacy')}</button></li>
+                <li><button onClick={() => onOpenLegal('terms')} style={{ color: '#d6d3d1', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: '14px' }}>{t('footer.terms')}</button></li>
              </ul>
           </div>
 
           {/* Newsletter */}
-          <div className="md:col-span-4">
-             <h4 className="font-bold text-[10px] uppercase tracking-[0.2em] text-stone-500 mb-8 flex items-center gap-3">
-                <span className="w-1 h-1 bg-art-primary rounded-full"></span> {t('footer.newsletter')}
+          <div style={{ gridColumn: 'span 4' }}>
+             <h4 style={{ fontWeight: 'bold', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#78716c', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ width: '4px', height: '4px', backgroundColor: '#BC4B1A', borderRadius: '9999px' }}></span> {t('footer.newsletter')}
              </h4>
-             <p className="text-stone-400 text-sm mb-8 leading-relaxed font-light">{t('footer.newsletter_desc')}</p>
-             <div className="relative group">
-                <input 
-                    type="email" 
+             <p style={{ color: '#a8a29e', fontSize: '14px', marginBottom: '32px', lineHeight: 1.625, fontWeight: 300 }}>{t('footer.newsletter_desc')}</p>
+             <div style={{ position: 'relative' }}>
+                <input
+                    type="email"
                     placeholder={t('footer.email_placeholder')}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-6 pr-14 text-sm outline-none focus:border-art-primary/50 focus:bg-white/10 transition-all text-white placeholder:text-stone-600"
+                    style={{ width: '100%', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '16px 56px 16px 24px', fontSize: '14px', outline: 'none', color: '#ffffff' }}
                 />
-                <button className="absolute right-2 top-2 bottom-2 w-10 bg-white text-black rounded-lg flex items-center justify-center hover:bg-art-primary hover:text-white transition-all shadow-lg cursor-pointer">
+                <button style={{ position: 'absolute', right: '8px', top: '8px', bottom: '8px', width: '40px', backgroundColor: '#ffffff', color: '#000000', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
                     <ArrowRight size={16} />
                 </button>
              </div>
-             <p className="text-[9px] text-stone-600 mt-4 font-mono tracking-wide">Secure subscription via ArtIsLife Protocol.</p>
+             <p style={{ fontSize: '9px', color: '#57534e', marginTop: '16px', fontFamily: 'monospace', letterSpacing: '0.05em' }}>Secure subscription via ArtIsLife Protocol.</p>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-white/5 flex flex-col items-center gap-6 text-[10px] font-bold uppercase tracking-widest text-stone-600">
-           <p className="text-stone-500 text-[11px] normal-case tracking-normal">本网站所有权归杨福庭所有</p>
-           <div className="w-full flex flex-col md:flex-row justify-between items-center gap-4">
-             <p className="flex items-center gap-2">
-                 © {new Date().getFullYear()} ArtIsLife Inc. 
-                 <span className="w-1 h-1 bg-stone-700 rounded-full mx-2"></span>
+        <div style={{ paddingTop: '32px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#57534e' }}>
+           <p style={{ color: '#78716c', fontSize: '11px', textTransform: 'none', letterSpacing: 'normal' }}>本网站所有权归杨福庭所有</p>
+           <div style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+             <p style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                 © {new Date().getFullYear()} ArtIsLife Inc.
+                 <span style={{ width: '4px', height: '4px', backgroundColor: '#44403c', borderRadius: '9999px', margin: '0 8px' }}></span>
                  All rights reserved.
              </p>
-             <div className="flex items-center gap-8">
-                <span className="hover:text-stone-400 transition-colors cursor-default">{t('footer.made_with')}</span>
-                <button 
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
-                  className="flex items-center gap-2 text-stone-400 hover:text-white transition-colors group cursor-pointer"
+             <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+                <span style={{ color: '#57534e' }}>{t('footer.made_with')}</span>
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#78716c', background: 'none', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.1em' }}
                 >
-                    Back to Top <ArrowUp size={12} className="group-hover:-translate-y-1 transition-transform" />
+                    Back to Top <ArrowUp size={12} />
                 </button>
              </div>
            </div>

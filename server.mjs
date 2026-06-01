@@ -1,12 +1,14 @@
-import express from 'express';
-import cors from 'cors';
+import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(__dirname, '.env.local') });
+
+import express from 'express';
+import cors from 'cors';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Init Firebase Admin
 if (!getApps().length) {
@@ -181,11 +183,19 @@ app.post('/api/firebase/auth', async (req, res) => {
 
 // ── AI API ────────────────────────────────────────────────────────────────────
 
-const SILICONFLOW_API_URL = 'https://api.siliconflow.cn/v1';
+const DEEPSEEK_API_URL = 'https://api.deepseek.com/chat/completions';
+const DASHSCOPE_API_URL = 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis';
+const DASHSCOPE_TASK_URL = 'https://dashscope.aliyuncs.com/api/v1/tasks';
 
-function getSiliconFlowKey() {
-  const key = process.env.SILICONFLOW_API_KEY;
-  if (!key) throw new Error('SILICONFLOW_API_KEY not configured');
+function getDeepSeekKey() {
+  const key = process.env.DEEPSEEK_API_KEY;
+  if (!key) throw new Error('DEEPSEEK_API_KEY not configured');
+  return key;
+}
+
+function getDashScopeKey() {
+  const key = process.env.DASHSCOPE_API_KEY;
+  if (!key) throw new Error('DASHSCOPE_API_KEY not configured');
   return key;
 }
 
@@ -200,6 +210,57 @@ function validatePrompt(prompt) {
   if (sanitized.length < 2) return { valid: false, error: '提示词至少需要2个字符' };
   if (sanitized.length > 1000) return { valid: false, error: '提示词不能超过1000个字符' };
   return { valid: true, sanitized };
+}
+
+async function deepseekChat(messages, model = 'deepseek-chat') {
+  const res = await fetch(DEEPSEEK_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getDeepSeekKey()}` },
+    body: JSON.stringify({ model, messages, stream: false, temperature: 0.7 }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.error?.message || err?.message || `DeepSeek error ${res.status}`);
+  }
+  const data = await res.json();
+  return data?.choices?.[0]?.message?.content || '';
+}
+
+async function dashscopeGenerateImage(prompt, model = 'wanx2.1-t2i-turbo', size = '1024*1024') {
+  // Step 1: Submit async task (no sync header — your key only supports async)
+  const submitRes = await fetch(DASHSCOPE_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${getDashScopeKey()}`,
+      'X-DashScope-Async': 'enable',
+    },
+    body: JSON.stringify({ model, input: { prompt }, parameters: { size, n: 1 } }),
+  });
+  if (!submitRes.ok) {
+    const err = await submitRes.json().catch(() => ({}));
+    throw new Error(err?.message || `DashScope submit error ${submitRes.status}`);
+  }
+  const submitData = await submitRes.json();
+  const taskId = submitData.output?.task_id;
+  if (!taskId) throw new Error('未返回任务ID');
+
+  // Step 2: Poll for result
+  for (let i = 0; i < 40; i++) {
+    await new Promise(r => setTimeout(r, 2000));
+    const poll = await fetch(`${DASHSCOPE_TASK_URL}/${taskId}`, {
+      headers: { Authorization: `Bearer ${getDashScopeKey()}` },
+    });
+    if (!poll.ok) continue;
+    const pollData = await poll.json();
+    if (pollData.output?.task_status === 'SUCCEEDED' && pollData.output?.results?.[0]?.url) {
+      return pollData.output.results[0].url;
+    }
+    if (pollData.output?.task_status === 'FAILED') {
+      throw new Error(pollData.output?.message || '图片生成失败');
+    }
+  }
+  throw new Error('图片生成超时，请稍后重试');
 }
 
 // POST /api/chat
@@ -225,17 +286,8 @@ app.post('/api/chat', async (req, res) => {
     while (historyStart !== -1 && messages[historyStart]?.role !== 'user') messages.splice(historyStart, 1);
     messages.push({ role: 'user', content: validation.sanitized });
 
-    const sfRes = await fetch(`${SILICONFLOW_API_URL}/chat/completions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getSiliconFlowKey()}` },
-      body: JSON.stringify({ model: 'Qwen/Qwen3-8B', messages, stream: false }),
-    });
-    if (!sfRes.ok) {
-      const err = await sfRes.json().catch(() => ({}));
-      throw new Error(err?.error?.message || `SiliconFlow error ${sfRes.status}`);
-    }
-    const data = await sfRes.json();
-    return res.json({ text: data?.choices?.[0]?.message?.content || '', links: [] });
+    const text = await deepseekChat(messages);
+    return res.json({ text, links: [] });
   } catch (e) {
     const msg = e?.message || '';
     const isAuth = msg.includes('401') || msg.includes('Unauthorized') || msg.includes('API key');
@@ -250,19 +302,8 @@ app.post('/api/generate-image', async (req, res) => {
     const validation = validatePrompt(prompt);
     if (!validation.valid) return res.status(400).json({ error: validation.error });
 
-    const enhancedPrompt = `${validation.sanitized}，oil painting style, masterpiece, fine brushwork, rich colors, high quality art`;
-    const sfRes = await fetch(`${SILICONFLOW_API_URL}/images/generations`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getSiliconFlowKey()}` },
-      body: JSON.stringify({ model: 'black-forest-labs/FLUX.1-schnell', prompt: enhancedPrompt, image_size: '1024x1024', num_inference_steps: 20 }),
-    });
-    if (!sfRes.ok) {
-      const err = await sfRes.json().catch(() => ({}));
-      throw new Error(err?.error?.message || `图片生成失败 ${sfRes.status}`);
-    }
-    const data = await sfRes.json();
-    const imageUrl = data?.images?.[0]?.url;
-    if (!imageUrl) throw new Error('未返回有效图片');
+    const enhancedPrompt = `${validation.sanitized}，油画风格，masterpiece，细腻的笔触，丰富的色彩，高品质艺术作品`;
+    const imageUrl = await dashscopeGenerateImage(enhancedPrompt);
     return res.json({ imageUrl });
   } catch (e) {
     const msg = e?.message || '';
@@ -306,17 +347,8 @@ app.post('/api/find-museums', async (req, res) => {
       { role: 'user', content: `推荐与"${validation.sanitized}"相关的艺术博物馆。${locationContext}${nearbyInfo}` },
     ];
 
-    const sfRes = await fetch(`${SILICONFLOW_API_URL}/chat/completions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getSiliconFlowKey()}` },
-      body: JSON.stringify({ model: 'Qwen/Qwen3-8B', messages, stream: false }),
-    });
-    if (!sfRes.ok) {
-      const err = await sfRes.json().catch(() => ({}));
-      throw new Error(err?.error?.message || `SiliconFlow error ${sfRes.status}`);
-    }
-    const data = await sfRes.json();
-    return res.json({ text: data?.choices?.[0]?.message?.content || '未找到相关博物馆信息。', links: [] });
+    const text = await deepseekChat(messages);
+    return res.json({ text: text || '未找到相关博物馆信息。', links: [] });
   } catch (e) {
     const msg = e?.message || '';
     const isAuth = msg.includes('401') || msg.includes('Unauthorized') || msg.includes('API key');

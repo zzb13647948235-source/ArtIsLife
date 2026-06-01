@@ -513,13 +513,13 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
             }}>
             <img src={dailyLevel.imageUrl} className="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000" />
             <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/65 to-black/20" />
-            <div className="relative z-10 h-full flex items-center justify-between px-8">
+            <div className="relative z-10 h-full flex items-center justify-between px-4 md:px-8">
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Calendar size={10} className="text-art-gold" />
                   <span className="text-art-gold text-[8px] font-black uppercase tracking-[0.5em]">今日挑战 · Daily Challenge</span>
                 </div>
-                <h3 className="font-serif text-2xl md:text-3xl text-white">{dailyLevel.title}</h3>
+                <h3 className="font-serif text-xl md:text-2xl lg:text-3xl text-white">{dailyLevel.title}</h3>
                 <p className="text-white/30 text-[10px] mt-1 uppercase tracking-wider">{dailyLevel.artist} · {dailyLevel.year}</p>
               </div>
               <div className="flex items-center gap-3 shrink-0">
@@ -600,12 +600,12 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
             <div className="absolute right-32 md:right-40 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white shadow-lg opacity-70 group-hover:opacity-100 group-hover:translate-x-6 transition-all duration-700 hidden sm:block" />
             {/* Gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent" />
-            <div className="relative z-10 h-full flex items-center justify-center px-6 md:px-8">
-              <div className="absolute left-6 md:left-8 top-1/2 -translate-y-1/2">
+            <div className="relative z-10 h-full flex items-center justify-between px-4 md:px-6 lg:px-8">
+              <div>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-[9px] font-black uppercase tracking-[0.5em] text-green-400">⛳ 一杆进洞</span>
                 </div>
-                <h3 className="font-serif text-2xl md:text-3xl text-white mb-1">Hole in One</h3>
+                <h3 className="font-serif text-xl md:text-2xl lg:text-3xl text-white mb-1">Hole in One</h3>
                 <p className="text-white/40 text-xs md:text-sm max-w-xs hidden md:block">瞄准、击球，挑战 10 个关卡。</p>
               </div>
               <div className="flex items-center shrink-0">
@@ -637,7 +637,7 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
           <span className="text-white/20 text-xs font-mono">{GAME_LEVELS.length} works</span>
         </div>
         <div className="flex-1 overflow-y-auto">
-          <div className="px-4 md:px-16 py-10 max-w-[1800px] mx-auto">
+          <div className="px-4 md:px-16 py-10 pb-32 max-w-[1800px] mx-auto">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-3">
               {GAME_LEVELS.map((level, i) => {
                 const locked = isContentLocked(level);
@@ -650,17 +650,17 @@ const ArtGame: React.FC<ArtGameProps> = ({ onImmersiveChange, user, onAuthRequir
                       loading="lazy" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     {locked ? (
-                      <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                         <div className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center">
                           <Lock size={14} className="text-white/50" />
                         </div>
                       </div>
                     ) : null}
-                    <div className="absolute inset-x-0 bottom-0 p-3 translate-y-1 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <div className="absolute inset-x-0 bottom-0 p-3 translate-y-1 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
                       <p className="font-serif text-xs text-white line-clamp-1">{level.title}</p>
                       <p className="text-[8px] text-white/40 uppercase tracking-wider mt-0.5">{level.artist}</p>
                     </div>
-                    <div className="absolute top-2 right-2 flex gap-0.5">
+                    <div className="absolute top-2 right-2 flex gap-0.5 pointer-events-none">
                       {[...Array(level.difficulty)].map((_, di) => <Star key={di} size={5} className="fill-art-gold text-art-gold" />)}
                     </div>
                   </div>

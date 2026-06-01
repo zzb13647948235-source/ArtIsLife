@@ -212,7 +212,7 @@ function AppContent() {
 
   useEffect(() => {
       const handleWheel = (e: WheelEvent) => {
-          if (showAuthOverlay || currentView === 'membership' || currentView === 'login' || currentView === 'about' || currentView === 'market' || currentView === 'community' || currentView === 'map' || isImmersiveMode || isFullScreenModalOpen) return;
+          if (showAuthOverlay || currentView === 'membership' || currentView === 'login' || currentView === 'about' || currentView === 'market' || currentView === 'community' || currentView === 'map' || currentView === 'game' || isImmersiveMode || isFullScreenModalOpen) return;
 
           const now = Date.now();
           if (now - lastScrollTime.current < 800) return;
@@ -264,7 +264,7 @@ function AppContent() {
       };
 
       const handleTouchMove = (e: TouchEvent) => {
-          if (showAuthOverlay || isImmersiveMode || isFullScreenModalOpen || currentView === 'market' || currentView === 'community' || currentView === 'map') return;
+          if (showAuthOverlay || isImmersiveMode || isFullScreenModalOpen || currentView === 'market' || currentView === 'community' || currentView === 'map' || currentView === 'game') return;
           if (isSwiping) return;
 
           const dy = touchStartY - e.touches[0].clientY;
@@ -428,12 +428,8 @@ function AppContent() {
           )}
       </div>
       <style>{`
-        .scroll-container::-webkit-scrollbar { width: 6px; }
-        .scroll-container::-webkit-scrollbar-track { background: transparent; }
-        .scroll-container::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
-        .scroll-container::-webkit-scrollbar-thumb:hover { background: rgba(188,75,26,0.5); }
-        .dark .scroll-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
-        .dark .scroll-container::-webkit-scrollbar-thumb:hover { background: rgba(188,75,26,0.5); }
+        .scroll-container { scrollbar-width: none; -ms-overflow-style: none; }
+        .scroll-container::-webkit-scrollbar { display: none; }
       `}</style>
     </ErrorBoundary>
   );

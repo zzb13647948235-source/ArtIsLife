@@ -340,29 +340,11 @@ const ArtJournal: React.FC<ArtJournalProps> = ({ onNavigate, isActive, onArticle
                 </div>
            </div>
 
-           <div className="bg-[#1a1a1a] rounded-[32px] md:rounded-[48px] p-8 md:p-20 text-white relative overflow-hidden group">
-                <div className="absolute -top-24 -right-24 w-96 h-96 bg-art-primary/10 rounded-full blur-[100px] group-hover:scale-125 transition-transform duration-[3s]"></div>
-                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                    <div className="space-y-6">
-                        <MessageCircle size={40} className="text-art-primary" />
-                        <h3 className="font-serif text-3xl md:text-4xl lg:text-6xl leading-none whitespace-pre-line">{t('journal.newsletter_title')}</h3>
-                        <p className="text-stone-400 font-light text-lg">{t('journal.newsletter_desc')}</p>
-                    </div>
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <input type="email" placeholder="Your Email" className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:bg-white/10 focus:border-art-primary transition-all text-white" />
-                        <button className="bg-white text-black px-10 py-4 rounded-2xl font-bold uppercase tracking-widest hover:bg-art-primary hover:text-white transition-all">{t('journal.newsletter_btn')}</button>
-                    </div>
-                </div>
-           </div>
-
            <div className="h-20"></div>
        </div>
 
        {selectedArticle && (
            <div className="fixed inset-0 z-[2000] bg-white dark:bg-stone-950 animate-page-enter">
-               <div className="fixed top-0 left-0 w-full h-1 bg-stone-100 dark:bg-stone-800 z-[2020]">
-                   <div className="h-full bg-art-primary transition-all duration-100 ease-out" style={{ width: `${readingProgress * 100}%` }}></div>
-               </div>
                <button onClick={() => setSelectedArticle(null)} className="fixed top-8 right-8 z-[2030] p-3 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors">
                    <X size={24} className="text-stone-600 dark:text-stone-300" />
                </button>

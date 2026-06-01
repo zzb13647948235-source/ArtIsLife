@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { applySecurityHeaders, ensurePost, sanitizeInput, validatePrompt } from './_lib/security.js';
-import { chatCompletions, Message } from './_lib/siliconflow-client.js';
+import { chatCompletions, Message } from './_lib/deepseek-client.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   applySecurityHeaders(res);

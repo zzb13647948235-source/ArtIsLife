@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { applySecurityHeaders, ensurePost, validatePrompt } from './_lib/security.js';
-import { generateImage } from './_lib/siliconflow-client.js';
+import { generateImage } from './_lib/dashscope-client.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   applySecurityHeaders(res);
@@ -17,7 +17,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: validation.error });
     }
 
-    const enhancedPrompt = `${validation.sanitized}，oil painting style, masterpiece, fine brushwork, rich colors, high quality art`;
+    const enhancedPrompt = `${validation.sanitized}，油画风格， masterpiece，细腻的笔触，丰富的色彩，高品质艺术作品`;
 
     const imageUrl = await generateImage(enhancedPrompt);
     return res.status(200).json({ imageUrl });

@@ -7,13 +7,12 @@ import Sparkle from './Sparkle';
 import { gsap } from 'gsap';
 import { Draggable } from 'gsap/Draggable';
 import LottieFeatures from './LottieFeatures';
-import HeroPromo from './HeroPromo';
 import MagneticButton from './MagneticButton';
 
 gsap.registerPlugin(Draggable);
 
 interface HeroProps {
-  onNavigate: (view: ViewState) => void;
+  onNavigate: (viewState: ViewState) => void;
   isActive?: boolean;
 }
 
@@ -69,8 +68,7 @@ const HERO_IMAGES = [
   }
 ];
 
-// Original per-letter apple-reveal animation
-const BrushText: React.FC<{ text: string; delay?: number; className?: string; colorOffset?: number }> = ({
+const BrushText: React.FC<{ text: string; delay?: number; className?: string }> = ({
   text, delay = 0, className = '',
 }) => {
   return (
@@ -114,7 +112,6 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
   useEffect(() => {
     if (isActive) {
         setIsAnimateStart(false);
-        // 延迟启动动画，等待 Preloader 幕布动画完成
         const timer = setTimeout(() => setIsAnimateStart(true), 800);
         return () => clearTimeout(timer);
     }
@@ -132,12 +129,10 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [isActive]);
 
-  // 画作拖拽效果
   useEffect(() => {
     if (!isAnimateStart) return;
     const cards = document.querySelectorAll<HTMLElement>('.hero-painting-card');
 
-    // hover 放大
     cards.forEach(card => {
       card.addEventListener('mouseenter', () => gsap.to(card, { scale: 1.06, duration: 0.3, ease: 'power2.out' }));
       card.addEventListener('mouseleave', () => gsap.to(card, { scale: 1, duration: 0.4, ease: 'power2.out' }));
@@ -167,34 +162,29 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
     return () => instances.forEach(d => d.kill());
   }, [isAnimateStart]);
 
-  // Dynamic font sizing based on language - longer text gets smaller size
   const getTitleFontSize = () => {
     const title1 = t('hero.title_1');
     const title2 = t('hero.title_2');
     const title3 = t('hero.title_3');
     const totalLength = title1.length + title2.length + title3.length;
 
-    // Adjust sizing based on total character count
     if (totalLength > 25) {
-      // Very long (French/Spanish)
       return {
-        line1: 'clamp(1.8rem, 6vw, 10rem)',
-        line2: 'clamp(1.3rem, 4.5vw, 7rem)',
-        line3: 'clamp(1.8rem, 6vw, 10.5rem)',
+        line1: 'clamp(2.5rem, 8vw, 14rem)',
+        line2: 'clamp(1.8rem, 6vw, 10rem)',
+        line3: 'clamp(2.5rem, 8vw, 14.5rem)',
       };
     } else if (totalLength > 15) {
-      // Medium (English)
       return {
-        line1: 'clamp(2rem, 7vw, 12rem)',
-        line2: 'clamp(1.4rem, 5vw, 8rem)',
-        line3: 'clamp(2rem, 7vw, 12.5rem)',
+        line1: 'clamp(3rem, 10vw, 16rem)',
+        line2: 'clamp(2rem, 7vw, 11rem)',
+        line3: 'clamp(3rem, 10vw, 16.5rem)',
       };
     } else {
-      // Short (Chinese/Japanese)
       return {
-        line1: 'clamp(2rem, 7vw, 13rem)',
-        line2: 'clamp(1.5rem, 5vw, 8.5rem)',
-        line3: 'clamp(2rem, 7vw, 13.5rem)',
+        line1: 'clamp(3.5rem, 12vw, 18rem)',
+        line2: 'clamp(2.5rem, 8vw, 12rem)',
+        line3: 'clamp(3.5rem, 12vw, 18.5rem)',
       };
     }
   };
@@ -203,10 +193,8 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
 
   return (
     <div className="relative w-full h-full bg-transparent text-stone-900">
-      {/* Hero full-height section - optimized for mobile */}
       <div className="relative h-full flex items-center overflow-hidden perspective-2000 min-h-screen md:min-h-0">
-      
-      {/* Background Layer */}
+
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
           <div
              className="absolute top-[20%] left-[-10%] text-[20vw] font-serif text-art-primary opacity-[0.02] leading-none select-none mix-blend-multiply whitespace-nowrap"
@@ -227,7 +215,6 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
                   <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-art-primary/80 whitespace-nowrap overflow-hidden text-ellipsis">{t('hero.est')}</span>
               </div>
 
-              {/* Original serif title - with better responsive sizing and overflow handling */}
               <h1 className="font-serif text-art-accent tracking-tighter select-none flex flex-col gap-1 md:gap-2 lg:gap-3 drop-shadow-sm relative z-30 mb-3 md:mb-4 lg:mb-6 w-full max-w-full overflow-visible">
                 <Sparkle size={32} opacity={0.9} className="absolute -top-4 left-[30%] text-art-primary hidden lg:block" style={{ animationDelay: '0s' }} />
                 <Sparkle size={18} opacity={0.5} className="absolute top-8 left-[55%] text-art-accent hidden lg:block" style={{ animationDelay: '0.6s' }} />
@@ -235,13 +222,13 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
                 <Sparkle size={14} opacity={0.4} variant="circle" className="absolute top-16 left-[20%] text-art-primary hidden lg:block" style={{ animationDelay: '1.8s' }} />
                 <Sparkle size={10} opacity={0.35} variant="circle" className="absolute -top-2 left-[70%] text-art-muted hidden lg:block" style={{ animationDelay: '0.9s' }} />
 
-                <span className="leading-[0.9] block mix-blend-multiply transition-transform hover:scale-[1.02] origin-left duration-500 break-words" style={{ fontSize: titleSizes.line1, maxWidth: '100%' }}>
+                <span className="leading-[0.9] block font-bold mix-blend-multiply transition-transform hover:scale-[1.02] origin-left duration-500 break-words" style={{ fontSize: titleSizes.line1, maxWidth: '100%' }}>
                     <BrushText text={t('hero.title_1')} delay={0.2} />
                 </span>
-                <span className="leading-[1] block italic font-light text-stone-400 pl-2 lg:pl-16 break-words" style={{ fontSize: titleSizes.line2, maxWidth: '100%' }}>
+                <span className="leading-[1] block italic font-normal text-stone-400 pl-2 lg:pl-16 break-words" style={{ fontSize: titleSizes.line2, maxWidth: '100%' }}>
                     <BrushText text={t('hero.title_2')} delay={0.5} />
                 </span>
-                <span className="leading-[0.9] block text-art-primary pb-2 break-words" style={{ fontSize: titleSizes.line3, maxWidth: '100%' }}>
+                <span className="leading-[0.9] block font-bold text-art-primary pb-2 break-words" style={{ fontSize: titleSizes.line3, maxWidth: '100%' }}>
                     <BrushText text={t('hero.title_3')} delay={0.8} />
                 </span>
 
@@ -276,7 +263,7 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
         </div>
 
         <div className="hidden lg:flex lg:col-span-6 relative items-center justify-center h-full pointer-events-none">
-            <div className="relative w-full max-w-[500px] aspect-square z-10 flex items-center justify-center">
+            <div className="relative w-full max-w-[700px] aspect-square z-10 flex items-center justify-center">
                 {HERO_IMAGES.map((img, index) => {
                     const arrivalDelay = index * 120;
                     const parallaxX = mousePos.x * (10 + index * 4);
@@ -289,7 +276,7 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
                           style={{
                             zIndex: img.zIndex,
                             width: img.isMain ? '100%' : '50%',
-                            maxWidth: img.isMain ? '360px' : '220px',
+                            maxWidth: img.isMain ? '480px' : '280px',
                             transitionDuration: isAnimateStart ? '1.8s' : '0.1s',
                             transitionDelay: isAnimateStart ? `${arrivalDelay}ms` : '0ms',
                             transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
@@ -298,13 +285,12 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
                               : `translate3d(150vw, -150vh, 0) rotate(180deg) scale(0.2)`
                           }}
                         >
-                          <div className="hero-painting-card w-full aspect-[3/4] bg-white p-2 md:p-3 shadow-hard rounded-sm border border-stone-100 relative overflow-hidden group pointer-events-auto ring-1 ring-black/5">
-                              <div className="w-full h-full relative overflow-hidden bg-stone-200">
-                                  {/* base image */}
+                          <div className="hero-painting-card w-full shadow-hard rounded-sm border border-stone-100 relative overflow-hidden group pointer-events-auto"
+                            style={{ aspectRatio: '3/4', backgroundColor: '#ffffff', position: 'relative', boxShadow: '0 20px 60px -10px rgba(0,0,0,0.12)' }}
+                          >
+                              <div style={{ position: 'absolute', top: '12px', left: '12px', right: '12px', bottom: '48px', overflow: 'hidden', backgroundColor: '#e7e5e4' }}>
                                   <img src={img.url} className="w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-0" alt={img.id} loading="lazy" />
-                                  {/* hover image — fades in on hover */}
                                   <img src={img.hoverUrl} className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100 scale-105 group-hover:scale-100 transition-transform" alt={img.id} aria-hidden="true" loading="lazy" />
-                                  {/* 蒙娜丽莎眼睛跟踪 */}
                                   {img.id === 'mona-lisa' && (
                                     <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                                       {[
@@ -333,7 +319,6 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
             </div>
         </div>
       </div>
-      {/* MANA-style scroll indicator */}
       <div className="absolute bottom-16 md:bottom-24 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 animate-fade-in pointer-events-none"
         style={{ animationDelay: '2s' }}>
         <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-stone-400">Scroll</span>
@@ -342,9 +327,8 @@ const Hero: React.FC<HeroProps> = ({ onNavigate, isActive = true }) => {
           animationDelay: '2.2s'
         }} />
       </div>
-      </div>{/* end hero h-screen */}
+      </div>
 
-      {/* MANA-inspired Lottie features section */}
       <LottieFeatures />
 
     </div>

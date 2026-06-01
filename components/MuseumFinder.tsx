@@ -220,8 +220,13 @@ const MuseumFinder: React.FC<MuseumFinderProps> = ({ onNavigate, onOpenLegal }) 
           </div>
       </div>
       
-      {/* Footer naturally at the end of the scroll container */}
-      <Footer onNavigate={onNavigate} onOpenLegal={onOpenLegal} />
+      {/* Black transition zone to cover LiquidBackground bleed */}
+      <div style={{ backgroundColor: '#0a0a0a', width: '100%', height: '120px', flexShrink: 0 }}></div>
+
+      {/* Footer */}
+      <div style={{ backgroundColor: '#0a0a0a', width: '100%', flex: '1 0 auto' }}>
+        <Footer onNavigate={onNavigate} onOpenLegal={onOpenLegal} />
+      </div>
     </div>
   );
 };

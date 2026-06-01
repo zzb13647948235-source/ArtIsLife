@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { applySecurityHeaders, ensurePost, validatePrompt } from './_lib/security.js';
-import { chatCompletions, Message } from './_lib/siliconflow-client.js';
+import { chatCompletions, Message } from './_lib/deepseek-client.js';
 
 async function fetchNearbyMuseums(lat: number, lng: number): Promise<string> {
   const mapKey = process.env.AMAP_KEY;
